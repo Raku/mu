@@ -1,4 +1,0 @@
-class Any is Object {
-
-
-}

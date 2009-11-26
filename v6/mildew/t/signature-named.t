@@ -10,6 +10,6 @@ Foo.bar(named1 => $foo, :named2<ok 2>);
 my $baz = sub (:$arg) {
     say $arg;
 };
-$baz.(:arg<ok 3>);
+$baz(:arg<ok 3>);
 $foo = "ok 4";
-$baz.(:arg($foo));
+$baz(:arg($foo));

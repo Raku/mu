@@ -45,7 +45,7 @@ sub accessor {
             named =>
             [ string 'BIND' => AST::Block->new
               ( regs => [qw(interpreter scope capture)],
-                stmts => trailing_return([call BIND => (call 'postcircumfix:{ }' => reg '$scope',[string '$¿self']),[call invocant => reg '$capture']]))]));
+                stmts => trailing_return([call BIND => (call 'postcircumfix:{ }' => reg '$scope',[string '$¿self']),[call positional => reg '$capture',[integer 0]]]))]));
 
     call(new=>FETCH(lookup('Code')),[],
 	 [ string 'outer' => reg '$scope',
@@ -75,8 +75,11 @@ sub VAST::scope_declarator::emit_m0ld {
             } elsif (my $routine_decl = $decl->{routine_declarator}) {
 		$routine_decl->{routine_def}->emit_m0ld($m->{sym});
             } else {
+                use YAML::XS;
                 XXX('unknown scope declarator');
             }
+        } elsif (my $multi = $m->{scoped}{multi_declarator}) {
+	    $multi->emit_m0ld($m->{sym});
         } else {
             XXX('scoped declarator without a declarator');
         }

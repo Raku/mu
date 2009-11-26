@@ -1,30 +1,59 @@
-.PHONY : prove
-all: CORE
+.PHONY : prove STD
 
-CORE: CORE/CORE.mildew.so CORE/Return.mildew.so CORE/Multi.mildew.so CORE/RoleHOW.mildew.so CORE/EXTERNAL.mildew.so
+all: STD CORE CORE-js modules
+
+STD :
+	cd perl6-snapshot;make
+
+CORE: CORE/int.mildew.so CORE/CORE.mildew.so CORE/Exception.mildew.so CORE/Multi.mildew.so CORE/RoleHOW.mildew.so CORE/EXTERNAL.mildew.so CORE/Return.mildew.so CORE/Failure.mildew.so CORE/Signature.mildew.so CORE/Types.mildew.so CORE/ModuleLoader.mildew.so CORE/Eval.mildew.so CORE/ClassHOW.mildew.so 
+
+CORE-js: js/CORE2.js js/molds.js js/RoleHOW.js js/Exception.js js/Failure.js js/Multi.js js/Signature.js js/Types.js js/int.js js/ModuleLoader.js lib/Test.mildew.js
+
+modules: lib/Test.mildew.so
 
 
-CORE/CORE.mildew.so : CORE/CORE.pm
-	perl mildew -Cso --empty-setting -o CORE/CORE.mildew.so CORE/CORE.pm
+CORE/int.mildew.so : CORE/int.pm
+	perl mildew -Cso --yeast --empty-setting -o $@ $<
 
-CORE/Return.mildew.so : CORE/Return.pm
-	perl mildew -Cso --empty-setting -o CORE/Return.mildew.so CORE/Return.pm
+CORE/Eval.mildew.so : CORE/Eval.pm
+	perl mildew -Cso --yeast --empty-setting -o $@ $<
 
-CORE/Multi.mildew.so : CORE/Multi.pm
-	perl mildew -Cso  --empty-setting -o CORE/Multi.mildew.so CORE/Multi.pm
+CORE/%.mildew.so : CORE/%.pm
+	perl mildew -Cso --yeast --target-stage 1 --empty-setting -o $@ $<
 
-CORE/RoleHOW.mildew.so : CORE/RoleHOW.pm
-	perl mildew -Cso  --empty-setting -o CORE/RoleHOW.mildew.so CORE/RoleHOW.pm
+js/molds.js : js/molds
+	perl write_molds js/molds > js/molds.js
+js/%.js : js/%.pm
+	perl mildew --target-stage 1 -Cjs -o $@ $<
 
-CORE/EXTERNAL.mildew.so : CORE/EXTERNAL.pm
-	perl mildew -Cso  --empty-setting -o CORE/EXTERNAL.mildew.so CORE/EXTERNAL.pm
+js/%.js : CORE/%.pm
+	perl mildew --target-stage 1 -Cjs -o $@ $<
 
-PROVE := $(shell if prove --version | grep v2 > /dev/null 2>&1;then echo 'prove -r --perl'; else echo 'prove -r -e'; fi)
+js/int.js : CORE/int.pm
+	perl mildew -Cjs -o $@ $<
+
+lib/%.mildew.js : lib/%.pm
+	perl mildew -Cjs -o $@ $<
+
+lib/%.mildew.so : lib/%.pm
+	perl mildew -Cso --empty-setting -o $@ $<
+
+PROVE := $(shell if prove --version | grep v2 > /dev/null 2>&1;then echo 'prove -r --perl'; else echo 'prove --timer -r -e'; fi)
 
 test: prove
 
-prove:
-	$(PROVE) 'perl mildew ' `cat TESTS` t/
+prove: CORE
+	$(PROVE) 'perl mildew' $(shell xargs -n 1 perl ../../t/spec/fudge --keep-exit-code mildew < TESTS) t
+
+test-js: CORE-js
+	$(PROVE) 'perl mildew -Bjs' $(shell xargs -n 1 perl ../../t/spec/fudge --keep-exit-code mildew < TESTS-js)
+
+test-js-t: CORE-js
+	$(PROVE) 'perl mildew -Bjs' t
+
+test-yeast: CORE
+	$(PROVE) 'perl mildew --yeast' $(shell xargs -n 1 perl ../../t/spec/fudge --keep-exit-code mildew < TESTS) t
 
 clean:
-	rm -rf lex
+	rm -fr CORE.pad.store CORE/*.mildew.so lib/*.mildew.so lex/ perl6-snapshot/CORE.pad.store perl6-snapshot/STD.pm5 perl6-snapshot/STD.pmc perl6-snapshot/lex/
+.PHONY : clean

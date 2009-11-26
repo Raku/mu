@@ -13,9 +13,9 @@ ws = do
         [ oneOf "\t\n "
         , char '#' >> many (noneOf "\n") >> newline
         ]
-    return [()]
+    return ()
 
-opt_ws = option [()] ws
+opt_ws = option () ws
 
 tok r = do
     res <- r
@@ -36,10 +36,82 @@ label = do
     return [LabelDef id]
 
 
+hint = do
+    symbol "RI" 
+    parenthesized $ do
+        reg <- tok $ register
+        symbol ","
+        ri <- constant_string
+        return $ [Hint RI reg (StringConstant ri)]
+         
 stmt = do 
     l <- option [] (try label)
-    body <- choice $ map try [call2,call,assign,decl,goto,br,noop]
+    body <- choice $ [goto,br,hint,noop,declaration,action]
     return $ l ++ body
+
+action = do
+   lvalue <- tok $ register
+   symbol "="
+   val <- value
+   option [Assign lvalue val] $ (symbol ".") >> (call val lvalue)
+
+
+declaration = do
+   symbol "my" 
+   reg <- tok $ register
+   (defaultValue,action) <- option (None,[]) $ symbol "=" >> expression reg
+   return $ [Decl reg defaultValue] ++ action
+
+expression lvalue = expression_constant_first lvalue <|> expression_reg_first lvalue
+
+expression_constant_first lvalue = do
+    c <- constant
+    option (c,[]) $ do
+        symbol "."
+        reg <- declare_implicitly c
+        action <- call reg lvalue
+        return (None,action)
+
+
+expression_reg_first lvalue = do
+    r <- tok $ register
+    option (None,[Assign lvalue r]) $ symbol "." >>(call r lvalue >>= \x -> return (None,x))
+
+
+call invocant lvalue = do
+    identifier <- value
+    arguments <- parenthesized $ sepBy (tok argument) (symbol ",")
+    let pos = [ x | Pos x <- arguments]
+        named = [x | (Named k v) <- arguments, x <- [k,v]]
+        action = [Call (lvalue :: Register) identifier (Capture (invocant :: Register) pos named)]
+    return action
+
+    
+
+
+
+
+{- TODO - port over
+call2 = do
+    target <- value
+    symbol "="
+    responder <- value
+    char '.'
+    identifier <- value
+    capture <- parenthesized $ symbol "|" >> value
+    return [Call2 target responder identifier capture]
+-}
+
+constant_string = between (char '"') (char '"') quotedChars >>= return . concat
+    where
+      quotedChars = many $
+        do
+        c <- noneOf "\"\\"
+        return [c]
+        <|> do 
+            char '\\'
+            c <- anyChar
+            return ['\\',c]
 
 constant = choice 
       [ do
@@ -50,23 +122,19 @@ constant = choice
         digits <- many1 digit 
         return $ IntegerConstant $ read digits
       , do
-        content <- between (char '"') (char '"') quotedChar
-        return $ StringConstant $ concat content
+        content <- constant_string
+        return $ StringConstant content
       , submold
       ]
-      where
-      quotedChar = many $
-        do
-        c <- noneOf "\"\\"
-        return [c]
-        <|> do 
-            char '\\'
-            c <- anyChar
-            return ['\\',c]
 
 -- implicit_decl :: GenParser Char ImplicitDecls [Char]
+--implicit_decl
+
 implicit_decl = do
     c <- constant
+    declare_implicitly c
+
+declare_implicitly c = do
     decls <- getState
     case (Map.lookup c decls) of
         Just c -> return c
@@ -74,17 +142,10 @@ implicit_decl = do
             do 
                 let new = "___implicit_register___"++(show $ Map.size decls)
                 updateState $ Map.insert c new
-                decls <- getState
                 return $ new
 
 value = tok $ choice [register,implicit_decl]
 
-decl = do 
-    string "my"
-    ws
-    x <- tok register
-    defaultValue <- option None $ symbol "=" >> constant
-    return [Decl x defaultValue]
 
 noop = string "noop" >> return []
 
@@ -110,38 +171,7 @@ goto = do
     label <- identifier
     return [Goto label]
 
-call = do
-    inline_decl <- option False (symbol "my" >> return True)
-    target <- value
-    symbol "="
-    invocant <- value
-    char '.'
-    identifier <- value
-    arguments <- parenthesized $ sepBy (tok argument) (symbol ",")
-    let pos = [ x | Pos x <- arguments]
-        named = [x | (Named k v) <- arguments, x <- [k,v]]
-        decl = if inline_decl then [Decl target None] else []
-        call = [Call target identifier (Capture invocant pos named)]
-    return $ decl ++ call
 
-assign = do
-    inline_decl <- option False (symbol "my" >> return True)
-    lvalue <- value
-    symbol "="
-    rvalue <- value
-    let 
-        decl = if inline_decl then [Decl lvalue None] else []
-        assignment = [Assign lvalue rvalue]
-    return $ decl ++ assignment
-
-call2 = do
-    target <- value
-    symbol "="
-    responder <- value
-    char '.'
-    identifier <- value
-    capture <- parenthesized $ symbol "|" >> value
-    return [Call2 target responder identifier capture]
 
 argument = do
         char ':'
@@ -171,7 +201,7 @@ submold = do
     return $ SubMold $ (implicitDecls constants) ++ (concat stmts)
 type ImplicitDecls = Map.Map Value [Char]
 
-implicitDecls = map (\(constant,reg) -> Decl reg constant) . Map.toList
+implicitDecls = concat . map (\(constant,reg) -> [Hint Constant reg constant,Decl reg constant]) . Map.toList
 
 parseM0ld code = 
     case (runParser top (Map.empty :: ImplicitDecls) "" code) of 

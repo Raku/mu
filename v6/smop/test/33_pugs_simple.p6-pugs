@@ -1,3 +1,0 @@
-my $one = "1";
-$*OUT.print("1..1","\n");
-$*OUT.print("ok ",$one,"\n");

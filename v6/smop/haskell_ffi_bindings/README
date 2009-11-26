@@ -1,2 +1,0 @@
-# BUILDING
-ghc --make ffi.hs ../build/libsmop.so

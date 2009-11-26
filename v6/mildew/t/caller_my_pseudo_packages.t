@@ -3,6 +3,8 @@ my sub bar {
     say MY::<$foo>;
     say CALLER::<$foo>;
 }
+{
 my $foo = "ok 2";
 say "1..2";
 bar();
+}

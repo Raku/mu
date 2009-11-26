@@ -4,16 +4,6 @@ use strict;
 use warnings;
 use AST::Helpers;
 
-sub emit_m0ld_ahsig_BIND_invocant {
-    my ($m) = @_;
-    if ($m->{param_var}) {
-#        call STORE => (call 'postcircumfix:{ }' => reg '$scope',[string $m->{param_var}{sigil}{sym}.$m->{param_var}{name}[0]{TEXT} ]),[call FETCH => (call invocant => reg '$capture')];
-        call BIND => (call 'postcircumfix:{ }' => reg '$scope',[string $m->{param_var}{sigil}{sym}.$m->{param_var}{name}[0]{TEXT} ]),[call invocant => reg '$capture'];
-    } else {
-        XXX;
-    }
-}
-
 sub emit_m0ld_ahsig_BIND {
     my ($m, $count) = @_;
     if ($m->{param_var}) {
@@ -38,6 +28,50 @@ sub emit_m0ld_ahsig_BIND {
 			  [call 'named' => reg '$capture',[string $ident ]];
     } else {
         XXX;
+    }
+}
+sub emit_m0ld {
+    my $m = shift;
+    my $type;
+    my $trait = $m->{trait}[0]{trait_auxiliary}{longname}{name}{identifier}{TEXT} || 'readonly';
+    my $var;
+    if ($m->{param_var}) {
+        if ($m->{quant} eq '|') {
+            $type = 'WholeCaptureParam';
+        } elsif ($trait eq 'ref') {
+            $type = 'RefParam';
+        } elsif ($trait eq 'readonly') {
+            $type = 'ReadonlyParam';
+        } else {
+            die "unknow type of param $trait";
+        }
+        $var = $m->{param_var};
+    } elsif ($m->{named_param}) {
+        $type = 'NamedReadonlyParam';
+        $var = $m->{named_param}{param_var};
+    }
+    my $type_constraint = $m->{type_constraint}[0]{fulltypename}{typename}[0]{longname}{name}{identifier}{TEXT};
+    my $param = FETCH(call new => lookupf($type));
+    let $param, sub {
+        my $param = shift;
+        my $name = $var->{name}[0]{TEXT} || '';
+        my $sigil = $var->{sigil}{sym};
+        my $default;
+        if ($m->{kind} eq '?') {
+            $default = call new => FETCH(lookup('Code')),[],
+                [ string 'mold' => AST::Block->new(regs=>['interpreter','scope'],stmts=>
+                    trailing_return([lookupf("False")])),
+                string 'outer' => reg '$scope',
+                string 'signature' => empty_sig];
+        }
+
+        AST::Seq->new(stmts => [
+            $name ? call(STORE => (call variable => $param),[ string $sigil.$name]) : (),
+            $name ? call(STORE => (call name => $param),[ string $name ]) : (),
+            $default ? call(STORE => (call default_value => $param),[ $default ]) : (),
+            $type_constraint ?  call(STORE => (call type => $param),[ lookupf($type_constraint) ]) : (),
+            $param]
+        );
     }
 }
 

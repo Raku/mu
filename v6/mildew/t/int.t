@@ -1,4 +1,4 @@
-say "1..6";
+say "1..8";
 if &infix:<==>:(int,int)(1788,1788) {
     say "ok 1 # infix:<==>";
 } else {
@@ -32,4 +32,13 @@ if &infix:<==>:(int,int)(6,6) {
     say "ok 6";
 } else {
     say "not ok 6";
+}
+
+my $tmp = 0.Str;
+say "ok 7 # lives after stringifing 0";
+
+if &infix:<->:(int,int)(0,-10) eq '-10' {
+    say "ok 8 # stringifing -10";
+} else {
+    say "not ok 8 # stringifing -10";
 }

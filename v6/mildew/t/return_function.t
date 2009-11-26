@@ -1,6 +1,6 @@
 say "1..5";
 my sub foo($code) {
-   $code.();
+   $code();
    say "not ok 2 - inside foo";
    say "not ok 2 - inside foo";
 }
@@ -18,5 +18,5 @@ say $a;
 my $b = baz();
 print "# baz returned ";
 say $b.elems;
-say $b.shift;
-say $b.shift;
+say $b.positional(0);
+say $b.positional(1);

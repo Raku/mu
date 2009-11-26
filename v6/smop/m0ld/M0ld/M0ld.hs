@@ -5,6 +5,9 @@ import M0ld.Parser
 import Debug.Trace
 import qualified Data.Map as Map
 
+joinStr sep [] = ""
+joinStr sep list = foldl (\a b -> a ++ sep ++ b) (head list) (tail list)
+
 prettyPrintBytecode indent stmts =
     let labelsMap = mapLabels stmts
         regMap    = mapRegisters stmts
@@ -42,6 +45,8 @@ toBytecode stmt regs labels = case stmt of
 
     Decl reg value -> []
 
+    Hint _ _ _ -> []
+
     Assign lvalue rvalue -> [5,resolveReg lvalue regs,resolveReg rvalue regs]
 
 isReg (Decl _ None) = True
@@ -74,6 +79,7 @@ bytecodeLength stmt = case stmt of
     Decl _ _ -> 0
     LabelDef _ -> 0
     Assign _ _ -> 3
+    Hint _ _ _ -> 0
 
 addLabelDef (labels,offset) (LabelDef label) = (Map.insert label offset labels,offset)
 addLabelDef (labels,offset) stmt = (labels,offset+bytecodeLength stmt)
@@ -84,35 +90,6 @@ mapLabels stmts = fst $ foldl addLabelDef (Map.empty,0) stmts
 emit :: [Stmt] -> RegMap -> LabelsMap -> [Int]
 emit stmts regMap labelsMap = concatMap (\op -> toBytecode op regMap labelsMap) stmts ++ [0]
 
-joinStr sep [] = ""
-joinStr sep list = foldl (\a b -> a ++ sep ++ b) (head list) (tail list)
-
-cStrLength ('\\':next:rest) = 1 + cStrLength rest
-cStrLength (c:rest) = 1 + cStrLength rest
-cStrLength [] = 0
-
-dumpConstantToC :: Value -> [Char]
-dumpConstantToC value = case value of
-    StringConstant str ->
-        "SMOP__NATIVE__idconst_createn(\"" ++ str ++"\"," ++ (show $ cStrLength str) ++ "),"
-    IntegerConstant int -> "SMOP__NATIVE__int_create(" ++ show int ++ "),"
-    None -> ""
-    Var name -> "SMOP_REFERENCE(interpreter," ++ name ++ "),"
-    SubMold stmts -> dumpToC stmts ++ ","
-
-dumpConstantsToC stmts = "(SMOP__Object*[]) {" ++
-    concat [dumpConstantToC c | Decl reg c <- stmts] ++ "NULL}"
-
-dumpToC stmts =
-    let labelsMap = mapLabels stmts
-        regMap    = mapRegisters stmts
-        freeRegs  = countRegister stmts
-        bytecode  = emit stmts regMap labelsMap
-        constants = dumpConstantsToC stmts
-        in "SMOP__Mold_create(" ++ show freeRegs ++ "," ++ constants ++ ","
-        ++ show (length bytecode) ++ ",(int[]) {"
-        ++ (joinStr "," $ map show bytecode)
-        ++ "})"
 
 prettyPrintConstant :: [Char] -> Value -> [Char]
 prettyPrintConstant indent value = case value of

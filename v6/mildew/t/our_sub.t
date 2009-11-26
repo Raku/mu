@@ -10,4 +10,4 @@ module Foo {
 }
 say "1..2";
 Foo::Bla::bar();
-Foo::bar("ok 2\n");
+Foo::bar("ok 2");

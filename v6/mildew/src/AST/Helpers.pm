@@ -1,7 +1,7 @@
 package AST::Helpers;
 use Exporter 'import';
-our @EXPORT = qw(string reg integer call FETCH lookup capturize let fcall name_components
-                 routine code move_CONTROL XXX trailing_return varname EXPR);
+our @EXPORT = qw(string reg integer call FETCH lookup capturize let fcall name_components empty_sig
+                 routine code move_CONTROL XXX trailing_return varname EXPR lookupf curlies);
 use Carp 'confess';
 use AST;
 use Term::ANSIColor qw(:constants);
@@ -33,6 +33,14 @@ sub lookup {
     my $thing = shift;
     call lookup => reg '$scope',[string $thing];
 }
+sub lookupf {
+    FETCH(lookup(@_));
+}
+
+sub curlies {
+    my $thing = shift;
+    call 'postcircumfix:{ }' => reg '$scope',[string $thing];
+}
 
 sub fcall {
     my $func = shift;
@@ -44,9 +52,9 @@ sub fcall {
 sub capturize {
     my ($pos,$named) = @_;
     AST::Call->new(
-        identifier => string "capturize",
+        identifier => string "new",
         capture => AST::Capture->new(
-            invocant => reg '?SMOP__S1P__Capturize',
+            invocant => FETCH(lookup("capture")),
             positional => $pos // [],
             named => $named // []
         )
@@ -56,6 +64,32 @@ sub capturize {
 sub let {
     my ($value,$block) = @_;
     AST::Let->new(value=>$value,block=>$block);
+}
+
+sub empty_sig {
+  AST::Call->new
+    ( identifier => string 'new',
+      capture => AST::Capture->new
+      ( invocant => FETCH(lookup('AdhocSignature')),
+        positional => [],
+        named =>
+        [ string 'BIND' => AST::Block->new
+          ( regs => [qw(interpreter scope capture)],
+            stmts => trailing_return([]))]));
+}
+
+sub block_sig {
+  AST::Call->new
+    ( identifier => string 'new',
+      capture => AST::Capture->new
+      ( invocant => FETCH(lookup('AdhocSignature')),
+        positional => [],
+        named =>
+        [ string 'BIND' => AST::Block->new
+          ( regs => [qw(interpreter scope capture)],
+            stmts => trailing_return([
+                call BIND => curlies('$_'),[call positional => reg '$capture',[integer 0]] 
+            ]))]));
 }
 
 sub routine {
@@ -68,7 +102,9 @@ sub routine {
     call(set_control => call(continuation => reg '$interpreter'),
 	 [
 	  call new => FETCH(lookup('Code')),[],
-	  [ string 'outer' => reg '$scope',
+	  [ 
+            string 'signature' => block_sig(),
+            string 'outer' => reg '$scope',
 	    string 'mold' =>
 	    AST::Block->new
 	    ( regs => ['interpreter','scope'],
@@ -85,7 +121,7 @@ sub routine {
   call new => FETCH(lookup('Code')),[],
     [ string 'mold' => $realcode,
       string 'outer' => reg '$scope',
-      ( $sig ? ( string 'signature' => $sig->emit_m0ld_ahsig ) : () )];
+      string 'signature' => $sig ];
 }
 
 sub code {
@@ -94,10 +130,11 @@ sub code {
   unshift @{$realcode->stmts},
     call(STORE=> call('postcircumfix:{ }' => reg '$scope', [ string '&?BLOCK' ]), [ call(continuation => reg '$interpreter') ]);
 
+    use YAML::XS;
   call new => FETCH(lookup('Code')),[],
     [ string 'mold' => $realcode,
       string 'outer' => reg '$scope',
-      ( $sig ? ( string 'signature' => $sig->emit_m0ld_ahsig ) : () )];
+      string 'signature' => ($sig ? $sig : empty_sig )];
 }
 
 sub move_CONTROL {
@@ -176,6 +213,8 @@ sub name_components {
 sub EXPR {
     my $m = shift;
     if ($m->{noun}) {
+        use YAML::XS;
+        die Dump($m->{noun}) if ref $m->{noun} eq 'HASH';
         my $noun = $m->{noun}->emit_m0ld;
         if ($m->{POST}) {
             for (@{$m->{POST}}) {
@@ -195,6 +234,8 @@ sub EXPR {
                             my @positional = grep { ref $_ ne 'AST::Pair' } @args;
                             my @named = map { $_->key, $_->value } grep { ref eq 'AST::Pair' } @args;
                             $noun = call 'postcircumfix:( )' => FETCH($noun),[capturize(\@positional,\@named)];
+			} elsif (ref $pc->{sym} eq 'ARRAY') {
+                            $noun = call 'postcircumfix:'.$pc->{sym}[0].' '.$pc->{sym}[1] => FETCH($noun),[$pc->{semilist}{statement}[0]->emit_m0ld];
 			}
 		    } else {
 			XXX;
@@ -209,7 +250,7 @@ sub EXPR {
         }
     } elsif ($m->{chain}) {
         if (scalar @{$m->{chain}} == 3) {
-           fcall '&infix:'.$m->{chain}[1]{infix}{sym},[$m->{chain}[0]->emit_m0ld,$m->{chain}[2]->emit_m0ld];
+           fcall '&infix:'.$m->{chain}[1]{infix}{TEXT},[$m->{chain}[0]->emit_m0ld,$m->{chain}[2]->emit_m0ld];
         } else {
             XXX;
         }

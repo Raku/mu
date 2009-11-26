@@ -5,6 +5,9 @@ data Value = Var [Char] | IntegerConstant Integer | StringConstant [Char] | None
     deriving (Show,Eq,Ord)
 data Capture = Capture Register [Register] [Register]
     deriving (Show,Eq,Ord)
-data Stmt = LabelDef Label | Decl Register Value | Goto Label | Br Register Label Label | Call Register Register Capture | Call2 Register Register Register Register | Assign Register Register 
+data HintType = Constant | RI
+    deriving (Show,Eq,Ord)
+data Stmt = LabelDef Label | Decl Register Value | Goto Label | Br Register Label Label | Call Register Register Capture | Call2 Register Register Register Register | Assign Register Register | Hint HintType Register Value
+
     deriving (Show,Eq,Ord)
 data Argument = Pos Register | Named Register Register

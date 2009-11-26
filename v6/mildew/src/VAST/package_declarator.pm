@@ -47,7 +47,7 @@ sub oo_package_declarator {
 		    }),
                     call(STORE => call("postcircumfix:{ }" => FETCH(call(outer => reg '$scope')),
                                   [string '&'.$name]),[
-			     call(new => FETCH(lookup('Code')),[],[string 'outer'=>reg '$scope',string 'mold' => AST::Block->new(regs=>['interpreter','scope'],stmts=>trailing_return([lookup('$?CLASS')]))])
+			     call(new => FETCH(lookup('Code')),[],[string 'outer'=>reg '$scope',,string 'signature'=>empty_sig(),string 'mold' => AST::Block->new(regs=>['interpreter','scope'],stmts=>trailing_return([lookup('$?CLASS')]))])
                                   ]),
                     call(STORE => call("postcircumfix:{ }" => reg '$scope',[string '$?PACKAGE']),[$package]),
                     call(STORE => call("postcircumfix:{ }" => FETCH(call lookup => FETCH(call outer => reg '$scope'),[string '$?PACKAGE']),[string $name.'::']),[$package]),
@@ -60,7 +60,7 @@ sub oo_package_declarator {
         @{$init->stmts}
     ]);
     call("postcircumfix:( )" =>
-	 call(new => FETCH(lookup('Code')),[],[string 'outer'=>reg '$scope',string 'mold' => $mold]),
+	 call(new => FETCH(lookup('Code')),[],[string 'outer'=>reg '$scope',string 'mold' => $mold,string 'signature'=>empty_sig()]),
 	 [capturize()]
         );
 }
@@ -96,7 +96,7 @@ sub plain_package_declarator {
         @{$init->stmts}
     ]);
     call("postcircumfix:( )" =>
-	 call(new => FETCH(lookup('Code')),[],[string 'outer'=>reg '$scope',string 'mold' => $mold]),
+	 call(new => FETCH(lookup('Code')),[],[string 'outer'=>reg '$scope',string 'mold' => $mold,string 'signature'=>empty_sig()]),
 	 [capturize()]
         );
 }

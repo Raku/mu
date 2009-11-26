@@ -48,7 +48,7 @@ sub validate {
 sub load {
     my $o = shift;
     my $obj = $o->{API}{location};
-    system("cd ../re-mildew;perl mildew $obj");
+    system("cd ../mildew;perl mildew $obj");
 #    open my $fh, "< $obj"
 #      or croak "Can't open $obj for output\n$!";
 #    my $code = join '', <$fh>;

@@ -8,4 +8,4 @@ knowhow Foo {
         &foo.postcircumfix:<( )>((|$capture));        
     }
 }
-::Foo.("ok 1\n","ok 2\n");
+::Foo.("ok 1","ok 2");

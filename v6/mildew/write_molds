@@ -18,7 +18,7 @@ spit_out($name,$m0ld);
 sub spit_out {
     my ($name,$m0ld) = @_;
     my ($writer, $reader);
-    my $pid = open2($reader,$writer,"../re-smop/m0ld_exe --js") || die "$@";
+    my $pid = open2($reader,$writer,"../smop/m0ld_exe --js") || die "$@";
     print $writer $m0ld;
     close($writer);
     local $/ = '';
