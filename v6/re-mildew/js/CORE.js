@@ -286,12 +286,12 @@ builtin('&say',FETCH_all(function(interpreter,capture) {
     print(str,"\n");
     setr(interpreter,SMOP__NATIVE__bool_true);
 }));
-builtin('&print',function(interpreter,capture) {
+builtin('&print',FETCH_all(function(interpreter,capture) {
     var str = '';
     for (var i in capture._positional) str += capture._positional[i].value;
     print(str);
     setr(interpreter,SMOP__NATIVE__bool_true);
-});
+}));
 
 function define_typex(name,methods) {
     return define_type({name:name,methods:methods,nonew:1});
@@ -603,6 +603,24 @@ P6ContainerProxy.prototype.STORE = function(interpreter,capture) {
     var entry = this._content._content[this.index];
     entry.DISPATCH(interpreter,new P6Str("STORE"),new P6capture([entry,capture._positional[1]],[]));
 }
+
+define_type({
+    name: 'MildewSOLoader',
+    methods: {
+        load: function(interpreter,capture) {
+            var path = capture._positional[1].value.replace(/\.so$/,'\.js');
+            var mold = eval(slurp(path));
+            var frame = new P6Frame(mold);
+            frame._back = interpreter._continuation;
+
+            set_reg(frame,0,interpreter);
+            set_reg(frame,1,capture._positional[2]);
+            set_reg(frame,2,interpreter._continuation);
+
+            interpreter.DISPATCH(interpreter,new P6Str('goto'),new P6capture([interpreter,frame],[]));
+        }
+    }
+});
 
 SMOP__NATIVE__bool_false = new P6False;
 SMOP__NATIVE__bool_true = new P6True;

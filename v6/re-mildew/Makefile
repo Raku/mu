@@ -7,7 +7,7 @@ STD :
 
 CORE: CORE/int.mildew.so CORE/CORE.mildew.so CORE/Exception.mildew.so CORE/Multi.mildew.so CORE/RoleHOW.mildew.so CORE/EXTERNAL.mildew.so CORE/Return.mildew.so CORE/Failure.mildew.so CORE/Signature.mildew.so CORE/Types.mildew.so CORE/ModuleLoader.mildew.so CORE/Eval.mildew.so CORE/ClassHOW.mildew.so 
 
-CORE-js: js/CORE2.js js/molds.js js/RoleHOW.js js/Exception.js js/Failure.js js/Multi.js js/Signature.js js/Types.js js/int.js
+CORE-js: js/CORE2.js js/molds.js js/RoleHOW.js js/Exception.js js/Failure.js js/Multi.js js/Signature.js js/Types.js js/int.js js/ModuleLoader.js lib/Test.mildew.js
 
 modules: lib/Test.mildew.so
 
@@ -30,6 +30,9 @@ js/%.js : CORE/%.pm
 	perl mildew --target-stage 1 -Cjs -o $@ $<
 
 js/int.js : CORE/int.pm
+	perl mildew -Cjs -o $@ $<
+
+lib/%.mildew.js : lib/%.pm
 	perl mildew -Cjs -o $@ $<
 
 lib/%.mildew.so : lib/%.pm

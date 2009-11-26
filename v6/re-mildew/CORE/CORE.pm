@@ -96,7 +96,8 @@ $LexicalPrelude{'&postfix:++'} := sub ($a) {
 ::MildewSOLoader.new.load('Signature.mildew.so',$LexicalPrelude.FETCH);
 
 
-$LexicalPrelude{'ModuleLoader'} = ::MildewSOLoader.new.load('ModuleLoader.mildew.so',$LexicalPrelude.FETCH).lookup('ModuleLoader');
+#$LexicalPrelude{'ModuleLoader'} =
+::MildewSOLoader.new.load('ModuleLoader.mildew.so',$LexicalPrelude.FETCH).lookup('ModuleLoader');
 
 my $multi_scope = ::MildewSOLoader.new.load('Multi.mildew.so',$LexicalPrelude.FETCH);
 #$LexicalPrelude{'Multi'} = $multi_scope.lookup('Multi');

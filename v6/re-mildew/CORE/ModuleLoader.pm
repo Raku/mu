@@ -16,3 +16,4 @@ role ModuleLoader {
         $.cache = ::Hash.new;
     }
 }
+$LexicalPrelude{'ModuleLoader'} = ::ModuleLoader;

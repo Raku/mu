@@ -213,7 +213,7 @@ sub m0ld {
     }
 
     my ($front,$back);
-    if ($C eq 'so') {
+    if ($C eq 'so' or $C eq 'js') {
         $front = "my \$interpreter;\nmy \$scope;\nmy \$back;\n";
         $back = 'my $void = $back."setr"($ret);my $void = $interpreter."goto"($back);';
     } else {
@@ -320,7 +320,7 @@ sub main {
     } elsif ($C) {
         die "unknown backend passed to -C: $C\n";
     }
-    
+  
     if ($B && $C) {
         die "can't specify both -C and -B\n";
     } elsif (!$B && !$C) {
@@ -340,10 +340,11 @@ sub main {
             print map { Encode::decode_utf8($_) } @_;
         }
         $ctx->register_method_by_name("print");
+        $ctx->register_method_by_name("slurp");
         $ctx->execute(get_js_runtime."\n1;");
         $ctx->execute(slurp("js/molds.js").";onmoldload()\n1;");
     
-        for my $file (qw(js/CORE2.js js/RoleHOW.js js/Exception.js js/Failure.js js/Signature.js js/Multi.js js/Types.js js/int.js)) {
+        for my $file (qw(js/CORE2.js js/RoleHOW.js js/Exception.js js/Failure.js js/Signature.js js/Multi.js js/Types.js js/int.js js/ModuleLoader.js)) {
             $ctx->execute("
                 var interpreter = new P6Interpreter();
                 var frame = new P6Frame(".slurp($file).");
