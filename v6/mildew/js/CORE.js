@@ -83,6 +83,7 @@ P6Mold.prototype.DISPATCH = DISPATCH_from_methods;
 P6Mold.prototype.create = function(interpreter,capture) {
     setr(interpreter,new P6Frame(this));
 }
+init_type('Mold',P6Mold);
 
 function P6capture(positional,named) {
     this._positional = positional;
@@ -294,6 +295,17 @@ builtin('&print',FETCH_all(function(interpreter,capture) {
 }));
 builtin('&not',FETCH_all(function(interpreter,capture) {
     setr(interpreter,boolify(capture._positional[0] == SMOP__NATIVE__bool_false));
+}));
+builtin('&eval',FETCH_all(function(interpreter,capture) {
+   var mold = eval(p6_to_js(capture._positional[0].value));
+   var frame = new P6Frame(mold);
+   frame._back = interpreter._continuation;
+
+   set_reg(frame,0,interpreter);
+   set_reg(frame,1,interpreter._continuation._lexical);
+   set_reg(frame,2,interpreter._continuation);
+
+   interpreter.DISPATCH(interpreter,new P6Str('goto'),new P6capture([interpreter,frame],[]));
 }));
 
 function define_typex(name,methods) {

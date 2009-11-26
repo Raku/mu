@@ -191,6 +191,7 @@ sub parse {
         print Dump($m->{'?'});
         exit;
     }
+
     my $mold = $m->{'?'}->emit_m0ld($C);
     
     unless ($empty_setting) {
@@ -200,18 +201,8 @@ sub parse {
     }
     $mold;
 }
-sub m0ld {
-    $x ||= 'p6';
-    if ($x eq 'm0ld') {
-        local $/;
-        my $m0ld = <>;
-        return $m0ld;
-    } elsif ($x eq 'p6') {
-
-    } elsif ($x) {
-        die "Unsupported language $x.\n"
-    }
-
+sub mold_to_m0ld {
+    my ($mold,$C) = @_;
     my ($front,$back);
     if ($C eq 'so' or $C eq 'js') {
         $front = "my \$interpreter;\nmy \$scope;\nmy \$back;\n";
@@ -220,7 +211,7 @@ sub m0ld {
         $front = "my \$scope = ?SMOP__S1P__LexicalPrelude;\n";
         $back = '';
     }
-    my $m0ld = $front.<<'BOILERPLATE_FRONT'.parse->m0ld('$main').<<'BOILERPLATE_BACK'.$back;
+    my $m0ld = $front.<<'BOILERPLATE_FRONT'.$mold->m0ld('$main').<<'BOILERPLATE_BACK'.$back;
     my $void;
 BOILERPLATE_FRONT
     my $AdhocSignature_scalar = $scope."lookup"("AdhocSignature");
@@ -250,6 +241,20 @@ BOILERPLATE_FRONT
     my $capture = $Capture."new"();
     my $ret = $main_code."postcircumfix:( )"($capture);
 BOILERPLATE_BACK
+}
+sub m0ld {
+    $x ||= 'p6';
+    if ($x eq 'm0ld') {
+        local $/;
+        my $m0ld = <>;
+        return $m0ld;
+    } elsif ($x eq 'p6') {
+        mold_to_m0ld(parse,$C);
+    } elsif ($x) {
+        die "Unsupported language $x.\n"
+    }
+
+
 }
 
 sub main {
@@ -339,8 +344,13 @@ sub main {
             # TODO: put this in C++ instead as a V8 plugin (or use Print() from d8.cc)
             print map { Encode::decode_utf8($_) } @_;
         }
+        sub p6_to_js {
+            local $Mildew::return_real_value = 1;
+            m0ld_to_js(mold_to_m0ld(STD->parse($_[0], actions=>'Actions')->{'?'}->emit_m0ld(),'js'));
+        }
         $ctx->register_method_by_name("print");
         $ctx->register_method_by_name("slurp");
+        $ctx->register_method_by_name("p6_to_js");
         $ctx->execute(get_js_runtime."\n1;");
         $ctx->execute(slurp("js/molds.js").";onmoldload()\n1;");
     
