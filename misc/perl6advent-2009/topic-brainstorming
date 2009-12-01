@@ -2,3 +2,9 @@ operator overloading
 reduce operators
 hyper operators
 pick
+.fmt (for masak++, he implemented it :-)
+using proto
+sorting (feel free to steel from <http://www.perlmonks.org/?node_id=809530>)
+Whatever
+».method instead of map { .method }
+compiling modules to PIR
