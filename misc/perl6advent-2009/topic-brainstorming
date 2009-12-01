@@ -1,9 +1,10 @@
+--- Feel free to take those ----
 operator overloading
 reduce operators
 hyper operators
-pick
-.fmt (for masak++, he implemented it :-)
+smart match
 using proto
+Array and hash methods: .keys, .values, .kv, .pairs
 sorting (feel free to steel from <http://www.perlmonks.org/?node_id=809530>)
 Whatever
 ».method instead of map { .method }
@@ -12,3 +13,6 @@ grammars (split this up in multiple topics)
 Mu
 classes in Perl 6
 
+--- Scheduled ---
+.fmt
+pick
