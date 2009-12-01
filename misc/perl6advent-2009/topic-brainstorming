@@ -8,3 +8,7 @@ sorting (feel free to steel from <http://www.perlmonks.org/?node_id=809530>)
 Whatever
 ».method instead of map { .method }
 compiling modules to PIR
+grammars (split this up in multiple topics)
+Mu
+classes in Perl 6
+
