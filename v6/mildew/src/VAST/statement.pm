@@ -1,7 +1,9 @@
+#XXX MooseX::Declare
 package VAST::statement;
 use utf8;
 use strict;
 use warnings;
+use v5.10;
 use AST::Helpers;
 use Scalar::Util qw(blessed);
 
@@ -16,7 +18,7 @@ sub emit_m0ld {
     } elsif ($m->{EXPR}) {
         $m->{EXPR}->emit_m0ld;
     } else {
-        XXX('unknown statement')
+        ();
     }
 }
 
