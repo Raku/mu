@@ -8,6 +8,7 @@ package Mildew;
 do 'viv';
 use AST;
 use AST::Helpers;
+use VAST;
 use DumpMatch;
 use utf8;
 use YAML::XS;
@@ -213,7 +214,7 @@ sub parse {
     #print dump_match('comp_unit'=>$m,{vertical=>1,mark_arrays=>1,visit_twice=>1}),"\n" if $debug;
     print "#################\n" if $debug;
     if ($debug) {
-        #prune($m->{_ast});
+        prune($m->{_ast});
         print Dump($m->{_ast});
         exit;
     }
@@ -324,16 +325,13 @@ sub main {
     VIV::SET_OPT('match'=>!$debug,'pos'=>1);
     $C = '' unless $C;
     if ($C eq 'desugar') {
-
-        my $out = parse;
-        prune($out);
-        print Dump($out);
-
         output(parse->pretty."\n",$output);
         exit;
     } elsif ($C eq 'ast-yaml') {
         use YAML::XS;
-        output(Dump(parse),$output);
+        my $ast = parse;
+        prune($ast);
+        output(Dump($ast),$output);
         exit;
     } else {
     }
