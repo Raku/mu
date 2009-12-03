@@ -7,7 +7,7 @@ reduce operators
 smart match
 using proto
 Array and hash methods: .keys, .values, .kv, .pairs
-sorting (feel free to steel from <http://www.perlmonks.org/?node_id=809530>)
+sorting (feel free to steal from <http://www.perlmonks.org/?node_id=809530>)
 Whatever
 compiling modules to PIR
 grammars (split this up in multiple topics)
