@@ -17,7 +17,7 @@ December 1: colomon - How to install Rakudo
 December 2: masak - .fmt
 December 3: Wolfman2000 - multi subs (& constraints?)
 December 4: moritz - testing
-December 5: pmichaud
+December 5: pmichaud - [op], »op«, Xop  meta-operators
 December 6: mathw - looping constructs
 December 7: colomon -- Whirlwind tour of << and >>
 December 8: Wolfman2000 - String.comb.map uses (Caesar Cipher)
