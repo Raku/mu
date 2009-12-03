@@ -4,6 +4,13 @@ and/or others.  We'll likely record the answers here as well.
 
 Unanswered questions:
 
+Pm-12: S05:2121 says that smartmatching against regex/token/rule
+automatically anchors the match at both ends.  What construct is
+actually responsible for performing the anchor checks?  Is it the
+smart match operator (infix:<~~>), the .ACCEPTS method on the
+regex/token/rule, an option/flag passed to the regex/token/rule,
+or something else?
+
 ==========
 
 Answered questions:
