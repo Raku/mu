@@ -6,6 +6,10 @@ Unanswered questions:
 
 Pm-13:  What's the parent type of C<Regex>?  (I hope it's C<Method>.)
 
+Pm-14:  Is the :c modifier allowed on token/regex/rule?  I.e., could
+    someone do...?
+        'abcdef' ~~ token :c(1) { cdef }
+
 ===========================================================
 
 Answered questions:
