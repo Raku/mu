@@ -4,7 +4,7 @@ and/or others.  We'll likely record the answers here as well.
 
 Unanswered questions:
 
-
+Pm-13:  What's the parent type of C<Regex>?  (I hope it's C<Method>.)
 
 ===========================================================
 
