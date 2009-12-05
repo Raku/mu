@@ -2,6 +2,8 @@
 Where is the documentation?  (or what resources are available for learning?)
     -- I think we ought to add this information to "Pages" as well, so it
        is always readily available from the blog's right-hand-side. -- colomon
+zip, cross operators
+pointy blocks and loops (e.g.,  for @list -> $a, $b, $c { ... })
 operator overloading
 reduce operators
 smart match
@@ -12,6 +14,7 @@ Whatever
 compiling modules to PIR
 grammars (split this up in multiple topics)
 Mu
+subsets, 'where' clauses
 
 --- Scheduled ---
 .fmt
