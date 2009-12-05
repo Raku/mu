@@ -9,20 +9,20 @@ sub emit_m0ld_ahsig_BIND {
     if ($m->{param_var}) {
       if ($m->{quant} eq '|') {
         call 'STORE' => (call 'postcircumfix:{ }' => reg '$scope',
-			[ string $m->{param_var}{sigil}{sym}.$m->{param_var}{name}[0]{TEXT}]),
+			[ string $m->{param_var}{sigil}{SYM}.$m->{param_var}{name}[0]{TEXT}]),
 			  [ reg '$capture' ];
       } elsif ($m->{quant} eq '\\') {
         call 'STORE' => (call 'postcircumfix:{ }' => reg '$scope',
-			[ string $m->{param_var}{sigil}{sym}.$m->{param_var}{name}[0]{TEXT}]),
+			[ string $m->{param_var}{sigil}{SYM}.$m->{param_var}{name}[0]{TEXT}]),
 			  [call 'positional' => reg '$capture',[integer($count) ]];;
       } else {
         call 'BIND' => (call 'postcircumfix:{ }' => reg '$scope',
-			[ string $m->{param_var}{sigil}{sym}.$m->{param_var}{name}[0]{TEXT}]),
+			[ string $m->{param_var}{sigil}{SYM}.$m->{param_var}{name}[0]{TEXT}]),
 			  [call 'positional' => reg '$capture',[integer($count) ]];
       }
     } elsif ($m->{named_param}) {
         my $ident = $m->{named_param}{param_var}{name}[0]{TEXT};
-        my $sigil = $m->{named_param}{param_var}{sigil}{sym};
+        my $sigil = $m->{named_param}{param_var}{sigil}{SYM};
         call 'BIND' => (call 'postcircumfix:{ }' => reg '$scope',
 			[ string $sigil.$ident ]),
 			  [call 'named' => reg '$capture',[string $ident ]];
@@ -55,7 +55,7 @@ sub emit_m0ld {
     let $param, sub {
         my $param = shift;
         my $name = $var->{name}[0]{TEXT} || '';
-        my $sigil = $var->{sigil}{sym};
+        my $sigil = $var->{sigil}{SYM};
         my $default;
         if ($m->{kind} eq '?') {
             $default = call new => FETCH(lookup('Code')),[],
