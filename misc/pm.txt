@@ -4,14 +4,9 @@ and/or others.  We'll likely record the answers here as well.
 
 Unanswered questions:
 
-Pm-12: S05:2121 says that smartmatching against regex/token/rule
-automatically anchors the match at both ends.  What construct is
-actually responsible for performing the anchor checks?  Is it the
-smart match operator (infix:<~~>), the .ACCEPTS method on the
-regex/token/rule, an option/flag passed to the regex/token/rule,
-or something else?
 
-==========
+
+===========================================================
 
 Answered questions:
 
@@ -20,6 +15,8 @@ Pm-1:  In STD.pm, what is the semantic or key difference between <noun>
     and <term>?
 
 None, they are now unified under <term>
+
+----------------------
 
 Pm-2:  Are calls to subrules in other grammars still valid as
     C<<  / abc <OtherGrammar::xyz> def / >> ?  If so, then 
@@ -30,6 +27,8 @@ Pm-2:  Are calls to subrules in other grammars still valid as
 Yes, and yes.  That's essentially what STD is already doing for
 Regexen and such.
 
+----------------------
+
 Pm-3:  When we generate a metaop, where does it live?  Lexical?
     Package?  If package, then what package?
 
@@ -38,6 +37,8 @@ UNIT, though that might prevent sharing of common definitions
 among different compilation units.  On the other hand, being sure
 you're based on the same underlying semantics is difficult anyway
 without a lot of lifting, so maybe UNIT is good enough for now.
+
+----------------------
 
 Pm-4:  The C<.ast> method on a Match object returns the matched
     text if no abstract object has been set.  Is there (or should
@@ -49,6 +50,8 @@ Uh, surely .ast is false if there isn't one.
 [S05:2434 r28936 currently says that .ast returns the matched text,
 I expect this to change shortly.  --Pm]
 
+----------------------
+
 Pm-5:  How "read-only" are subroutine parameters?  For example, given
     a subroutine like  C<<  sub abc($x) { ... }  >>, I know we can't
     assign to C<$x>, but can it be rebound using &infix:<:=> in the 
@@ -58,6 +61,8 @@ That seems okay to me, since the intent is to not modify the
 passed in object, and the rebinding effectively anonymizes the
 argument that was bound.
 
+----------------------
+
 Pm-6:  Is there a syntax that allows a (trusted) routine to access
     the private attributes of another object without going through
     an accessor?  For example, if object $b has a private attribute 
@@ -66,6 +71,8 @@ Pm-6:  Is there a syntax that allows a (trusted) routine to access
 See r28932.
 
 [Answer:  as of r28932, C<< $b!SomeClass::xyz >>.  --Pm]
+
+----------------------
 
 Pm-7:  S05 says that a match's reduction object is given by the
     C<:action> parameter, STD.pm's initparse has C<:actions> and
@@ -77,6 +84,8 @@ Pm-7:  S05 says that a match's reduction object is given by the
 
 Now pluralized in specland.
 
+----------------------
+
 Pm-8: Are closures embedded in regexes creating a new lexical scope,
     or do they share the same scope as the regex block itself?
     (Currently I'm assuming they create a new scope, to be consistent
@@ -84,11 +93,15 @@ Pm-8: Are closures embedded in regexes creating a new lexical scope,
 
 Yes.
 
+----------------------
+
 Pm-9: Inside of a regex, what happens with C<< <[z..a]> >> ?  Is it
     a compile-time error, an empty range, or ... ?
 
 Let's make it a compile-time error for direct code, and a failure
 with warning for code compiled indirectly via <$code>.
+
+----------------------
 
 Pm-10:  Subs are canonically considered to be stored in symbol
     tables (lexpads, namespaces) with the & sigil.  Is the same
@@ -110,12 +123,16 @@ declare my or our to make the & alias in the current lexpad, then
 method aliases are always considered multi when they show up in a
 symbol table.
 
+----------------------
+
 Kh-1: Is it true that Bool::True.name should work?  Should it return
     the string 'True'?
     I ask because of http://rt.perl.org/rt3/Public/Bug/Display.html?id=66576
 
 Yes, because Bool is an object type, so it knows its .name.  (A native
 bool would not know its name, according to S12:1649.)
+
+----------------------
 
 Jw-1: What is the difference between :(\$x) and :($x is ref)? Both
 would need to leave the original argument untouched. Since C<is ref>
@@ -126,6 +143,8 @@ than :(\$x) too. Should one of them go away?
 No difference that I can see offhand.  I'm inclined to make 'is ref' go away
 and keep the backslashed form.
 
+----------------------
+
 Pm-11: S11:257 says "Without an import list, C<import> imports
     the C<:DEFAULT> imports."  How does one import one of the
     other tagsets?  (I think I'm missing something obvious here.)
@@ -133,6 +152,8 @@ Pm-11: S11:257 says "Without an import list, C<import> imports
 I believe the idea is simply to use the tagset pair directly as an argument.
 And since lexical importation is assumed, there's an implicit :MY() around it.
 So 'use Foo :tag' is probably short for 'use Foo :MY(:tag)'.
+
+----------------------
 
 Ml-1: In my $x; say($x~'a'), what's the output? "a\n" or "Object()\n"?
       If it's "a\n", what kind of undef is stored in $x?
@@ -161,3 +182,33 @@ so we could say that
 
 Note that most methods would still autothread on junctions by virtue of
 not being defined in the junction class.
+
+----------------------
+
+Pm-12: S05:2121 says that smartmatching against regex/token/rule
+automatically anchors the match at both ends.  What construct is
+actually responsible for performing the anchor checks?  Is it the
+smart match operator (infix:<~~>), the .ACCEPTS method on the
+regex/token/rule, an option/flag passed to the regex/token/rule,
+or something else?
+
+S05:2114 says that these are of type Method, not Regex, and therefore
+it's probable that Method.ACCEPTS sets up the .parse with :p semantics
+and also checks that the returned Cursor ends at the end of the string.
+
+Or maybe we add a flag to .parse that checks anchoring on both ends,
+if it seems generally useful.  That'd help with the / ^ a | b | c $/,
+if people instead got into the habit of saying mt/ a | b | c / or
+some such, where :t would mean "totally", or "token", or some such.
+(Unfortunately, most of the other letters are taken, like :a (for
+:all, but already means :accent), or would at least be confusing
+if overloaded.  For instance, we could use :x without an arg to mean
+match exactly, but :x(1) would mean something rather different.  mx//
+reads well though.  Could also make a case for overloading :p without
+an argument, but mp doesn't do much for me.)
+
+Anyway, it's Method.ACCEPTS that makes the decision, I suspect,
+regardless of how it's implemented.  We can always switch to
+a .parse option later.
+
+----------------------
