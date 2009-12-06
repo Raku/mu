@@ -183,9 +183,10 @@ sub prune {
     my $what = shift;
 
     state %pruned;
+    return unless defined $what;
     return if $pruned{$what}++;
 
-    if (reftype $what eq 'HASH') {
+    if (reftype $what and reftype $what eq 'HASH') {
         delete $what->{'.'};
         delete $what->{BEG};
         delete $what->{END};
@@ -193,7 +194,7 @@ sub prune {
         for my $key (keys %{$what}) {
             prune($what->{$key});
         }
-    } elsif (reftype $what eq 'ARRAY') {
+    } elsif (reftype $what and reftype $what eq 'ARRAY') {
         for (@{$what}) {
             prune($_);
         }

@@ -7,10 +7,10 @@ class VAST::statement_control__S_if {
         my $else = lookupf("False");
         if (ref $self->{else} eq 'ARRAY' &&
             blessed $self->{else}[0] &&
-            ref $self->{else}[0]{pblock} &&
-            ref $self->{else}[0]{pblock}{blockoid}) {
+            ref $self->{else}[0] &&
+            ref $self->{else}[0]{blockoid}) {
 
-            $else = call 'postcircumfix:( )' => code($self->{else}[0]{pblock}{blockoid}),[capturize];
+            $else = call 'postcircumfix:( )' => code($self->{else}[0]{blockoid}),[capturize];
         }
 
         my @elsif;
