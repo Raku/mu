@@ -191,6 +191,7 @@ sub prune {
         delete $what->{BEG};
         delete $what->{END};
         delete $what->{WS};
+        delete $what->{MATCH};
         for my $key (keys %{$what}) {
             prune($what->{$key});
         }
