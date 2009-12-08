@@ -3,7 +3,7 @@ use MooseX::Declare;
 class VAST::package_declarator {
     use AST::Helpers;
     method emit_m0ld {
-        my $name  = $self->{package_def}{module_name}[0]{longname}{name}{identifier}{TEXT};
+        my $name  = $self->{package_def}{def_module_name}[0]{longname}{name}{identifier}{TEXT};
         my $id_type_sub = AST::unique_id;
     
         my %how_type = (
