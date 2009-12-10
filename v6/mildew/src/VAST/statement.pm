@@ -13,8 +13,8 @@ sub emit_m0ld {
         AST::Label->new(label=>label($m->{label}),stmt=>statement($m->{statement}));
     } elsif ($m->{statement_control}) {
         $m->{statement_control}->emit_m0ld;
-   } elsif ( $m->{EXPR} && $m->{EXPR}{noun} && $m->{EXPR}{noun}{circumfix} && $m->{EXPR}{noun}{circumfix}{sym} && $m->{EXPR}{noun}{circumfix}{sym}[0] eq '{') {
-        call 'postcircumfix:( )' => $m->{EXPR}->emit_m0ld, [capturize()];
+    } elsif ($m->{EXPR} && $m->{EXPR}{circumfix} && $m->{EXPR}{circumfix}->isa('VAST::circumfix__S_Cur_Ly')) {
+        call 'postcircumfix:( )' => $m->{EXPR}->emit_m0ld,[capturize];
     } elsif ($m->{EXPR}) {
         $m->{EXPR}->emit_m0ld;
     } else {
