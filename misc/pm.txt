@@ -10,6 +10,16 @@ Pm-14:  Is the :c modifier allowed on token/regex/rule?  I.e., could
     someone do...?
         'abcdef' ~~ token :c(1) { cdef }
 
+Pm-15:  S11:300 gives the following as an example of importing
+    a tagset into package scope:
+
+        require Sense :OUR<ALL> # but this works
+
+    Should this be :OUR(:ALL) instead?  It seems to me that
+    :OUR<ALL> would attempt to import a &ALL symbol (since
+    :MY<common> imports the &common symbol).
+        
+
 ===========================================================
 
 Answered questions:
@@ -190,11 +200,11 @@ not being defined in the junction class.
 ----------------------
 
 Pm-12: S05:2121 says that smartmatching against regex/token/rule
-automatically anchors the match at both ends.  What construct is
-actually responsible for performing the anchor checks?  Is it the
-smart match operator (infix:<~~>), the .ACCEPTS method on the
-regex/token/rule, an option/flag passed to the regex/token/rule,
-or something else?
+    automatically anchors the match at both ends.  What construct is
+    actually responsible for performing the anchor checks?  Is it the
+    smart match operator (infix:<~~>), the .ACCEPTS method on the
+    regex/token/rule, an option/flag passed to the regex/token/rule,
+    or something else?
 
 S05:2114 says that these are of type Method, not Regex, and therefore
 it's probable that Method.ACCEPTS sets up the .parse with :p semantics
