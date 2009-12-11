@@ -210,54 +210,6 @@ sub name_components {
     }
 }
 
-sub EXPR {
-    my $m = shift;
-    if ($m->{noun}) {
-        use YAML::XS;
-        die Dump($m->{noun}) if ref $m->{noun} eq 'HASH';
-        my $noun = $m->{noun}->emit_m0ld;
-        if ($m->{POST}) {
-            for (@{$m->{POST}}) {
-                if ($_->{dotty}) {
-                    $noun = $_->{dotty}->emit_m0ld($noun);
-		} elsif ($_->{postop}) {
-		    if (my $pc = $_->{postop}{postcircumfix}) {
-			if (ref $pc->{SYM} eq 'ARRAY' &&
-			    $pc->{SYM}[0] eq '<' &&
-			    $pc->{SYM}[1] eq '>') {
-			    my $nib = join '', @{$pc->{nibble}{nibbles}};
-			    $noun = call 'postcircumfix:{ }' => $noun, [ string $nib ];
-			} elsif (ref $pc->{SYM} eq 'ARRAY' &&
-			    $pc->{SYM}[0] eq '(' &&
-			    $pc->{SYM}[1] eq ')')  {
-                            my @args = $pc->{semiarglist}->emit_m0ld;
-                            my @positional = grep { ref $_ ne 'AST::Pair' } @args;
-                            my @named = map { $_->key, $_->value } grep { ref eq 'AST::Pair' } @args;
-                            $noun = call 'postcircumfix:( )' => FETCH($noun),[capturize(\@positional,\@named)];
-			} elsif (ref $pc->{SYM} eq 'ARRAY') {
-                            $noun = call 'postcircumfix:'.$pc->{SYM}[0].' '.$pc->{sym}[1] => FETCH($noun),[$pc->{semilist}{statement}[0]->emit_m0ld];
-			}
-		    } else {
-			XXX;
-		    }
-                } else {
-                    XXX;
-                }
-            }
-            $noun;
-        } else {
-            $noun;
-        }
-    } elsif ($m->{chain}) {
-        if (scalar @{$m->{chain}} == 3) {
-           fcall '&infix:'.$m->{chain}[1]{infix}{TEXT},[$m->{chain}[0]->emit_m0ld,$m->{chain}[2]->emit_m0ld];
-        } else {
-            XXX;
-        }
-    } else {
-        XXX;
-    }
-} 
 
 
 
