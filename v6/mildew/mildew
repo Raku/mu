@@ -21,6 +21,8 @@ use Scalar::Util 'blessed';
 use File::Temp qw(tempfile tmpnam);
 use File::Slurp qw(slurp);
 
+$ENV{PATH} .= ':../../src/perl6';
+$ENV{PERL5LIB} .= ':../../src/perl6';
 #  -e program      one line of program (multiple -e are allowed, omit programfile)
 #  -c              parse the file or -e, but do not run it
 sub help {

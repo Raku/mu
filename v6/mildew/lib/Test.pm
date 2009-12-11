@@ -17,7 +17,7 @@ role Test {
 }
 MY::<Test::> := HACK.new;
 
-multi plan($tests) {
+multi plan($tests) is export {
     say "1..$tests";
 }
 sub proclaim($cond,$desc,$todo) {
@@ -35,28 +35,28 @@ sub proclaim($cond,$desc,$todo) {
     }
     print "\n";
 }
-multi ok($cond,$desc?,:$todo) {
+multi ok($cond,$desc?,:$todo) is export {
     proclaim($cond,$desc,$todo);
 }
-multi is($got,$expected,$desc?,:$todo) {
+multi is($got,$expected,$desc?,:$todo) is export {
     proclaim($got eq $expected,$desc,$todo);
 }
-multi isnt($got,$expected,$desc?,:$todo) {
+multi isnt($got,$expected,$desc?,:$todo) is export {
     proclaim($got ne $expected,$desc,$todo);
 }
-multi pass($desc?,:$todo) {
+multi pass($desc?,:$todo) is export {
     proclaim(1,$desc,$todo);
 }
-multi flunk($desc?,:$todo) {
+multi flunk($desc?,:$todo) is export {
     proclaim(0,$desc,$todo);
 }
-multi cmp_ok($got,$op,$expected,$desc?,:$todo) {
+multi cmp_ok($got,$op,$expected,$desc?,:$todo) is export {
     proclaim($op.($got,$expected),$desc,$todo);
 }
-multi done_testing() {
+multi done_testing() is export {
     say "1..$test_count";
 }
-multi lives_ok($code,$desc?,:$todo) {
+multi lives_ok($code,$desc?,:$todo) is export {
     {
         $code.();
         proclaim(1,$desc,$todo);
@@ -65,7 +65,7 @@ multi lives_ok($code,$desc?,:$todo) {
         }
     }
 }
-multi skip($count,$reason?) {
+multi skip($count,$reason?) is export {
     my $i = 0;
     loop {
         if $i == $count {
