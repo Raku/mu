@@ -1,14 +1,10 @@
-sub return(|$capture) {
-    my $e = ::ControlExceptionReturn.new();
-    $e.capture = $capture;
-    $e.routine = CALLER::<&?ROUTINE>;
-    $e.throw;
-}
 sub foo {
-   loop {
-       say "ok";
-       return;
-   }
+    my $foo = 0;
+    loop {
+        say "ok";
+        if $foo {return}
+        $foo = 1;
+    }
 }
-say "1..1";
+say "1..2";
 foo();

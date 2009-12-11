@@ -317,7 +317,7 @@ use Moose;
 has 'key' => (is=>'ro');
 has 'value' => (is=>'ro');
 sub m0ld {
-    XXX('Pairs are here just to be seen as named arguments, for now.');
+    die('Pairs are here just to be seen as named arguments, for now.');
 }
 sub pretty {
     my $self = shift;
