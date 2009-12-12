@@ -6,7 +6,8 @@ class VAST::dotty__S_Dot {
         use YAML::XS;
         # STD workaround
         my $methodop = $self->{'.'}[1]{dotty}{dottyop}{methodop};
-        my $args = @{$methodop->{args}} ? [$methodop->{args}[0]->emit_m0ld] : [];
-        call $methodop->{longname}->canonical => FETCH($self->{arg}->emit_m0ld),$args;
+        call $methodop->{longname}->canonical => FETCH($self->{arg}->emit_m0ld),named_and_positional(
+            @{$methodop->{args}} ? $methodop->{args}[0]->emit_m0ld : ()
+        )
     }
 }

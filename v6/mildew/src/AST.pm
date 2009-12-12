@@ -22,8 +22,7 @@ package AST::Base;
 use Moose;
 sub m0ld {
     my ($self,$ret) = @_;
-    my $mold = $self->m0ld($ret);
-    $AST::CODE . $mold;
+    $self->m0ld($ret);
 }
 sub pretty {
     use YAML::XS;
@@ -314,6 +313,7 @@ sub pretty {
 }
 package AST::Pair;
 use Moose;
+extends 'AST::Base';
 has 'key' => (is=>'ro');
 has 'value' => (is=>'ro');
 sub m0ld {

@@ -1,7 +1,7 @@
 package AST::Helpers;
 use Exporter 'import';
 our @EXPORT = qw(string reg integer call FETCH lookup capturize let fcall name_components empty_sig
-                 routine code move_CONTROL XXX trailing_return varname EXPR lookupf curlies);
+                 routine code move_CONTROL XXX trailing_return varname lookupf curlies named_and_positional);
 use Carp 'confess';
 use AST;
 use Term::ANSIColor qw(:constants);
@@ -210,6 +210,9 @@ sub name_components {
     }
 }
 
+sub named_and_positional {
+    [grep { ref $_ ne 'AST::Pair' } @_],[map { $_->key, $_->value } grep { ref eq 'AST::Pair' } @_]
+}
 
 
 
