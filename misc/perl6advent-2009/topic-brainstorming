@@ -4,20 +4,17 @@ Where is the documentation?  (or what resources are available for learning?)
        is always readily available from the blog's right-hand-side. -- colomon
 zip, cross operators, reverse
 operator overloading
-reduce operators
 smart match
 using proto
 Array and hash methods: .keys, .values, .kv, .pairs
 sorting 
   (feel free to steal from <http://www.perlmonks.org/?node_id=809530>
    and http://use.perl.org/~pmichaud/journal/38080 for ideas)
-Whatever
 compiling modules to PIR
 grammars (split this up in multiple topics)
 Mu, Nil
 subsets, 'where' clauses
 series operator
-junctions
 triangle reduce (S03:4172, nyi though)
 Rats
 Cats
@@ -30,3 +27,5 @@ pick
 classes in Perl 6
 ».method instead of map { .method }
 hyper operators
+Whatever
+junctions
