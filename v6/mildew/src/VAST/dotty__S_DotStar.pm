@@ -8,12 +8,17 @@ class VAST::dotty__S_DotStar {
         my $methodop = $self->{'.'}[1]{dotty}{dottyop}{methodop};
         my $methodname = $methodop->{longname}->canonical;
         #die Dump($self->{'.'}[1]{SYM});
+        my ($pos,$named) = named_and_positional(@{$methodop->{args}} ? $methodop->{args}[0]->emit_m0ld : ());
         if ($self->{'.'}[1]{SYM} eq '.^!') {
             $methodname = '^!' . $methodname;
+        } elsif ($self->{'.'}[1]{SYM} eq '.^') {
+            return let $self->{arg}->emit_m0ld => sub {
+                my $obj = shift;
+                call $methodname => FETCH(call('^!how' => FETCH($obj))),[$obj,@{$pos}],$named;
+            }
         } else {
             XXX;
         }
-        my $args = @{$methodop->{args}} ? [$methodop->{args}[0]->emit_m0ld] : [];
-        call $methodname => FETCH($self->{arg}->emit_m0ld),$args;
+        call $methodname => FETCH($self->{arg}->emit_m0ld),$pos,$named;
     }
 }
