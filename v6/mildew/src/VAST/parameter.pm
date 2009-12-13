@@ -50,7 +50,7 @@ sub emit_m0ld {
         $type = 'NamedReadonlyParam';
         $var = $m->{named_param}{param_var};
     }
-    my $type_constraint = $m->{type_constraint}[0]{fulltypename}{typename}[0]{longname}{name}{identifier}{TEXT};
+    my $type_constraint = $m->{type_constraint}[0]{typename}{longname}{name}{identifier}{TEXT};
     my $param = FETCH(call new => lookupf($type));
     let $param, sub {
         my $param = shift;

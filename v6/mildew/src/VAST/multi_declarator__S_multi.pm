@@ -1,4 +1,4 @@
-package VAST::multi_declarator;
+package VAST::multi_declarator__S_multi;
 use utf8;
 use strict;
 use warnings;
