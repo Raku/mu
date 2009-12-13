@@ -20,6 +20,7 @@ Rats
 Cats
 Hash.invert, Hash.push
 "interesting values of Undef"
+operator contextualizers -- +, ?, ~, $, @, %  (e.g., +| vs ?| vs &|)
 
 --- Scheduled ---
 .fmt
