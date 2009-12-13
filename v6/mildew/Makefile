@@ -38,7 +38,7 @@ lib/%.mildew.js : lib/%.pm
 lib/%.mildew.so : lib/%.pm
 	perl mildew -Cso --empty-setting -o $@ $<
 
-PROVE := $(shell if prove --version | grep v2 > /dev/null 2>&1;then echo 'prove -r --perl'; else echo 'prove --timer -r -e'; fi)
+PROVE := $(shell if prove --version | grep v2 > /dev/null 2>&1;then echo 'prove -r --perl'; else echo 'prove --timer --state hot,save -r -e'; fi)
 
 test: prove
 

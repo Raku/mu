@@ -379,7 +379,7 @@ sub main {
         }
         sub p6_to_js {
             local $Mildew::return_real_value = 1;
-            m0ld_to_js(mold_to_m0ld(STD->parse($_[0], actions=>'Actions')->{'?'}->emit_m0ld(),'js'));
+            m0ld_to_js(mold_to_m0ld(STD->parse($_[0], actions=>'Actions')->{'_ast'}->emit_m0ld(),'js'));
         }
         $ctx->register_method_by_name("print");
         $ctx->register_method_by_name("slurp");

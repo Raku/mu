@@ -1,13 +1,19 @@
 package AST::Helpers;
 use Exporter 'import';
 our @EXPORT = qw(string reg integer call FETCH lookup capturize let fcall name_components empty_sig
-                 routine code move_CONTROL XXX trailing_return varname lookupf curlies named_and_positional);
+                 routine code move_CONTROL XXX trailing_return varname lookupf curlies named_and_positional dump YYY);
 use Carp 'confess';
 use AST;
 use Term::ANSIColor qw(:constants);
 use PadWalker qw(peek_my);
+use YAML::XS qw(Dump);
 use strict;
 
+sub YYY {
+        use YAML::XS;
+        Mildew::prune($_[0]);
+        die Dump($_[0]);
+}
 sub string($) {
     AST::StringConstant->new(value=>$_[0]);
 }
@@ -139,15 +145,15 @@ sub code {
 
 sub move_CONTROL {
     my $statementlist = shift;
-    my @control;
-    my @statementlist = 
-      grep { !( exists $_->{statement_control} &&
-		exists $_->{statement_control}{SYM} &&
-		($_->{statement_control}{SYM} =~ /^(CONTROL|CATCH)$/) &&
-	        (push @control, $_) ) }
-	  @{$statementlist};
-    if (@control) {
-      unshift @statementlist, @control;
+    my @statementlist;
+    use v5.10;
+    for (@{$statementlist}) {
+        my $sc = $_->{statement_control};
+        if (defined $sc && ($sc->isa('VAST::statement_control__S_CATCH') || $sc->isa('VAST::statement_control__S_CONTROL'))) {
+            unshift @statementlist,$_;
+        } else {
+            push @statementlist,$_;
+        }
     }
     return @statementlist;
 }
