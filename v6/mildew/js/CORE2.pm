@@ -1,6 +1,12 @@
 $LexicalPrelude{'&postfix:++'} := sub ($a is ref) {
     $a = &infix:<+>:(int,int)($a.FETCH,1);
 }
+$LexicalPrelude{'&prefix:++'} := sub ($a) {
+    my $old = $a;
+    $a = &infix:<+>:(int,int)($a,1);
+    $old;
+}
+
 $LexicalPrelude{'&infix:~'} := sub (|$capture) {
     my $i = 0;
     my $str = '';

@@ -199,16 +199,18 @@ sub name_components {
             use YAML::XS;
             my $single_variant = '';
             if ($shortname->{colonpair}[1]) {
-               if ($shortname->{colonpair}[1]{signature}) {
+               if ($shortname->{colonpair}[1]{fakesignature}) {
                    # TODO handle whitespace sensibly
-                   $single_variant = ':(' . $shortname->{colonpair}[1]{signature}->{MATCH}->Str . ')';
+                   $single_variant = ':(' . $shortname->{colonpair}[1]{fakesignature}->Str . ')';
                } else {
                    XXX;
                } 
             }
-            my $ret = $m->{sigil}{TEXT}.$shortname->{category}{TEXT}.':'.$shortname->{colonpair}[0]{postcircumfix}{nibble}{nibbles}[0] . $single_variant;
+            my $ret = $m->{sigil}{TEXT}.$shortname->{category}{TEXT}.':'.$shortname->{colonpair}[0]{v}{nibble}->Str . $single_variant;
             return $ret;
         }
+    } elsif ($m->{morename}) {
+        ($m->{identifier}{TEXT},map {$_->{TEXT}} @{$m->{morename}[0]{identifier}});
     } elsif ($m->{desigilname}) {
         $m->{sigil}{TEXT}.($m->{twigil}[0]{TEXT} || '').$m->{desigilname}{longname}->canonical;
     } else {

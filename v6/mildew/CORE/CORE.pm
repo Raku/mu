@@ -87,6 +87,11 @@ $LexicalPrelude{'&infix:ne'} := sub ($a,$b) {
 $LexicalPrelude{'&postfix:++'} := sub ($a) {
     $a = &infix:<+>:(int,int)($a,1);
 }
+$LexicalPrelude{'&prefix:++'} := sub ($a) {
+    my $old = $a;
+    $a = &infix:<+>:(int,int)($a,1);
+    $old;
+}
 
 ::MildewSOLoader.new.load('Return.mildew.so',$LexicalPrelude.FETCH);
 ::MildewSOLoader.new.load('RoleHOW.mildew.so',$LexicalPrelude.FETCH);

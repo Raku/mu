@@ -33,7 +33,7 @@ sub emit_m0ld_ahsig_BIND {
 sub emit_m0ld {
     my $m = shift;
     my $type;
-    my $trait = $m->{trait}[0]{trait_auxiliary}{longname}{name}{identifier}{TEXT} || 'readonly';
+    my $trait = $m->{trait}[0]{trait_mod}{longname}{name}{identifier}{TEXT} || 'readonly';
     my $var;
     if ($m->{param_var}) {
         if ($m->{quant} eq '|') {

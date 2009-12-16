@@ -305,6 +305,8 @@ sub pretty {
     }
 
     if ($self->capture->isa("AST::Capture")) {
+        use AST::Helpers qw(YYY);
+        YYY($self) unless $self->capture->invocant;
         $self->capture->invocant->pretty . "." . $identifier . (@args ? '(' . join(',',@args) . ')' : '');
     } else {
         $self->SUPER::pretty;

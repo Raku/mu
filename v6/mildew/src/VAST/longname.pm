@@ -17,9 +17,9 @@ sub canonical {
        } 
     }
     my $name = $m->{name}{identifier}{TEXT};
-    my $v = $m->{colonpair}[0]{v}{nibble}{nibbles}[0];
+    my $v = $m->{colonpair}[0]{v};
     if ($v) {
-        $name . ':' . $v . $single_variant;
+        $name . ':' . $v->{nibble}->Str . $single_variant;
     } else {
         $name;
     }
