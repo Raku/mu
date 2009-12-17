@@ -6,8 +6,18 @@ class VAST::scope_declarator__S_my {
         #XXX refactor
         if (my $decl = $self->{scoped}{declarator}) {
             if (my $var_decl = $decl->{variable_declarator}) {
-                call(BIND => curlies(varname($var_decl->{variable}))
-                    ,[call(new => FETCH(lookup 'Scalar'))]);
+
+                # so we can compare output with the prerefactor version
+                let call(new => FETCH(lookup 'Scalar')),sub {
+                    call(BIND => curlies(varname($var_decl->{variable}))
+                    ,[$_[0]]);
+                };
+
+
+                # the proper way
+                #call(BIND => curlies(varname($var_decl->{variable}))
+                #    ,[call(new => FETCH(lookup 'Scalar'))]);
+
             } elsif (my $routine_decl = $decl->{routine_declarator}) {
 		$routine_decl->{routine_def}->emit_m0ld('my');
             } else {

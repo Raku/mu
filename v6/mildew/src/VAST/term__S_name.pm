@@ -34,12 +34,12 @@ class VAST::term__S_name {
                 for my $part (@name[1..-2]) {
                     $func = call('postcircumfix:{ }'=>FETCH($func),[string($part.'::')]);
                 }
-                $func = call('postcircumfix:{ }'=>FETCH($func),[string($name[-1])]);
+                $func = call('postcircumfix:{ }'=>FETCH($func),[string('&'.$name[-1])]);
             } else {
-                $func = lookup($name[-1]);
+                $func = lookup('&'.$name[-1]);
             }
             #$func;
-            fcall $func => named_and_positional($self->{args}->emit_m0ld);
+            fcall FETCH($func) => named_and_positional($self->{args}->emit_m0ld);
         } else {
             XXX;
         }

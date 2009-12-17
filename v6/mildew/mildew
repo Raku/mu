@@ -235,7 +235,7 @@ sub parse {
 sub mold_to_m0ld {
     my ($mold,$C) = @_;
     my ($front,$back);
-    if ($C eq 'so' or $C eq 'js') {
+    if ($C eq 'so' or $C eq 'js-goto-back') {
         $front = "my \$interpreter;\nmy \$scope;\nmy \$back;\n";
         $back = 'my $void = $back."setr"($ret);my $void = $interpreter."goto"($back);';
     } else {
@@ -379,7 +379,7 @@ sub main {
         }
         sub p6_to_js {
             local $Mildew::return_real_value = 1;
-            m0ld_to_js(mold_to_m0ld(STD->parse($_[0], actions=>'Actions')->{'_ast'}->emit_m0ld(),'js'));
+            m0ld_to_js(mold_to_m0ld(STD->parse($_[0], actions=>'Actions')->{'_ast'}->emit_m0ld(),'js-goto-back'));
         }
         $ctx->register_method_by_name("print");
         $ctx->register_method_by_name("slurp");

@@ -10,7 +10,7 @@ class VAST::Base {
         }
         my @keys = grep {/^[a-z]\w*$/} keys %{$self};
         if (@keys == 1) {
-            say "falling back at ",ref $self," only key ",$keys[0];
+#            say "falling back at ",ref $self," only key ",$keys[0];
             $self->{$keys[0]}->emit_m0ld;
         } else {
             #XXX improve error message
