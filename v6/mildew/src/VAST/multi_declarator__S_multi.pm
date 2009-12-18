@@ -11,10 +11,10 @@ sub emit_m0ld {
     if ($routine->{deflongname}[0]) {
         $name = '&'.$routine->{deflongname}[0]{name}{identifier}{TEXT};
         if (my $colonpair = $routine->{deflongname}[0]{colonpair}[0]) {
-            if ($colonpair->{v}{sym}[0] eq '<' &&
-                 $colonpair->{v}{sym}[1] eq '>') {
-                $name .= ':'.$colonpair->{v}{nibble}->as_constant_string;
+            if ($colonpair->{circumfix}->isa('VAST::circumfix__S_Lt_Gt')) {
+                $name .= ':'.$colonpair->{v}{nibble}->Str;
             } else {
+                XXX;
             }
         }
     }
