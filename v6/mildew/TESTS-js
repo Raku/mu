@@ -52,3 +52,4 @@ t/multi.t
 t/test-pm/1-basic.t
 t/benchmark.t
 t/eval.t
+t/do.t

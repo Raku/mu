@@ -1,0 +1,14 @@
+#!/use/bin/perl
+use warnings;
+use strict;
+open(my $file,">","src/VAST/$ARGV[0].pm");
+print $file <<END
+use v5.10;
+use MooseX::Declare;
+use utf8;
+class VAST::$ARGV[0] {
+    use AST::Helpers;
+    method emit_m0ld {
+    }
+}
+END
