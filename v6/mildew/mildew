@@ -20,6 +20,7 @@ use Carp 'confess';
 use Scalar::Util 'blessed';
 use File::Temp qw(tempfile tmpnam);
 use File::Slurp qw(slurp);
+use Time::HiRes qw(time);
 
 $ENV{PATH} .= ':../../src/perl6';
 $ENV{PERL5LIB} .= ':../../src/perl6';
@@ -37,7 +38,6 @@ Usage: mildew [switches] [--] [programfile] [arguments]
   --gdb           run the program under gdb
   -x              specify the language of the input file
   --profile       print profiling info
-                  (valid values are: call-graph)
   --format        format for the profiling info
                   (valid values: dhtml,text)
   -e
@@ -45,7 +45,7 @@ Usage: mildew [switches] [--] [programfile] [arguments]
 HELP
 exit;
 }
-my ($debug,$B,$C,$output,$help,$valgrind,$gdb,$empty_setting,$x,$target_stage,$yeast,$profile,$profile_format,$program);
+my ($debug,$B,$C,$output,$help,$valgrind,$gdb,$empty_setting,$x,$target_stage,$yeast,$profile,$program);
 my @SMOP_INCLUDE;
 my @MILDEW_LDOPTS;
 
@@ -301,8 +301,7 @@ sub main {
         'x=s' => \$x,
         'target-stage=i'=>\$target_stage,
         'yeast' => \$yeast,
-        'profile=s' => \$profile,
-        'format=s' => \$profile_format,
+        'profile' => \$profile,
         'return-real-value' => \$Mildew::return_real_value,
         'e=s' => \$program
     ) || help;
@@ -387,6 +386,7 @@ sub main {
         $ctx->execute(get_js_runtime."\n1;");
         $ctx->execute(slurp("js/molds.js").";onmoldload()\n1;");
     
+        my $loading_start = time;
         for my $file (qw(js/CORE2.js js/RoleHOW.js js/Exception.js js/Failure.js js/Signature.js js/Multi.js js/Types.js js/int.js js/ModuleLoader.js)) {
             $ctx->execute("
                 var interpreter = new P6Interpreter();
@@ -396,12 +396,15 @@ sub main {
                 1;
             ");
         }
+        my $execution_start = time;
         $ctx->execute("
             var interpreter = new P6Interpreter();
             var frame = new P6Frame(".m0ld_to_js(m0ld).");
     interpreter.DISPATCH(interpreter,new P6Str('goto'),new P6capture([interpreter,frame],[]));
     interpreter.DISPATCH(interpreter,new P6Str('loop'),new P6capture([interpreter],[]));
     1;");
+        say "time loading setting: ",time-$loading_start if $profile;
+        say "time executing: ",time-$execution_start if $profile;
         warn if $@;
     } elsif ($B) {
         die "unknown backend passed to -B: $C\n";
