@@ -1,3 +1,3 @@
 * ControlExceptionReturn.throw ignores .handled
 * remove ¢ variables from emitted code (like SMOP__S1P__FlattenedScope)
-* remove .so from supplied paths
+* remove .so from paths supplied to ModuleLoader
