@@ -1,16 +1,16 @@
 my $test_count = 0;
 role HACK {
     method EXPORTALL($scope) {
-        $scope.{'&ok'} := &ok;
-        $scope.{'&plan'} := &plan;
-        $scope.{'&is'} := &is;
-        $scope.{'&isnt'} := &isnt;
-        $scope.{'&pass'} := &pass;
-        $scope.{'&flunk'} := &flunk;
-        $scope.{'&cmp_ok'} := &cmp_ok;
-        $scope.{'&done_testing'} := &done_testing;
-        $scope.{'&lives_ok'} := &lives_ok;    
-        $scope.{'&skip'} := &skip;    
+        $scope{'&ok'} := &ok;
+        $scope{'&plan'} := &plan;
+        $scope{'&is'} := &is;
+        $scope{'&isnt'} := &isnt;
+        $scope{'&pass'} := &pass;
+        $scope{'&flunk'} := &flunk;
+        $scope{'&cmp_ok'} := &cmp_ok;
+        $scope{'&done_testing'} := &done_testing;
+        $scope{'&lives_ok'} := &lives_ok;    
+        $scope{'&skip'} := &skip;    
     }
 }
 role Test {
@@ -51,14 +51,14 @@ multi flunk($desc?,:$todo) is export {
     proclaim(0,$desc,$todo);
 }
 multi cmp_ok($got,$op,$expected,$desc?,:$todo) is export {
-    proclaim($op.($got,$expected),$desc,$todo);
+    proclaim($op($got,$expected),$desc,$todo);
 }
 multi done_testing() is export {
     say "1..$test_count";
 }
 multi lives_ok($code,$desc?,:$todo) is export {
     {
-        $code.();
+        $code();
         proclaim(1,$desc,$todo);
         CATCH {
             proclaim(0,$desc,$todo);
