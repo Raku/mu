@@ -235,7 +235,7 @@ sub parse {
 sub mold_to_m0ld {
     my ($mold,$C) = @_;
     my ($front,$back);
-    if ($C eq 'so' or $C eq 'js-goto-back') {
+    if ($C eq 'so' or $C eq 'js-lib') {
         $front = "my \$interpreter;\nmy \$scope;\nmy \$back;\n";
         $back = 'my $void = $back."setr"($ret);my $void = $interpreter."goto"($back);';
     } else {
@@ -308,7 +308,7 @@ sub main {
     ) || help;
     help if $help;
     
-    if (($B // $C // '') eq 'js') {
+    if (($B // $C // '') eq 'js' or ($C // '') eq 'js-lib') {
         $empty_setting = 1;
         #$target_stage = 1 unless $target_stage;
     }
@@ -353,7 +353,7 @@ sub main {
         output(m0ld,$output);
     } elsif ($C eq 'C') {
         output(compile_to_c(m0ld),$output);
-    } elsif ($C eq 'js') {
+    } elsif ($C eq 'js' or $C eq 'js-lib') {
         output(m0ld_to_js(m0ld),$output);
     } elsif ($C) {
         die "unknown backend passed to -C: $C\n";
@@ -379,7 +379,7 @@ sub main {
         }
         sub p6_to_js {
             local $Mildew::return_real_value = 1;
-            m0ld_to_js(mold_to_m0ld(STD->parse($_[0], actions=>'Actions')->{'_ast'}->emit_m0ld(),'js-goto-back'));
+            m0ld_to_js(mold_to_m0ld(STD->parse($_[0], actions=>'Actions')->{'_ast'}->emit_m0ld(),'js-lib'));
         }
         $ctx->register_method_by_name("print");
         $ctx->register_method_by_name("slurp");

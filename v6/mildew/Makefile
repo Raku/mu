@@ -33,7 +33,7 @@ js/int.js : CORE/int.pm
 	perl mildew -Cjs -o $@ $<
 
 lib/%.mildew.js : lib/%.pm
-	perl mildew -Cjs -o $@ $<
+	perl mildew -Cjs-lib -o $@ $<
 
 lib/%.mildew.so : lib/%.pm
 	perl mildew -Cso --empty-setting -o $@ $<
