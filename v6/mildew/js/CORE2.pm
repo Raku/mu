@@ -11,7 +11,7 @@ $LexicalPrelude{'&infix:~'} := sub (|$capture) {
     my $i = 0;
     my $str = '';
     loop {
-        if $i.FETCH == $capture.elems {
+        if PRIMITIVES::eq($i.FETCH,$capture.elems) {
             return $str.FETCH;
         } else {
            $str = PRIMITIVES::concat($str.FETCH,$capture.positional($i.FETCH).FETCH.Str);

@@ -388,11 +388,12 @@ sub main {
     
         my $loading_start = time;
         for my $file (qw(js/CORE2.js js/RoleHOW.js js/Exception.js js/Failure.js js/Signature.js js/Multi.js js/Types.js js/int.js js/ModuleLoader.js)) {
+            say "loading $file";
             $ctx->execute("
                 var interpreter = new P6Interpreter();
                 var frame = new P6Frame(".slurp($file).");
-                interpreter.DISPATCH(interpreter,new P6Str('goto'),new P6capture([interpreter,frame],[]));
-                interpreter.DISPATCH(interpreter,new P6Str('loop'),new P6capture([interpreter],[]));
+                interpreter.DISPATCH(interpreter,'goto',new P6capture([interpreter,frame],[]));
+                interpreter.DISPATCH(interpreter,'loop',new P6capture([interpreter],[]));
                 1;
             ");
         }
@@ -400,8 +401,8 @@ sub main {
         $ctx->execute("
             var interpreter = new P6Interpreter();
             var frame = new P6Frame(".m0ld_to_js(m0ld).");
-    interpreter.DISPATCH(interpreter,new P6Str('goto'),new P6capture([interpreter,frame],[]));
-    interpreter.DISPATCH(interpreter,new P6Str('loop'),new P6capture([interpreter],[]));
+    interpreter.DISPATCH(interpreter,'goto',new P6capture([interpreter,frame],[]));
+    interpreter.DISPATCH(interpreter,'loop',new P6capture([interpreter],[]));
     1;");
         say "time loading setting: ",time-$loading_start if $profile;
         say "time executing: ",time-$execution_start if $profile;

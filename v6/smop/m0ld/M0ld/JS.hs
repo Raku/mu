@@ -87,8 +87,8 @@ compileToJS stmts =
 dumpConstantsToJS stmts = "[" ++ (concat $ intersperse "," $ concat [dumpConstantToJS c | Decl reg c <- stmts]) ++ "]"
 
 dumpConstantToJS value = case value of
-    StringConstant str -> ["new P6Str(\"" ++ str ++ "\")"]
-    IntegerConstant int -> ["new P6Int(" ++ show int ++ ")"]
+    StringConstant str -> ["\"" ++ str ++ "\""]
+    IntegerConstant int -> [show int]
     None -> []
     Var name -> [name]
     SubMold stmts -> [compileToJS stmts]
