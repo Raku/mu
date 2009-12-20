@@ -1,6 +1,5 @@
 #!/usr/bin/env perl
 use v5.10;
-#use lib 'perl6-snapshot';
 use lib '../../src/perl6';
 use lib 'src';
 use STD;
