@@ -25,7 +25,6 @@ t/signature-positional.t
 t/pure_prototype_how.t
 t/classhow_add_method.t
 t/classhow_add_method_real.t
-t/single_variant.t
 t/control_exception.t
 t/control_exception_routine.t
 t/loop.t
@@ -40,7 +39,6 @@ t/p6opaque.t
 t/return_function.t
 t/grep.t
 t/module_keyword.t
-t/our_sub.t
 t/for.p6
 t/throw_inside_catch.t
 t/role.t

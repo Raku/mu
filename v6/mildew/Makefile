@@ -20,14 +20,18 @@ CORE/%.mildew.so : CORE/%.pm
 	perl mildew -Cso --yeast --target-stage 1 --empty-setting -o $@ $<
 
 js-compiled/molds.js : js/molds
+	mkdir -p js-compiled
 	perl write_molds $< > $@
 js-compiled/%.js : js/%.pm
+	mkdir -p js-compiled
 	perl mildew --target-stage 1 -Cjs -o $@ $<
 
 js-compiled/%.js : CORE/%.pm
+	mkdir -p js-compiled
 	perl mildew --target-stage 1 -Cjs -o $@ $<
 
 js-compiled/int.js : CORE/int.pm
+	mkdir -p js-compiled
 	perl mildew -Cjs -o $@ $<
 
 lib/%.mildew.js : lib/%.pm

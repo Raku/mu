@@ -19,11 +19,13 @@ emitStmt regs labels hints (i,c) stmt =
     case stmt of
     -- we can insert special variants here
     Call target identifier capture@(Capture invocant positional named) -> dispatch
-        where
+        where 
+        t = show $ resolveReg target regs
         dispatch = emit $ "frame.pc = " ++ (show $ i+1) ++ ";\n" ++
-            "frame.ret = " ++ (show $ resolveReg target regs) ++ ";\n" ++
+            "frame.ret = " ++ t ++ ";\n" ++
+            "var tmp = " ++
             (reg invocant ++ ".DISPATCH(interpreter," ++ reg identifier ++ ",new P6capture(" ++ 
-            list (invocant:positional) ++ "," ++  list named ++ "));") ++ "break;\n"
+            list (invocant:positional) ++ "," ++  list named ++ "));") ++ "if (tmp != undefined) frame.reg["++t++"] = tmp;else "++"break;\n"
 
     --Call2 target responder identifier capture ->
     --    map (\r -> resolveReg r regs) [target,responder,identifier,capture]

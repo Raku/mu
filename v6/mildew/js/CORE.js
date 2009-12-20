@@ -3,7 +3,7 @@ var lexical_prelude = {};
 var SMOP__NATIVE__bool_false;
 var SMOP__NATIVE__bool_true;
 function always_true(interpreter,capture) {
-    setr(interpreter,SMOP__NATIVE__bool_true);
+    return SMOP__NATIVE__bool_true;
 }
 function init_type(ID,type) {
     type.prototype.DISPATCH = DISPATCH_from_methods;
@@ -12,18 +12,15 @@ function init_type(ID,type) {
     type.prototype.ID = ID;
 }
 function DISPATCH_from_methods(interpreter,identifier,capture) {
-//    print(this.ID+'.'+identifier,"\n");
+    //print(this.ID+'.'+identifier,"\n");
     if (this[identifier]) {
-        this[identifier](interpreter,capture);
+        return this[identifier](interpreter,capture);
     } else {
         throw 'no method '+identifier+' in '+this.ID; 
     }
 }
 function FETCH(interpreter,capture) {
-    setr(interpreter,this);
-}
-function setr(interpreter,val) {
-        interpreter._continuation.DISPATCH(interpreter,"setr",new P6capture([interpreter._continuation,val],[]));
+    return this;
 }
 function P6Frame(mold) {
     this.mold = mold;
@@ -62,16 +59,16 @@ P6Frame.prototype.set_regs = function(interpreter,capture) {
     }
 }
 P6Frame.prototype.back = function(interpreter,capture) {
-    setr(interpreter,this._back);
+    return this._back;
 }
 P6Frame.prototype.control = function(interpreter,capture) {
-    setr(interpreter,this._control);
+    return this._control;
 }
 P6Frame.prototype['catch'] = function(interpreter,capture) {
-    setr(interpreter,this._catch);
+    return this._catch;
 }
 P6Frame.prototype.lexical = function(interpreter,capture) {
-    setr(interpreter,this._lexical);
+    return this._lexical;
 }
 
 function P6Mold(regs,constants,code) {
@@ -81,7 +78,7 @@ function P6Mold(regs,constants,code) {
 P6Mold.prototype.DISPATCH = DISPATCH_from_methods;
 
 P6Mold.prototype.create = function(interpreter,capture) {
-    setr(interpreter,new P6Frame(this));
+    return new P6Frame(this);
 }
 init_type('Mold',P6Mold);
 
@@ -97,7 +94,7 @@ init_type('capture',P6capture);
 P6capture.prototype['new'] = function(interpreter,capture) {
     var c = new P6capture(capture._positional.slice(1),[]);
     c._named = capture._named;
-    setr(interpreter,c);
+    return c;
 }
 P6capture.prototype['delegate'] = function(interpreter,capture) {
     var pos = [];
@@ -106,29 +103,29 @@ P6capture.prototype['delegate'] = function(interpreter,capture) {
 
     var c = new P6capture(pos,[]);
     c._named = this._named;
-    setr(interpreter,c);
+    return c;
 }
 P6capture.prototype['positional'] = function(interpreter,capture) {
-    setr(interpreter,this._positional[capture._positional[1]]);
+    return this._positional[capture._positional[1]];
 }
 P6capture.prototype['named'] = function(interpreter,capture) {
     var val = this._named[capture._positional[1]];
-    setr(interpreter,val ? val : SMOP__NATIVE__bool_false);
+    return val ? val : SMOP__NATIVE__bool_false;
 }
 P6capture.prototype['elems'] = function(interpreter,capture) {
-    setr(interpreter,this._positional.length);
+    return this._positional.length;
 }
 P6capture.prototype['named_count'] = function(interpreter,capture) {
     var count = 0;
     for (i in this._named) count++;
-    setr(interpreter,count);
+    return count;
 }
 P6capture.prototype['FETCH'] = function(interpreter,capture) {
     if (this._positional.length == 1) {
         var content = this._positional[0];
-        content.DISPATCH(interpreter,('FETCH'),new P6capture([content],[]));
+        return content.DISPATCH(interpreter,('FETCH'),new P6capture([content],[]));
     } else {
-        setr(interpreter,this);
+        return this;
     }
 }
 
@@ -138,16 +135,16 @@ define_type({
     c: String,
     methods: {
         Str: function(interpreter,capture) {
-            setr(interpreter,String(this));
+            return String(this);
         },
         "true": function(interpreter,capture) {
-            setr(interpreter,boolify(this != 0 && this != '0'));
+            return boolify(this != 0 && this != '0');
         },
         perl: function(interpreter,capture) {
-            setr(interpreter,"'" + this.replace(/([\\\'])/g,"\\$1") + "'");
+            return "'" + this.replace(/([\\\'])/g,"\\$1") + "'";
         },
         FETCH: function(interpreter,capture) {
-            setr(interpreter,String(this));
+            return String(this);
         }
     }
 });
@@ -157,13 +154,13 @@ define_type({
     c: Number,
     methods: {
         "true": function(interpreter,capture) {
-            setr(interpreter,boolify(this != 0));
+            return boolify(this != 0);
         },
         Str: function(interpreter,capture) {
-            setr(interpreter,this + "");
+            return this + "";
         },
         FETCH: function(interpreter,capture) {
-            setr(interpreter,Number(this+0));
+            return Number(this+0);
         }
     }
 });
@@ -176,29 +173,28 @@ init_type('LexPad',P6LexPad);
 P6LexPad.prototype.lookup = function(interpreter,capture) {
     var key = capture._positional[1];
     if (this.entries.hasOwnProperty(key)) {
-        setr(interpreter,new P6BValue(this,key));
-        //print("found ",is.key);
+        return new P6BValue(this,key);
     } else if (this._outer.container != SMOP__NATIVE__bool_false) {
         /*XXX*/
-        this._outer.container.lookup(interpreter,capture);
+        return this._outer.container.lookup(interpreter,capture);
     } else {
         throw "Could not find variable "+key+" in the lexical scope.";
     }
 }
 P6LexPad.prototype['postcircumfix:{ }'] = function(interpreter,capture) {
     var key = capture._positional[1];
-    setr(interpreter,new P6BValue(this,key));
+    return new P6BValue(this,key);
 }
 P6LexPad.prototype['new'] = function(interpreter,capture) {
     var scope = new P6LexPad;
-    setr(interpreter,scope);
+    return scope;
 }
 P6LexPad.prototype.outer = function(interpreter,capture) {
-    setr(interpreter,this._outer);
+    return this._outer;
 }
 P6LexPad.prototype.exists = function(interpreter,capture) {
     var key = capture._positional[1];
-    setr(interpreter,boolify(this.entries.hasOwnProperty(key)));
+    return boolify(this.entries.hasOwnProperty(key));
 }
 
 
@@ -209,17 +205,20 @@ function P6BValue(lexpad,key) {
 init_type('BValue',P6BValue);
 P6BValue.prototype.BIND = function(interpreter,capture) {
     this.lexpad.entries[this.key] = capture._positional[1];
-    setr(interpreter,this);
+    return this;
 }
 P6BValue.prototype.FETCH = function(interpreter,capture) {
     if (!this.lexpad.entries.hasOwnProperty(this.key)) this.lexpad.entries[this.key] = new P6Scalar;
     var entry = this.lexpad.entries[this.key];
-    entry.DISPATCH(interpreter,"FETCH",new P6capture([entry],[]));
+    return entry.DISPATCH(interpreter,"FETCH",new P6capture([entry],[]));
 }
 P6BValue.prototype.STORE = function(interpreter,capture) {
-    if (!this.lexpad.entries.hasOwnProperty(this.key)) this.lexpad.entries[this.key] = new P6Scalar;
+    if (!this.lexpad.entries.hasOwnProperty(this.key)) {
+        this.lexpad.entries[this.key] = new P6Scalar;
+    } else {
+    }
     var entry = this.lexpad.entries[this.key];
-    entry.DISPATCH(interpreter,"STORE",new P6capture([entry,capture._positional[1]],[]));
+    return entry.DISPATCH(interpreter,"STORE",new P6capture([entry,capture._positional[1]],[]));
 }
 
 
@@ -238,7 +237,7 @@ var P6Interpreter = define_type({
             this._continuation = capture._positional[1];
         },
         'continuation': function(interpreter,capture) {
-            setr(interpreter,this._continuation);
+            return this._continuation;
         }
     }
 });
@@ -252,7 +251,7 @@ var P6Code = define_type({
             code._mold = capture._named.mold;
             code._outer = capture._named.outer;
             code._signature = capture._named.signature;
-            setr(interpreter,code);
+            return code;
         },
         'postcircumfix:( )': function(interpreter,capture) {
             var frame = new P6Frame(code_mold);
@@ -263,16 +262,16 @@ var P6Code = define_type({
             set_reg(frame,4,this._outer);
             set_reg(frame,5,this._signature);
             set_reg(frame,6,this._mold);
-            interpreter.DISPATCH(interpreter,'goto',new P6capture([interpreter,frame],[]));
+            return interpreter.DISPATCH(interpreter,'goto',new P6capture([interpreter,frame],[]));
         },
         'signature': function(interpreter,capture) {
-            setr(interpreter,this._signature);
+            return this._signature;
         },
         'outer': function(interpreter,capture) {
-            setr(interpreter,this._outer);
+            return this._outer;
         },
         'mold': function(interpreter,capture) {
-            setr(interpreter,this._mold);
+            return this._mold;
         }
     }
 });
@@ -284,7 +283,7 @@ function JSFunction(func) {
 init_type('JS function',JSFunction);
 
 JSFunction.prototype['postcircumfix:( )'] = function(interpreter,capture) {
-    this.func(interpreter,capture._positional[1]);
+    return this.func(interpreter,capture._positional[1]);
 }
 
 
@@ -297,16 +296,16 @@ builtin('&say',FETCH_all(function(interpreter,capture) {
     var str = '';
     for (var i in capture._positional) str += capture._positional[i];
     print(str,"\n");
-    setr(interpreter,SMOP__NATIVE__bool_true);
+    return SMOP__NATIVE__bool_true;
 }));
 builtin('&print',FETCH_all(function(interpreter,capture) {
     var str = '';
     for (var i in capture._positional) str += capture._positional[i];
     print(str);
-    setr(interpreter,SMOP__NATIVE__bool_true);
+    return SMOP__NATIVE__bool_true;
 }));
 builtin('&not',FETCH_all(function(interpreter,capture) {
-    setr(interpreter,boolify(capture._positional[0] == SMOP__NATIVE__bool_false));
+    return boolify(capture._positional[0] == SMOP__NATIVE__bool_false);
 }));
 builtin('&eval',FETCH_all(function(interpreter,capture) {
    var mold = eval(p6_to_js(capture._positional[0]));
@@ -317,7 +316,7 @@ builtin('&eval',FETCH_all(function(interpreter,capture) {
    set_reg(frame,1,interpreter._continuation._lexical);
    set_reg(frame,2,interpreter._continuation);
 
-   interpreter.DISPATCH(interpreter,'goto',new P6capture([interpreter,frame],[]));
+   return interpreter.DISPATCH(interpreter,'goto',new P6capture([interpreter,frame],[]));
 }));
 
 function define_type(options) {
@@ -346,14 +345,14 @@ function define_type(options) {
                 var storage = "_"+attrs[i];
                 obj[storage] = new P6Scalar;
             }
-            setr(interpreter,obj);
+            return obj;
         }
     }
     for (var i in attrs) {
         (function() {
             var storage = "_"+attrs[i];
             methods[attrs[i]] = function(interpreter,capture) {
-                setr(interpreter,this[storage]);
+                return interpreter,this[storage];
             }
         })();
     }
@@ -373,7 +372,7 @@ var P6AdhocSignature = define_type({
         'new': function(interpreter,capture) {
             var sig = new P6AdhocSignature;
             sig._BIND = capture._named.BIND;
-            setr(interpreter,sig);
+            return sig;
         },
         BIND: function(interpreter,capture) {
             var frame = new P6Frame(this._BIND);
@@ -381,7 +380,7 @@ var P6AdhocSignature = define_type({
             set_reg(frame,1,capture._positional[2]);
             set_reg(frame,2,capture._positional[1]);
             frame._back = interpreter._continuation;
-            interpreter.DISPATCH(interpreter,'goto',new P6capture([interpreter,frame],[]));
+            return interpreter.DISPATCH(interpreter,'goto',new P6capture([interpreter,frame],[]));
         }
     }
 });
@@ -394,14 +393,14 @@ P6Scalar = define_type({
     methods: {
         'new': function(interpreter,capture) {
             var scalar = new P6Scalar;
-            setr(interpreter,new P6Scalar(capture._positional[1]));
+            return new P6Scalar(capture._positional[1]);
         },
         FETCH: function(interpreter,capture) {
-            setr(interpreter,this.container);
+            return this.container;
         },
         STORE: function(interpreter,capture) {
             this.container = capture._positional[1];
-            setr(interpreter,this.container);
+            return this.container;
         }
     }
 });
@@ -409,7 +408,7 @@ var P6False = define_type({
     name:'False',
     methods: {
         'true': function(interpreter,capture) {
-            setr(interpreter,this);
+            return this;
         },
     }
 });
@@ -417,7 +416,7 @@ var P6True = define_type({
     name:'True',
     methods: {
         'true': function(interpreter,capture) {
-            setr(interpreter,this);
+            return this;
         },
     }
 });
@@ -427,11 +426,11 @@ var P6Array = define_type({
         'new': function(interpreter,capture) {
             var _content = new P6Array;
             _content._content = [];
-            setr(interpreter,_content);
+            return _content;
         },
         push: function(interpreter,capture) {
             this._content.push(capture._positional[1]);
-            setr(interpreter,SMOP__NATIVE__bool_false);
+            return SMOP__NATIVE__bool_false;
         },
         unshift: function(interpreter,capture) {
             this._content.unshift(capture._positional[1]);
@@ -439,14 +438,14 @@ var P6Array = define_type({
         shift: function(interpreter,capture) {
             /*TODO exception*/
             var val = this._content.shift()
-            setr(interpreter,val ? val : SMOP__NATIVE__bool_false);
+            return val ? val : SMOP__NATIVE__bool_false;
         },
         'postcircumfix:[ ]': function(interpreter,capture) {
             var index = capture._positional[1];
-            setr(interpreter,new P6ContainerProxy(this,index));
+            return new P6ContainerProxy(this,index);
         },
         elems: function(interpreter,capture) {
-            setr(interpreter,this._content.length);
+            return this._content.length;
         }
     }
 });
@@ -457,11 +456,11 @@ var P6Hash = define_type({
         'new': function(interpreter,capture) {
             var _content = new P6Hash;
             _content._content = {};
-            setr(interpreter,_content);
+            return _content;
         },
         'postcircumfix:{ }': function(interpreter,capture) {
             var index = capture._positional[1];
-            setr(interpreter,new P6ContainerProxy(this,index));
+            return new P6ContainerProxy(this,index);
         },
         keys: function(interpreter,capture) {
             var keys = [];
@@ -470,11 +469,11 @@ var P6Hash = define_type({
             }
             var ret = new P6Array;
             ret._content = keys;
-            setr(interpreter,ret);
+            return ret;
         },
         exists:function(interpreter,capture) { 
             var key = capture._positional[1];
-            setr(interpreter,boolify(this._content.hasOwnProperty(key)));
+            return boolify(this._content.hasOwnProperty(key));
         }
     }
 });
@@ -486,15 +485,15 @@ var P6Package = define_type({
             var pkg = new P6Package;
             pkg._name = new P6Scalar;
             pkg._content = {};
-            setr(interpreter,pkg);
+            return pkg;
         },
         'name': function(interpreter,capture) {
-            setr(interpreter,this._name);
+            return this._name;
         },
         'postcircumfix:{ }': function(interpreter,capture) {
             var key = capture._positional[1];
     //        print('looking up '+key+'\n');
-            setr(interpreter,new P6ContainerProxy(this,key));
+            return new P6ContainerProxy(this,key);
         },
     }
 });
@@ -521,35 +520,35 @@ var P6opaque = define_type({
             obj._does = new P6Array;
             obj._does._content = [];
     
-            setr(interpreter,obj);
+            return obj;
         },
         '^!how': function(interpreter,capture) {
-            setr(interpreter,this._how);
+            return this._how;
         },
         '^!who': function(interpreter,capture) {
-            setr(interpreter,this._who);
+            return this._who;
         },
         '^!methods': function(interpreter,capture) {
-            setr(interpreter,this._methods);
+            return this._methods;
         },
         '^!attributes': function(interpreter,capture) {
-            setr(interpreter,this._attributes);
+            return this._attributes;
         },
         '^!instance_storage': function(interpreter,capture) {
-            setr(interpreter,this._instance_storage);
+            return this._instance_storage;
         },
         '^!does': function(interpreter,capture) {
-            setr(interpreter,this._does);
+            return this._does;
         },
         '^!is_container': function(interpreter,capture) {
-            setr(interpreter,this._is_container);
+            return this._is_container;
         }
     }
 });
 P6opaque.prototype.DISPATCH = function (interpreter,identifier,capture) {
     var how = this._how.container;
-    if (!this[identifier] || (identifier == 'FETCH' && this._is_container.container != SMOP__NATIVE__bool_false)) how.DISPATCH(interpreter,"dispatch",new P6capture([how,capture._positional[0],identifier,capture],[]));
-    else this[identifier](interpreter,capture);
+    if (!this[identifier] || (identifier == 'FETCH' && this._is_container.container != SMOP__NATIVE__bool_false)) return how.DISPATCH(interpreter,"dispatch",new P6capture([how,capture._positional[0],identifier,capture],[]));
+    else return this[identifier](interpreter,capture);
 }
 
 var P6PrototypeHOW = define_type({
@@ -572,7 +571,7 @@ var P6PrototypeHOW = define_type({
             set_reg(frame,4,capture._positional[3]._positional[0]);
             frame._back = interpreter._continuation;
     //        print("gotoing...",capture._positional[3]._positional[0].ID,"\n");
-            interpreter.DISPATCH(interpreter,'goto',new P6capture([interpreter,frame],[]));
+            return interpreter.DISPATCH(interpreter,'goto',new P6capture([interpreter,frame],[]));
         },
         'lookup_fail': function(interpreter,capture) {
             var methods = [];
@@ -588,10 +587,10 @@ var P6FlattenedScope = define_type({
         'new': function(interpreter,capture) {
             var scope = new P6FlattenedScope;
             scope._scope = capture._positional[1];
-            setr(interpreter,scope);
+            return scope;
         },
         'postcircumfix:{ }': function(interpreter,capture) {
-            this._scope.DISPATCH(interpreter,"lookup",new P6capture([this._scope,capture._positional[1]],[]));
+            return this._scope.DISPATCH(interpreter,"lookup",new P6capture([this._scope,capture._positional[1]],[]));
         }
     }
 });
@@ -603,16 +602,16 @@ var P6ControlExceptionReturn = define_type({
             exception._handled = new P6Scalar;
             exception._routine = new P6Scalar;
             exception._capture = new P6Scalar;
-            setr(interpreter,exception);
+            return exception;
         },
         'handled': function(interpreter,capture) {
-            setr(interpreter,this._handled);
+            return this._handled;
         },
         'routine': function(interpreter,capture) {
-            setr(interpreter,this._routine);
+            return this._routine;
         },
         'capture': function(interpreter,capture) {
-            setr(interpreter,this._capture);
+            return this._capture;
         },
         'throw': function(interpreter,capture) {
             var frame = new P6Frame(throw_mold);
@@ -620,14 +619,14 @@ var P6ControlExceptionReturn = define_type({
             set_reg(frame,1,this);
             set_reg(frame,2,new P6capture([this],[]));
             frame._back = interpreter._continuation;
-            interpreter.DISPATCH(interpreter,'goto',new P6capture([interpreter,frame],[]));
+            return interpreter.DISPATCH(interpreter,'goto',new P6capture([interpreter,frame],[]));
         },
         'handle_return': function(interpreter,capture) {
             var exception = capture._positional[1];
             if (capture._positional[2] == exception._routine.container) {
-                setr(interpreter,exception._capture.container);
+                return exception._capture.container;
             } else {
-                exception.DISPATCH(interpreter,'throw',new P6capture([exception],[]));
+                return exception.DISPATCH(interpreter,'throw',new P6capture([exception],[]));
             }
         }
     }
@@ -645,17 +644,17 @@ function P6ContainerProxy(array,index) {
 init_type('Container Proxy',P6ContainerProxy);
 P6ContainerProxy.prototype.BIND = function(interpreter,capture) {
     this._content._content[this.index] = capture._positional[1];
-    setr(interpreter,this);
+    return this;
 }
 P6ContainerProxy.prototype.FETCH = function(interpreter,capture) {
     if (!this._content._content.hasOwnProperty(this.index)) this._content._content[this.index] = new P6Scalar;
     var entry = this._content._content[this.index];
-    entry.DISPATCH(interpreter,"FETCH",new P6capture([entry],[]));
+    return entry.DISPATCH(interpreter,"FETCH",new P6capture([entry],[]));
 }
 P6ContainerProxy.prototype.STORE = function(interpreter,capture) {
     if (!this._content._content.hasOwnProperty(this.index)) this._content._content[this.index] = new P6Scalar;
     var entry = this._content._content[this.index];
-    entry.DISPATCH(interpreter,"STORE",new P6capture([entry,capture._positional[1]],[]));
+    return entry.DISPATCH(interpreter,"STORE",new P6capture([entry,capture._positional[1]],[]));
 }
 
 define_type({
@@ -671,7 +670,7 @@ define_type({
             set_reg(frame,1,capture._positional[2]);
             set_reg(frame,2,interpreter._continuation);
 
-            interpreter.DISPATCH(interpreter,'goto',new P6capture([interpreter,frame],[]));
+            return interpreter.DISPATCH(interpreter,'goto',new P6capture([interpreter,frame],[]));
         }
     }
 });
@@ -718,14 +717,15 @@ var FETCH_all_mold = new P6Mold(1,[],function(interpreter,frame) {
         case 0:
             if (frame.__capture._positional.length <= frame.__index) {
                 interpreter.DISPATCH(interpreter,'goto',new P6capture([interpreter,frame._back],[]));
-                frame.__f(interpreter,frame.__capture);
+                var tmp = frame.__f(interpreter,frame.__capture);
+                if (tmp) interpreter._continuation.DISPATCH(interpreter,"setr",new P6capture([interpreter._continuation,tmp],[]));
                 break;
             }
             var obj = frame.__capture._positional[frame.__index];
             frame.pc = 1;
             frame.ret = 0;
-            obj.DISPATCH(interpreter,"FETCH",new P6capture([obj],[]));
-            break;
+            var tmp = obj.DISPATCH(interpreter,"FETCH",new P6capture([obj],[]));
+            if (tmp != undefined) frame.reg[0] = tmp; else break;
         case 1:
             frame.__capture._positional[frame.__index] = frame.reg[0];
             frame.__index++;
@@ -740,46 +740,46 @@ function FETCH_all(f) {
         frame.__capture = capture;
         frame.__index = 0;
         frame.__f = f;
-        interpreter.DISPATCH(interpreter,'goto',new P6capture([interpreter,frame],[]));
+        return interpreter.DISPATCH(interpreter,'goto',new P6capture([interpreter,frame],[]));
     };
 }
 
 primitive('&concat',function(interpreter,capture) {
-    setr(interpreter,capture._positional[0] + capture._positional[1]);
+    return capture._positional[0] + capture._positional[1];
 });
 primitive('&eq',function(interpreter,capture) {
-    setr(interpreter,boolify(capture._positional[0] == capture._positional[1]));
+    return boolify(capture._positional[0] == capture._positional[1]);
 });
 primitive('&pointer_equal',function(interpreter,capture) {
-    setr(interpreter,boolify(capture._positional[0] == capture._positional[1]));
+    return boolify(capture._positional[0] == capture._positional[1]);
 });
 primitive('&SMOP_RI',function(interpreter,capture) {
-    setr(interpreter,capture._positional[0].ID);
+    return capture._positional[0].ID;
 });
 primitive('&ritest',function(interpreter,capture) {
-    setr(interpreter,boolify(capture._positional[0].ID == capture._positional[1]));
+    return boolify(capture._positional[0].ID == capture._positional[1]);
 });
 primitive('&idconst_eq',function(interpreter,capture) {
-    setr(interpreter,boolify(capture._positional[0] == capture._positional[1]));
+    return boolify(capture._positional[0] == capture._positional[1]);
 });
 primitive('&int_add',function(interpreter,capture) {
-    setr(interpreter,capture._positional[0] + capture._positional[1]);
+    return capture._positional[0] + capture._positional[1];
 });
 primitive('&int_substract',function(interpreter,capture) {
-    setr(interpreter,capture._positional[0] - capture._positional[1]);
+    return capture._positional[0] - capture._positional[1];
 });
 primitive('&int_less',function(interpreter,capture) {
-    setr(interpreter,boolify(capture._positional[0] < capture._positional[1]));
+    return boolify(capture._positional[0] < capture._positional[1]);
 });
 primitive('&get_interpreter',function(interpreter,capture) {
-    setr(interpreter,interpreter);
+    return interpreter;
 });
 var UID = 0;
 primitive('&storage_name',function(interpreter,capture) {
     if (!capture._positional[0].UID) {
         capture._positional[0].UID = ++UID;
     }
-    setr(interpreter,capture._positional[0].UID+capture._positional[1]);
+    return capture._positional[0].UID+capture._positional[1];
 });
 
 SMOP__S1P__LexicalPrelude.entries['PRIMITIVES::'] = PRIMITIVES;
