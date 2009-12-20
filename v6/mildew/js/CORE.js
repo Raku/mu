@@ -295,7 +295,7 @@ function builtin(name,func) {
 
 builtin('&say',FETCH_all(function(interpreter,capture) {
     var str = '';
-    for (var i in capture._positional) str += capture._positional[i] + ";";
+    for (var i in capture._positional) str += capture._positional[i];
     print(str,"\n");
     setr(interpreter,SMOP__NATIVE__bool_true);
 }));

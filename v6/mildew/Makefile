@@ -7,7 +7,7 @@ STD :
 
 CORE: CORE/int.mildew.so CORE/CORE.mildew.so CORE/Exception.mildew.so CORE/Multi.mildew.so CORE/RoleHOW.mildew.so CORE/EXTERNAL.mildew.so CORE/Return.mildew.so CORE/Failure.mildew.so CORE/Signature.mildew.so CORE/Types.mildew.so CORE/ModuleLoader.mildew.so CORE/Eval.mildew.so CORE/ClassHOW.mildew.so 
 
-CORE-js: js/CORE2.js js/molds.js js/RoleHOW.js js/Exception.js js/Failure.js js/Multi.js js/Signature.js js/Types.js js/int.js js/ModuleLoader.js lib/Test.mildew.js
+CORE-js: js-compiled/CORE2.js js-compiled/molds.js js-compiled/RoleHOW.js js-compiled/Exception.js js-compiled/Failure.js js-compiled/Multi.js js-compiled/Signature.js js-compiled/Types.js js-compiled/int.js js-compiled/ModuleLoader.js lib/Test.mildew.js
 
 modules: lib/Test.mildew.so
 
@@ -21,15 +21,15 @@ CORE/Eval.mildew.so : CORE/Eval.pm
 CORE/%.mildew.so : CORE/%.pm
 	perl mildew -Cso --yeast --target-stage 1 --empty-setting -o $@ $<
 
-js/molds.js : js/molds
-	perl write_molds js/molds > js/molds.js
-js/%.js : js/%.pm
+js-compiled/molds.js : js/molds
+	perl write_molds $< > $@
+js-compiled/%.js : js/%.pm
 	perl mildew --target-stage 1 -Cjs -o $@ $<
 
-js/%.js : CORE/%.pm
+js-compiled/%.js : CORE/%.pm
 	perl mildew --target-stage 1 -Cjs -o $@ $<
 
-js/int.js : CORE/int.pm
+js-compiled/int.js : CORE/int.pm
 	perl mildew -Cjs -o $@ $<
 
 lib/%.mildew.js : lib/%.pm
