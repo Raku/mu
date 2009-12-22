@@ -21,6 +21,7 @@ Cats
 Hash.invert, Hash.push
 "interesting values of Undef"
 operator contextualizers -- +, ?, ~, $, @, %  (e.g., +| vs ?| vs &|)
+IO
 
 --- Scheduled ---
 .fmt
