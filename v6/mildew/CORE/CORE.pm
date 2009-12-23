@@ -134,8 +134,6 @@ $LexicalPrelude{'&prefix:?'} := sub ($bool) {
 
 ::MildewSOLoader.new.load('int.mildew.so',$LexicalPrelude.FETCH);
 
-::MildewSOLoader.new.load('ClassHOW.mildew.so',$LexicalPrelude.FETCH);
-
 role Undef {
     method true {
         ::False.FETCH;

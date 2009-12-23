@@ -11,6 +11,11 @@
  SMOP__ID__lookup = SMOP__NATIVE__idconst_create("lookup");
 %}
 
+%method FETCH
+    ___VALUE_FETCH___;
+%method STORE
+    ___VALUE_STORE___;
+
 %method new
   ret = smop_nagc_alloc(sizeof(smop_s1p_flattenedscope_struct));
   SMOP_REFERENCE(interpreter,RI);

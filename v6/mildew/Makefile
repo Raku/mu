@@ -3,7 +3,7 @@
 all: CORE CORE-js modules
 
 
-CORE: CORE/int.mildew.so CORE/CORE.mildew.so CORE/Exception.mildew.so CORE/Multi.mildew.so CORE/RoleHOW.mildew.so CORE/EXTERNAL.mildew.so CORE/Return.mildew.so CORE/Failure.mildew.so CORE/Signature.mildew.so CORE/Types.mildew.so CORE/ModuleLoader.mildew.so CORE/Eval.mildew.so CORE/ClassHOW.mildew.so 
+CORE: CORE/int.mildew.so CORE/CORE.mildew.so CORE/Exception.mildew.so CORE/Multi.mildew.so CORE/RoleHOW.mildew.so CORE/EXTERNAL.mildew.so CORE/Return.mildew.so CORE/Failure.mildew.so CORE/Signature.mildew.so CORE/Types.mildew.so CORE/ModuleLoader.mildew.so CORE/Eval.mildew.so 
 
 CORE-js: js-compiled/CORE2.js js-compiled/molds.js js-compiled/RoleHOW.js js-compiled/Exception.js js-compiled/Failure.js js-compiled/Multi.js js-compiled/Signature.js js-compiled/Types.js js-compiled/int.js js-compiled/ModuleLoader.js lib/Test.mildew.js
 
