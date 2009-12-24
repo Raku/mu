@@ -369,8 +369,8 @@ sub main {
         local $ENV{PERL5LIB} = "../smop/SMOP/blib/lib/:../smop/SMOP/blib/arch:" . ($ENV{PERL5LIB} || '');
         run_m0ld(m0ld);
     } elsif ($B eq 'js') {
-        require V8;
-        my $ctx = V8::Context->new();
+        require JavaScript::V8;
+        my $ctx = JavaScript::V8::Context->new();
         sub print {
             # TODO: put this in C++ instead as a V8 plugin (or use Print() from d8.cc)
             print map { Encode::decode_utf8($_) } @_;
@@ -382,13 +382,13 @@ sub main {
         $ctx->register_method_by_name("print");
         $ctx->register_method_by_name("slurp");
         $ctx->register_method_by_name("p6_to_js");
-        $ctx->execute(get_js_runtime."\n1;");
-        $ctx->execute(slurp("js-compiled/molds.js").";onmoldload()\n1;");
+        $ctx->eval(get_js_runtime."\n1;");
+        $ctx->eval(slurp("js-compiled/molds.js").";onmoldload()\n1;");
     
         my $loading_start = time;
         for my $file (qw(js-compiled/CORE2.js js-compiled/RoleHOW.js js-compiled/Exception.js js-compiled/Failure.js js-compiled/Signature.js js-compiled/Multi.js js-compiled/Types.js js-compiled/int.js js-compiled/ModuleLoader.js)) {
             #say "loading $file";
-            $ctx->execute("
+            $ctx->eval("
                 var interpreter = new P6Interpreter();
                 var frame = new P6Frame(".slurp($file).");
                 interpreter.DISPATCH(interpreter,'goto',new P6capture([interpreter,frame],[]));
@@ -397,7 +397,7 @@ sub main {
             ");
         }
         my $execution_start = time;
-        $ctx->execute("
+        $ctx->eval("
             var interpreter = new P6Interpreter();
             var frame = new P6Frame(".m0ld_to_js(m0ld).");
     interpreter.DISPATCH(interpreter,'goto',new P6capture([interpreter,frame],[]));
