@@ -20,16 +20,22 @@ sub indent {
 }
 sub terminate_stmt {
     my $stmt = shift;
-    return $stmt . ";\n" unless $stmt =~ /(\n|;|})$/;
-    return $stmt;
+    if ($stmt =~ /;|}$/) {
+        $stmt . "\n";
+    } elsif ($stmt =~ /\n$/) {
+        $stmt;
+    } else {
+        $stmt . ";\n";
+    }
 }
 }
 class AST::Base {
+    use YAML::XS;
+    use namespace::autoclean;
     method m0ld($ret) {
         $self->m0ld($ret);
     }
     method pretty {
-        use YAML::XS;
         Dump($self);
     }
 }
