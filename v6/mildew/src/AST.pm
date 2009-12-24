@@ -18,6 +18,11 @@ sub indent {
     $x =~ s/^/$s/mg;
     $x;
 }
+sub terminate_stmt {
+    my $stmt = shift;
+    return $stmt . ";\n" unless $stmt =~ /(\n|;|})$/;
+    return $stmt;
+}
 }
 class AST::Base {
     method m0ld($ret) {
@@ -160,16 +165,12 @@ class AST::Block extends AST::Base {
             . join("",map { $_->m0ld('$void') } @{$self->stmts})
         . "};\n";
     }
-    sub terminate_stmt {
-        my $stmt = shift;
-        return $stmt . ";\n" unless $stmt =~ /(\n|;|})$/;
-        return $stmt;
-    }
     method pretty {
         use Data::Dump::Streamer;
         "mold \{\n". AST::indent(
             join('',map {'my $'.$_.";\n"} @{$self->regs})
-            . join("",map { blessed($_) ? terminate_stmt $_->pretty : confess("$_ is not a reference") } @{$self->stmts})
+            . join("",map {AST::terminate_stmt  $_->pretty } @{$self->stmts})
+            #. join("",map { blessed($_) ? terminate_stmt $_->pretty : confess("$_ is not a reference") } @{$self->stmts})
         ) . "\}"
     }
 }
@@ -195,19 +196,17 @@ class AST::Let extends AST::Base {
     }
     method pretty {
         my $id = AST::unique_id;
-        '{my ' . $id . ' = ' . $self->value->pretty . ";\n"
-        . $self->block->(AST::Reg->new(name => $id))->pretty.'}';
+        "do {\n". AST::indent('my ' . $id . ' = ' . $self->value->pretty . ";\n"
+        . $self->block->(AST::Reg->new(name => $id))->pretty) . '}';
     }
 }
 
 class AST::Seq extends AST::Base {
     has 'stmts' => (is=>'ro');
-    sub pretty {
-        my ($self,) = @_;
-        join('',map {$_->pretty . ";\n"} @{$self->stmts});
+    method pretty {
+        join("",map {AST::terminate_stmt $_->pretty} @{$self->stmts});
     }
-    sub m0ld {
-        my ($self,$ret) = @_;
+    method m0ld($ret) {
         my @stmts = @{$self->stmts};
         my $last = pop @stmts;
         my $m0ld = join('',map {$_->m0ld(AST::unique_id)} @stmts);
@@ -217,6 +216,8 @@ class AST::Seq extends AST::Base {
 }
 
 class AST::Call extends AST::Base {
+    use namespace::autoclean;
+    use AST::Helpers qw(YYY);
     has 'capture' => (is=>'ro');
     has 'identifier' => (is=>'ro');
     method arguments {
@@ -276,7 +277,6 @@ class AST::Call extends AST::Base {
         }
     
         if ($self->capture->isa("AST::Capture")) {
-            use AST::Helpers qw(YYY);
             YYY($self) unless $self->capture->invocant;
             $self->capture->invocant->pretty . "." . $identifier . (@args ? '(' . join(',',@args) . ')' : '');
         } else {
