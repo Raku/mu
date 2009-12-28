@@ -1,3 +1,5 @@
+use utf8;
+use v5.10;
 use MooseX::Declare;
 class VAST::statement_control__S_use {
     use AST::Helpers;
@@ -7,8 +9,8 @@ class VAST::statement_control__S_use {
             # use v6
         } elsif ($module
                  && $module->{colonpair}[0]
-                 && $module->{colonpair}[0]{identifier}{TEXT} eq 'from'
-                 && $module->{colonpair}[0]{postcircumfix}{nibble}{nibbles}[0] eq 'perl5') {
+                 && $module->{colonpair}[0]{k} eq 'from'
+                 && $module->{colonpair}[0]{v}{nibble}->Str eq 'perl5') {
             my $name = join '::',$module->{name}{identifier}{TEXT},map {
                 $_->{identifier}[0]{TEXT}
             } @{$module->{name}{morename}};
