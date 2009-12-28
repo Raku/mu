@@ -1,18 +1,6 @@
-This is the refactored repository for SMOP. This refactory was needed
-because despite the huge amount of polymorphism supported by SMOP, the
-previous structure didn't actually allow us to take much advantage of
-it, because we got everything too much coupled in the build process.
-
-We're also using this refactoring to solve two issues:
-
- 1) The concept of invocant no longer exists in the capture at
- runtime, the invocant is the first positional parameter.
-
- 2) The "data" member in SMOP__Object* can be factored out to the
- types that actually use it, this makes the overhead of SMOP__Object*
- just a single pointer as first member.
-
-SMOP should then be divided into the following modules
+SMOP is a polymorphic meta-OO runtime library and
+specification. Although some default implementations are presented
+here, they are entirely optional.
 
  base - This module is actually composed only of the basic
    headers that define SMOP__Object* and SMOP__ResponderInterface*
