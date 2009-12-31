@@ -329,6 +329,9 @@ sub main {
     if ($C eq 'desugar') {
         output(parse->pretty."\n",$output);
         exit;
+    } elsif ($C eq 'simplified') {
+        output(parse->simplified->pretty."\n",$output);
+        exit;
     } elsif ($C eq 'ast-yaml') {
         use YAML::XS;
         my $ast = parse;

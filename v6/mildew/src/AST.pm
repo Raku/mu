@@ -32,11 +32,27 @@ sub terminate_stmt {
 class AST::Base {
     use YAML::XS;
     use namespace::autoclean;
+    sub walk {
+        my ($thing) = @_;
+        if (ref $thing eq 'ARRAY') {
+            [map {walk($_)} @{$thing}]; 
+        } elsif (eval {$thing->isa('AST::Base')}) {
+            $thing->simplified; 
+        } else {
+            $thing;
+        }
+    }
     method m0ld($ret) {
         $self->m0ld($ret);
     }
     method pretty {
         Dump($self);
+    }
+    method simplified {
+        $self->new({map {
+            my $attr = $self->$_;
+            ($_ => walk($attr));
+        } $self->meta->get_attribute_list});
     }
 }
 
@@ -47,8 +63,18 @@ class AST::Loop extends AST::Base {
         $label.':'.($self->code->m0ld($ret))."\n".
         'goto '.$label.';'."\n";
     }
+    method simplified {
+        use AST::Helpers;
+        use namespace::autoclean;
+        my $label = AST::unique_label;
+        AST::Seq->new(stmts=>[
+            AST::Label->new(identifier=>$label),
+            $self->code->simplified,
+            AST::Goto->new(label=>$label)
+        ]);
+    }
     method pretty {
-    return 'loop {'
+        return "loop {\n"
         . AST::indent($self->code->pretty) . "\n"
         . "}\n";
     }
@@ -190,7 +216,15 @@ class AST::Block extends AST::Base {
 
 class AST::Label extends AST::Base {
     has 'identifier' => (is => 'rw');
-    has 'stmt' => (is => 'rw');
+    method pretty {
+        $self->identifier . ":\n";
+    }
+}
+class AST::Goto extends AST::Base {
+    has 'label' => (is => 'rw');
+    method pretty {
+        "goto ".$self->label;
+    }
 }
 
 class AST::Let extends AST::Base {
