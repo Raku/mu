@@ -1,10 +1,10 @@
-﻿
+
 2009-12-30
 
 The Perl 6 project is in serious danger of ruining its brand and (worse) 
 continuing to damage the brand of Perl as a whole.
 
-There are some of the problems that must be addressed by the Perl 6 project
+Here are some of the problems that must be addressed by the Perl 6 project
 in order to salvage the remaining goodwill of the Perl 6 brand and to produce
 anything another than a laughingstock in the software market and communities.
 
@@ -29,7 +29,7 @@ A. Implementors are few and far between (and burn out quickly), because:
 B. The Perl 6 implementations are too divergent (and on failure-ridden paths to
   mutual incompatibility), because:
   1) implementors believe that some portions of the Perl 6 spec (as a whole,
-    defined by the Synopses) is infeasible, but the implementors differ as to
+    defined by the Synopses) are infeasible, but the implementors differ as to
     which parts are infeasible.
   2) implementors are more committed to different backends and implementation
     languages than others
