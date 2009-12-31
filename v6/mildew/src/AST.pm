@@ -65,13 +65,11 @@ class AST::Loop extends AST::Base {
     }
     method simplified {
         use AST::Helpers;
+        use Scalar::Util qw(weaken);
         use namespace::autoclean;
-        my $label = AST::unique_label;
-        AST::Seq->new(stmts=>[
-            AST::Label->new(identifier=>$label),
-            $self->code->simplified,
-            AST::Goto->new(label=>$label)
-        ]);
+        my $goto = AST::Goto->new();
+        my $block = AST::Seq->new(id=>AST::unique_label,stmts=>[$self->code->simplified,$goto]);
+        $goto->block($block);
     }
     method pretty {
         return "loop {\n"
@@ -214,18 +212,6 @@ class AST::Block extends AST::Base {
     }
 }
 
-class AST::Label extends AST::Base {
-    has 'identifier' => (is => 'rw');
-    method pretty {
-        $self->identifier . ":\n";
-    }
-}
-class AST::Goto extends AST::Base {
-    has 'label' => (is => 'rw');
-    method pretty {
-        "goto ".$self->label;
-    }
-}
 
 class AST::Let extends AST::Base {
     has 'block' => (is=>'ro');
@@ -233,6 +219,11 @@ class AST::Let extends AST::Base {
     method m0ld($ret) {
         my $id = AST::unique_id;
         $self->value->m0ld($id) . $self->block->(AST::Reg->new(name => $id))->m0ld($ret);
+    }
+    method simplified {
+        my $id = AST::unique_id;
+        my $reg = AST::Reg->new(name => $id);
+        
     }
     method pretty {
         my $id = AST::unique_id;
@@ -243,8 +234,10 @@ class AST::Let extends AST::Base {
 
 class AST::Seq extends AST::Base {
     has 'stmts' => (is=>'ro');
+    has 'id' => (is=>'ro');
     method pretty {
-        join("",map {AST::terminate_stmt $_->pretty} @{$self->stmts});
+        (defined($self->id) ? $self->id . ": " : '')
+        . join("",map {AST::terminate_stmt $_->pretty} @{$self->stmts});
     }
     method m0ld($ret) {
         my @stmts = @{$self->stmts};
@@ -377,5 +370,19 @@ class AST::Capture extends AST::Base {
     has 'positional' => (is=>'ro',default=>sub {[]},isa=>'ArrayRef[AST::Base]');
     has 'named' => (is=>'ro',default=>sub {[]});
     has 'ctx' => (is=>'ro');
+}
+
+# lowlevel AST nodes
+
+class AST::Goto extends AST::Base {
+    has 'block' => (is => 'rw');
+    method pretty {
+        "goto ".$self->block->id;
+    }
+}
+class AST::Branch extends AST::Base {
+    has 'reg' => (is=>'ro');
+    has 'block1' => (is=>'ro');
+    has 'block2' => (is=>'ro');
 }
 1;
