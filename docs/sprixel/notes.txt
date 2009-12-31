@@ -1,0 +1,145 @@
+﻿
+2009-12-30
+
+The Perl 6 project is in serious danger of ruining its brand and (worse) 
+continuing to damage the brand of Perl as a whole.
+
+There are some of the problems that must be addressed by the Perl 6 project
+in order to salvage the remaining goodwill of the Perl 6 brand and to produce
+anything another than a laughingstock in the software market and communities.
+
+A. Implementors are few and far between (and burn out quickly), because:
+  1) potential implementors/contributors are afraid to commit to a particular
+    implementation because of the FUD (some of which is warranted) about each
+    of the backends (such as parrot, but not solely parrot!) and
+    implementation approaches.
+  2) many Perl 5 porters/users are skeptical of the feasibility of the Perl 6
+    project as a whole, because of pervasive confusion about its scope & goals.
+  3) the immense size and scope of the specification makes it seem fantastic,
+    where there is no plausible, authoritative, and LOUD claim that the spec
+    is coherent and capable of being fully implemented (the spec needs to be
+    far less "speculative", not Baroque at all, and much more decisive).
+  4) the specification process is too open-ended in the time dimension, with
+    no deadline for any "stable" milestone.
+  5) there is no hard & fast specification for interoperability/compatibility
+    with installations of the Perl 5 implementation, so any paths to migration
+    and adoption imagined by potential implementors/contributors are extremely
+    speculative and often contradictory, which is a deterrent.
+
+B. The Perl 6 implementations are too divergent (and on failure-ridden paths to
+  mutual incompatibility), because:
+  1) implementors believe that some portions of the Perl 6 spec (as a whole,
+    defined by the Synopses) is infeasible, but the implementors differ as to
+    which parts are infeasible.
+  2) implementors are more committed to different backends and implementation
+    languages than others
+  3) the spec is too unclear/ambiguous/speculative on certain points that leaves
+    room for far too much incompatibility among the subset[s] of the Perl 6 spec
+    the various implementations [plan to] implement.
+  4) implementors are skeptical of the eventual success probability of all the 
+    implementation efforts (including their own, in most cases).
+
+C. Each of the implementations (together with each's backend) are derided as:
+  1) much too difficult to build/install
+  2) much too unstable to target as a shared backend
+  3) much too slow to be anything but laughable when compared with other
+    dynamic languages, especially Perl 5, for that matter
+
+
+Here are my proposed strategies to address/solve each of the problems:
+
+A. Eliminate the psychological roadblocks to attracting a horde of eager Perl 6
+  implementors and contributors and fanchildren.
+  1) Larry Wall must participate in, and bless the conclusive results of, some
+    ongoing objective evaluations of the success potential (including realistic
+    expected resource (time/human) requirements) of various implementation
+    efforts, as each relates to the feasability of completing an implementation
+    of the specification with any likelihood or efficiency.  It should be noted
+    that /usr/bin/perl was not the only Perl 5 implementation undertaken; there
+    have been several (at least two commercially funded) serious implementation
+    efforts of Perl 5, all of which were abandoned (or rebranded as "Perl-like"
+    language implementations).  This evaluation effort must be truly objective,
+    and Larry must be willing to adapt (including possibly excising/redacting
+    significant chunks of) the specification to the completion feasibilities on
+    the various implementation platforms.
+  2) Larry must communicate directly with the Perl 5 community, addressing it
+    as such, for the express purpose of clearing up confusion and FUD about
+    the Perl 6 project.
+  3) Larry (or a group of implementors with solidarity) must reduce the size of
+    the spec to a manageable subset that is realistically achievable.  Any
+    speculations should be very clearly separated into different documents. It
+    is likely that this will involve a rewrite/Harmony of the Synopses as well
+    as moving large portions of the specification to "module-level" optional
+    components.
+  4) Larry must set a hard-and-fast deadline for a release version of the
+    specification, with a version number.  Patch releases of the specification
+    should be prepared to repair any errata, but this process must be managed
+    precisely to prevent further scope creep and featuritis.  Implementors need
+    to be able to target a particular version of the spec without worrying
+    about sudden imminent deprecation or obsolescence.  This (of course) would
+    put somewhat more urgency on Larry to finalize a release of the spec.
+  5) Larry needs to definitively declare how crucial "use v5; { ... }; use v6;"
+    is to Perl 6.0.0, and define whether Perl 6 should be linked to libperl, or
+    whether Perl 6.0.0 should be a module of Perl 5, a la Devel::Declare, or
+    both, or either (but preferably XOR, please), XOR whether a Perl 6
+    implementation should be expected to implement Perl 5 independently (surely
+    not).
+
+B. Bring together the highly fractured/fractious implementation communities and
+  their implementations by doing the following:
+  1) Larry must ask each implementation to explicitly define its goals &
+    expectations w.r.t. extent of Perl 6 spec intended (or desired/imagined) to
+    complete, and which portions are not expected to be able to able to be
+    completed for years.  At that point, Larry should accomodate the spec to
+    these constraints, or facilitate the implementations to combine their
+    efforts in order to achieve a realistic release, to a defined spec release.
+    This will promote further winnowing of the spec (and the implementations).
+  2) If a most-likely-to-succeed-with-a-concerted-effort implementation vehicle
+    is selected based on the objective and realistic analysis of feasibility,
+    the community should encourage potential implementors to join that
+    implementation effort, and delegate sub-responsibilities for that
+    implementation plan.  This will require more concerted planning and design
+    meetings than have historically occurred (at least visibly), and Larry must
+    participate in this in order to achieve buy-in.
+  3) Larry must clarify the areas of the spec on which the implementations
+    diverge to prevent incompatibility, which will drive the consolidation of
+    implementation efforts.  In particular, Perl 5 and C/C++ lib interop, but
+    also type inference, concurrency, and exotic control flow.
+  4) Larry must have a coherent model of an implementation *written down* in
+    order to provide implementors with some assurance that the specification
+    is coherent; otherwise, implementors will doubt the success of existing/
+    other implementations and start more of their own (or not particpate at
+    all).
+
+C. Repair the "useless implementation" and "unusable language" perceptions by:
+  1) selecting a backend that builds/installs _easily_ and _reliably_ on all
+    the main platforms/architectures, *especially* Windows and the *n*ces.
+  2) selecting a backend that has a stable specification *and* already stably
+    implements all the features generally known to be desired by a Perl 6
+    language implementation (I see two choices here: V8 & clr/mono, though
+    I can also see arguments for ocaml & ghc):
+    (a) reliable GC
+    (b) reliable runtime code generation/compilation/JIT
+    (c) cross-platform/architecture JIT and static compilation to objects
+    (d) excellent C/C++ library linking and interoperability
+    (e) at least 20-30 professional developers working on it full-time (this
+      obviously isn't a hard-and-fast rule, but it's a great proxy for what
+      is really necessary: funded commercial support *with* *strong*
+      *incentives* *for* *success*)
+    (f) the ability to link libperl or be loaded into perl as a module
+  3) Select a backend/VM that provides access to low-level primitives like
+    pointer arithmetic, especially from its runtime-codegen, and that can be
+    optimized for at least simple microbenchmarks.
+  4) Select an implementation language that is usable by many.
+
+I believe the Perl (and Perl 6) brands (in the programming/software
+communities) are salvagable if the "community rewrite of Perl" is abandoned
+and a more dictatorial leadership role is assumed by the BDFL.  I do believe
+that if more than a few of the above steps are not taken (and soon), the spec
+will languish into Baroquity, while the implementations will continue to limp
+along slowly in a never-ending succession of rewrites and ports, flitting from
+backend to backend, decade to decade.  There may be "stable" and "usable"
+releases of a "subset of Perl 6", but they will go utterly unused by anyone
+(and publicly abused by everyone) if they aren't as efficient or more efficient
+on simple microbenchmarks.
+
