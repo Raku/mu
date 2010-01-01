@@ -1,0 +1,11 @@
+MOTIVATION:
+    - to link the test suite to specs in order to determine roughly how much of the *current* specs are covered by the test suite.
+    - to determine where there are many, and where there are few, tests for a specific section or subsection.
+    - to better determine how much implementation X covers the specs, and not simply how many tests it passes from the test suite.
+
+PLAN:
+    - Spec/Coverage.pm has a subroutine that returns the number of sections (i.e., =head1) covered by the test suite. =head2, =head3, and =head4 subdivide the weight of a section when comparing test coverage. Each =head1 is weighed the same, no matter its length. (TITLE, VERSION, and AUTHOR sections are excluded, of course.) For example, if there are four =head1's and the first =head1 contains three =head2's of which only the first two are covered (by tests), and none of the other =head1's are covered, then then the overall coverage is (1/4)*(2/3) + 0/4 + 0/4 + 0/4 = 1/6 coverage.
+    - One subroutine returns a list of pairs (each section/text) formatted as a "smart link" found in the test suite.
+    - One subroutine returns a list of pairs (each section/text) formatted as a "smart link" that is *not* found in the test suite. This is in order to find "dead links".
+    - One subroutine returns the the number of tests in the test suite. (this step will require that each test file is fully parseable).
+    - One subroutine, given an implementation name, returns a hash reference containing the number of skipped, todo, passed, and failed tests for that implementation *according to* each section/subsection in the spec covered in the test suite.
