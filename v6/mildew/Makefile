@@ -59,3 +59,14 @@ test-yeast: CORE
 clean:
 	rm -fr CORE.pad.store CORE/*.mildew.so lib/*.mildew.so lex/
 .PHONY : clean
+
+# List all targets with brief descriptions.
+help:
+	@echo
+	@echo 'In pugs/v6/mildew you can make these targets:'
+	@echo
+	@echo 'all (default)   builds mildew'
+	@echo 'test            proves mildew with default (smop) backend'
+	@echo 'test-js         proves mildew with JavaScript (V8) backend'
+	@echo 'clean           removes generated files'
+	@echo
