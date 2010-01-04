@@ -1,0 +1,143 @@
+README for mildew - a Perl 6 interpreter and compiler
+
+Contents
+
+1. Overview
+2. Getting started
+3. Usage
+4. Design
+5. Backends
+6. Testing
+7. Status
+8. License
+A. Required software
+B. References
+
+
+1. OVERVIEW
+
+Mildew is an experimental implemention of Perl 6, written mainly in Perl
+5.  It is named in the tradition of 'yeast', 'slime' and 'mold', which
+were/are related projects.
+
+2. GETTING STARTED
+
+Mildew depends on other software listed in Appendix A below.  See that
+the other software works before proceeding.  Currently you must use a
+Unix-like environment.
+
+Use Subversion to copy the source code from the Pugs repository.  The
+easiest way is to check out the entire source tree, but that occupies
+over 350MB and takes a few minutes to download.  Fetching only the
+v6/smop, v6/mildew, src/perl6 and t/spec directories and their contents
+may save you some space and time.
+
+Change to the v6/mildew directory and build and test mildew:
+
+    make help     # optional explanation of make targets
+    make          # build mildew
+    make test     # proves mildew using the smop backend
+    make test-js  # proves mildew using the JavaScript::V8 backend
+
+In the event of difficulty, connect an IRC client to irc.freenode.net
+and join the #perl6 channel.  People are waiting there to help you.
+In the event of success, connect to the same channel and give help, the
+community benefits from your participation.
+
+The example/ directory has a few Perl 6 scripts to play with, eg:
+
+    perl mildew example/qsort.pl
+
+3. USAGE
+
+Command lines to run mildew work as follows:
+
+Usage: mildew [switches] [--] [programfile] [arguments]
+  -Bbackend       execute using the compiler backend
+  -Cbackend       compile using the compiler backend
+                  (valid backends are: m0ld, desugar, yaml, via-C, js)
+  -o              output to file
+  -h or --help    give this message
+  --valgrind      use valgrind when executing
+  --gdb           run the program under gdb
+  -x              specify the language of the input file
+  --profile       print profiling info
+  --format        format for the profiling info
+                  (valid values: dhtml,text)
+  -e
+  --server        runs as an App::Persistent server
+
+(instructions extracted from v6/mildew/mildew)
+
+4. DESIGN
+
+Mildew uses the 'viv' parser and the STD.pm grammar to convert Perl 6
+source code into an Abstract Syntax Tree.  An AST is a data structure
+that describes what the Perl 6 program is mean to do.  Mildew contains
+various experimental backends selected by the -B and -C switches to
+export or to execute the code in the AST.
+
+5. BACKENDS
+
+The 'm0ld' backend is the default if the corresponding -B or -C switch
+is not used.  It uses the 'smop' interpreter to execute the m0ld code.
+
+The 'desugar' backend ...
+
+The 'yaml' backend ...
+
+The 'via-C' backend ...
+
+The 'js' backend generates code in JavaScript language and passes it via
+the JavaScript::V8 module to the Google V8 Just-In-Time (JIT) compiler
+and runtime engine.  The JIT converts the JavaScript code to optimized
+native machine language and executes it at very high speed.
+
+6. TESTING
+
+The 'make test' and 'make test-js' commands use the Perl 5 based 'prove'
+command as a test harness and run the test scripts listed in the TESTS
+and TESTS-js files, respectively.  The test scripts are a combination of
+files in the pugs/v6/mildew/t and the pugs/t/spec/* directories.  The
+latter is the official Perl 6 test suite.
+
+7. STATUS
+
+Mildew successfully executes a variety of Perl 6 syntax and passes over
+200 tests with either the m0ld or the js backends.
+
+8. LICENSE
+
+Mildew is primarily developed by Pawel Murias.  It it published under
+the same terms as Perl 5.x (Artistic License 2.0).
+
+
+APPENDIX A: Required Software
+
+To parse Perl 6 source code needs 'viv' and STD.PM, which reside in the
+pugs/src/perl6 directory.  Viv requires:
+
+    Perl 5.10.0
+    Moose
+    YAML::XS
+
+The 'm0ld' (default) backend needs 'smop', which resides in pugs/v6/smop
+and requires:
+
+    Glasgow Haskell Compiler (GHC) 6.8 or later
+    Parsec
+
+The 'js' optional alternative backend uses Google's V8 engine, and this
+module from CPAN:
+
+    JavaScript::V8
+
+Also install the following for mildew itself:
+
+    MooseX::Declare
+
+APPENDIX B: References
+
+http://www.perlfoundation.org/perl6/index.cgi?smop
+http://www.perlfoundation.org/perl6/index.cgi?smop_dependencies
+
