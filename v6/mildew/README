@@ -1,4 +1,4 @@
-README for mildew - a Perl 6 interpreter and compiler
+README for mildew - a Perl 6 compiler
 
 Contents
 
@@ -46,7 +46,7 @@ community benefits from your participation.
 
 The example/ directory has a few Perl 6 scripts to play with, eg:
 
-    perl mildew example/qsort.pl
+    perl mildew example/sdl.pl
 
 3. USAGE
 
@@ -55,7 +55,7 @@ Command lines to run mildew work as follows:
 Usage: mildew [switches] [--] [programfile] [arguments]
   -Bbackend       execute using the compiler backend
   -Cbackend       compile using the compiler backend
-                  (valid backends are: m0ld, desugar, yaml, via-C, js)
+                  (valid backends are: m0ld, desugar, yaml, via-C, js, yeast)
   -o              output to file
   -h or --help    give this message
   --valgrind      use valgrind when executing
@@ -79,19 +79,21 @@ export or to execute the code in the AST.
 
 5. BACKENDS
 
-The 'm0ld' backend is the default if the corresponding -B or -C switch
+The 'via-C' backend is the default if the corresponding -B or -C switch
 is not used.  It uses the 'smop' interpreter to execute the m0ld code.
 
-The 'desugar' backend ...
+the 'yeast' backend uses the 'smop' interpreter to execute the m0ld code.
 
-The 'yaml' backend ...
+the 'desugar' backend pretty prints the AST.
 
-The 'via-C' backend ...
+the 'yaml' backend returns the AST in YAML.
+
+The 'm0ld' backend compile to m0ld.
 
 The 'js' backend generates code in JavaScript language and passes it via
 the JavaScript::V8 module to the Google V8 Just-In-Time (JIT) compiler
 and runtime engine.  The JIT converts the JavaScript code to optimized
-native machine language and executes it at very high speed.
+native machine language.
 
 6. TESTING
 

@@ -34,7 +34,7 @@ print <<'HELP';
 Usage: mildew [switches] [--] [programfile] [arguments]
   -Bbackend       execute using the compiler backend
   -Cbackend       compile using the compiler backend
-                  (valid backends are: m0ld, desugar, yaml, via-C, js)
+                  (valid backends are: m0ld, desugar, yaml, via-C, js, yeast)
   -o              output to file
   -h or --help    give this message
   --valgrind      use valgrind when executing
