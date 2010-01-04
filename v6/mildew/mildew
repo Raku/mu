@@ -6,6 +6,8 @@ use STD;
 package Mildew;
 do 'viv';
 use AST;
+use AST::Call;
+use AST::Assign;
 use AST::Helpers;
 use VAST;
 use DumpMatch;

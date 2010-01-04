@@ -7,6 +7,9 @@ sub unique_id {
     state $id = 0;
     '$id'.$id++;
 }
+sub unique_reg {
+    AST::Reg->new(name=>unique_id);
+}
 sub unique_label {
     state $lab = 0;
     'lab'.$lab++;
@@ -31,28 +34,15 @@ sub terminate_stmt {
 }
 class AST::Base {
     use YAML::XS;
-    use namespace::autoclean;
-    sub walk {
-        my ($thing) = @_;
-        if (ref $thing eq 'ARRAY') {
-            [map {walk($_)} @{$thing}]; 
-        } elsif (eval {$thing->isa('AST::Base')}) {
-            $thing->simplified; 
-        } else {
-            $thing;
-        }
+    method simplified {
+        $self;
     }
+
     method m0ld($ret) {
         $self->m0ld($ret);
     }
     method pretty {
         Dump($self);
-    }
-    method simplified {
-        $self->new({map {
-            my $attr = $self->$_;
-            ($_ => walk($attr));
-        } $self->meta->get_attribute_list});
     }
 }
 
@@ -66,7 +56,6 @@ class AST::Loop extends AST::Base {
     method simplified {
         use AST::Helpers;
         use Scalar::Util qw(weaken);
-        use namespace::autoclean;
         my $goto = AST::Goto->new();
         my $block = AST::Seq->new(id=>AST::unique_label,stmts=>[$self->code->simplified,$goto]);
         $goto->block($block);
@@ -187,7 +176,7 @@ class AST::If extends AST::Base {
 class AST::Block extends AST::Base {
     has 'stmts' => (is=>'ro');
     has 'regs' => (is=>'ro',default=>sub {[]});
-    has 'hints' => (is=>'ro',default=>sub {{}});
+    #has 'hints' => (is=>'ro',default=>sub {{}});
     method m0ld($ret) {
         "my $ret = mold {\n"
             . join('',map {'my $'.$_.";\n"} @{$self->regs})
@@ -196,12 +185,20 @@ class AST::Block extends AST::Base {
         . "};\n";
     }
     method pretty {
-        use Data::Dump::Streamer;
         "mold \{\n". AST::indent(
             join('',map {'my $'.$_.";\n"} @{$self->regs})
             . join("",map {AST::terminate_stmt  $_->pretty } @{$self->stmts})
-            #. join("",map { blessed($_) ? terminate_stmt $_->pretty : confess("$_ is not a reference") } @{$self->stmts})
         ) . "\}"
+    }
+    method simplified {
+        my @stmts;
+        my $value;
+        for (@{$self->stmts}) {
+            my @side_effects;
+            ($value,@side_effects) = $_->simplified;
+            push (@stmts,@side_effects);
+        }
+        AST::Block->new(regs=>$self->regs,stmts=>[@stmts,$value]);
     }
 }
 
@@ -248,75 +245,6 @@ class AST::Seq extends AST::Base {
     }
 }
 
-class AST::Call extends AST::Base {
-    use namespace::autoclean;
-    use AST::Helpers qw(YYY);
-    has 'capture' => (is=>'ro');
-    has 'identifier' => (is=>'ro');
-    method arguments {
-        my @args = @{$self->capture->positional};
-        my @named = @{$self->capture->named};
-        while (@named) {
-            push (@args,AST::Named->new(key=>shift @named,value=>shift @named));
-        }
-        @args;
-    }
-    method m0ld($ret) {
-        if ($self->capture->isa("AST::Capture")) {
-            my $invocant = AST::unique_id;
-            my $identifier = AST::unique_id;
-    
-            my $args = "";
-    
-            my @args = map {
-                my $id = AST::unique_id;
-                $args .= $_->m0ld($id);
-                $id
-            } @{$self->capture->positional};
-    
-            my @named = @{$self->capture->named};
-            while (@named) {
-                my $key = AST::unique_id;
-                my $value =  AST::unique_id;
-                $args .= (shift @named)->m0ld($key);
-                $args .= (shift @named)->m0ld($value);
-                push(@args,":".$key."(".$value.")");
-            }
-    
-            $self->capture->invocant->m0ld($invocant)
-            . $self->identifier->m0ld($identifier)
-            . $args 
-            . "my $ret = "
-            . $invocant . "." . $identifier
-            . "(" . join(',',@args) . ")" . ";\n";
-        } else {
-            die 'unimplemented';
-        }
-    }
-    method pretty {
-    
-        my $identifier;
-        if ($self->identifier->isa("AST::StringConstant")) {
-            $identifier = $self->identifier->value;
-        } else {
-            $identifier = $self->identifier->pretty;
-        }
-    
-        my $args = '';
-        my @args = map {$_->pretty} @{$self->capture->positional};
-        my @named = @{$self->capture->named};
-        while (@named) {
-            push(@args,":".(shift @named)->pretty." => ".(shift @named)->pretty);
-        }
-    
-        if ($self->capture->isa("AST::Capture")) {
-            YYY($self) unless $self->capture->invocant;
-            $self->capture->invocant->pretty . "." . $identifier . (@args ? '(' . join(',',@args) . ')' : '');
-        } else {
-            $self->SUPER::pretty;
-        }
-    }
-}
 class AST::Pair extends AST::Base {
     has 'key' => (is=>'ro');
     has 'value' => (is=>'ro');
