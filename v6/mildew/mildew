@@ -7,6 +7,8 @@ package Mildew;
 do 'viv';
 use AST;
 use AST::Call;
+use AST::If;
+use AST::Let;
 use AST::Assign;
 use AST::Helpers;
 use VAST;

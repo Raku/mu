@@ -34,13 +34,6 @@ sub terminate_stmt {
 }
 class AST::Base {
     use YAML::XS;
-    method simplified {
-        $self;
-    }
-
-    method m0ld($ret) {
-        $self->m0ld($ret);
-    }
     method pretty {
         Dump($self);
     }
@@ -94,84 +87,6 @@ class AST::While extends AST::Base {
     }
 }
 
-class AST::If extends AST::Base {
-    has 'cond' => (is => 'ro');
-    has 'then' => (is => 'ro');
-    has 'else' => (is => 'ro');
-    has 'elsif' => (is => 'ro');
-    method m0ld($ret) {
-        my $id_cond = AST::unique_id;
-        my $label_then = AST::unique_label;
-        my $label_else = AST::unique_label;
-        my $label_endif = AST::unique_label;
-        my $cond = $self->cond->m0ld($id_cond);
-        my $then = 'noop;';
-        $then = $self->then->m0ld($ret) if $self->then;
-        my $else = 'noop;';
-        if ($self->else) {
-            $else = $self->else->m0ld($ret);
-        }
-        my $elsifs = '';
-        if ($self->elsif) {
-            foreach my $part (@{$self->elsif}) {
-                my $id_elsif_cond = AST::unique_id;
-                my $label_elsif_then = AST::unique_label;
-                my $label_elsif_else = AST::unique_label;
-                my $elsif_cond = $part->cond->m0ld($id_elsif_cond);
-                my $elsif_then = $part->then->m0ld($ret);
-                $elsifs .= $elsif_cond."\n".
-                  'my '.$id_elsif_cond.'_val = '.$id_elsif_cond.'."FETCH"();'."\n".
-                  'my '.$id_elsif_cond.'_bool = '.$id_elsif_cond.'_val."true"();'."\n".
-                  'if '.$id_elsif_cond.'_bool { goto '.$label_elsif_then.' } else { goto '.$label_elsif_else.' };'."\n".
-                  $label_elsif_then.':'."\n".
-                  $elsif_then."\n".
-                  'goto '.$label_endif.';'."\n".
-                  $label_elsif_else.': noop;'."\n"
-            }
-        }
-    
-        $cond."\n".
-        'my '.$id_cond.'_val = '.$id_cond.'."FETCH"();'."\n".
-        'my '.$id_cond.'_bool = '.$id_cond.'_val."true"();'."\n".
-        'if '.$id_cond.'_bool { goto '.$label_then.' } else { goto '.$label_else.' };'."\n".
-        $label_then.':'."\n".
-        $then."\n".
-        'goto '.$label_endif.';'."\n".
-        $label_else.':'."\n".
-        $elsifs.
-        $else."\n".
-        $label_endif.': noop;'."\n"
-    }
-    method pretty {
-        my $code;
-        if ($self->then) {
-            $code =
-                'if ' . $self->cond->pretty . " {\n"
-                . AST::indent($self->then->pretty) . "\n"
-                . "}\n";
-        } else {
-            $code =
-                'unless ' . $self->cond->pretty . " {\n"
-                . AST::indent($self->else->pretty) . "\n"
-                . "}\n";
-        }
-        if ($self->elsif) {
-            foreach my $part (@{$self->elsif}) {
-                $code .=
-                  'elsif '.$part->cond->pretty . " {\n"
-                    . AST::indent($self->then->pretty). "\n"
-                    . "}\n";
-            }
-        }
-        if ($self->else) {
-            $code .=
-              "else {\n"
-                . AST::indent($self->else->pretty). "\n"
-                . "}\n";
-        }
-        $code;
-    }
-}
 
 class AST::Block extends AST::Base {
     has 'stmts' => (is=>'ro');
@@ -180,7 +95,7 @@ class AST::Block extends AST::Base {
     method m0ld($ret) {
         "my $ret = mold {\n"
             . join('',map {'my $'.$_.";\n"} @{$self->regs})
-            . join('',map {'RI($'.$_.",\"".$self->hints->{$_}."\");\n"} keys %{$self->hints})
+#            . join('',map {'RI($'.$_.",\"".$self->hints->{$_}."\");\n"} keys %{$self->hints})
             . join("",map { $_->m0ld('$void') } @{$self->stmts})
         . "};\n";
     }
@@ -210,24 +125,6 @@ class AST::Block extends AST::Base {
 }
 
 
-class AST::Let extends AST::Base {
-    has 'block' => (is=>'ro');
-    has 'value' => (is=>'ro');
-    method m0ld($ret) {
-        my $id = AST::unique_id;
-        $self->value->m0ld($id) . $self->block->(AST::Reg->new(name => $id))->m0ld($ret);
-    }
-    method simplified {
-        my $id = AST::unique_id;
-        my $reg = AST::Reg->new(name => $id);
-        
-    }
-    method pretty {
-        my $id = AST::unique_id;
-        "do {\n". AST::indent('my ' . $id . ' = ' . $self->value->pretty . ";\n"
-        . $self->block->(AST::Reg->new(name => $id))->pretty) . '}';
-    }
-}
 
 class AST::Seq extends AST::Base {
     has 'stmts' => (is=>'ro');
@@ -264,6 +161,9 @@ class AST::IntegerConstant extends AST::Base {
     method pretty {
         $self->value
     }
+    method simplified {
+        $self;
+    }
  }
 
 class AST::StringConstant extends AST::Base {;
@@ -280,6 +180,9 @@ class AST::StringConstant extends AST::Base {;
         #XXX metachars
         '"' . $self->value . '"'
     }
+    method simplified {
+        $self;
+    }
 }
 
 class AST::Reg extends AST::Base {
@@ -290,6 +193,9 @@ class AST::Reg extends AST::Base {
     method pretty {
         #XXX metachars
         $self->name;
+    }
+    method simplified {
+        $self;
     }
 }
 
@@ -309,8 +215,13 @@ class AST::Goto extends AST::Base {
     }
 }
 class AST::Branch extends AST::Base {
-    has 'reg' => (is=>'ro');
-    has 'block1' => (is=>'ro');
-    has 'block2' => (is=>'ro');
+    has 'cond' => (is=>'ro');
+    has 'then' => (is=>'ro');
+    has 'else' => (is=>'ro');
+    method pretty {
+        "if "
+        . $self->cond->pretty
+        . " {goto " . $self->then->id . "} else {goto " . $self->else->id . "}";
+    }
 }
 1;
