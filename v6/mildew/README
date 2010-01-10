@@ -35,8 +35,8 @@ may save you some space and time.
 Change to the v6/mildew directory and build and test mildew:
 
     make help     # optional explanation of make targets
-    make          # build mildew
-    make test     # proves mildew using the smop backend
+    make          # build mildew, takes 6-10 minutes
+    make test     # proves mildew using the smop backend, 6-10 mins
     make test-js  # proves mildew using the JavaScript::V8 backend
 
 In the event of difficulty, connect an IRC client to irc.freenode.net
@@ -116,6 +116,9 @@ the same terms as Perl 5.x (Artistic License 2.0).
 
 APPENDIX A: Required Software
 
+Read this entire appendix before trying to install software, because the
+already present software and dependencies vary between environments.
+
 To parse Perl 6 source code needs 'viv' and STD.PM, which reside in the
 pugs/src/perl6 directory.  Viv requires:
 
@@ -128,18 +131,45 @@ and requires:
 
     Glasgow Haskell Compiler (GHC) 6.8 or later
     Parsec
+    utf8-string
+    scons
+    libperl
 
-The 'js' optional alternative backend uses Google's V8 engine, and this
-module from CPAN:
+Run 'make' in the pugs/v6/smop directory to build smop.
+
+The 'js' optional alternative backend uses Google's V8 engine, and these
+modules from CPAN:
 
     JavaScript::V8
+    ExtUtils::XSpp
 
-Also install the following for mildew itself:
+JavaScript::V8 installation may require a little manual intervention to
+succeed on some systems.  For example, using dh-make-perl may produce an
+error about ExtUtils-XSpp, which not a valid Perl 5 module name.
+
+Also install the following Perl 5 modules for mildew itself:
 
     MooseX::Declare
+    PadWalker
+    File::Slurp
+    Coro
+
+On a Debian or compatible system (eg Ubuntu) the requirements are met
+with a series of commands such as the following:
+
+    sudo apt-get install libmoose-perl libyaml-libyaml-perl
+    sudo apt-get install ghc6 libghc6-parsec3-dev
+    sudo apt-get install libghc6-utf8-string-dev scons libperl-dev
+    sudo apt-get install libv8-dev libextutils-xspp-perl
+    sudo apt-get install dh-make-perl apt-file
+    sudo dh-make-perl --install --cpan JavaScript::V8
+    # if that fails try this instead: sudo cpan -i JavaScript::V8
+    sudo apt-get install libmoosex-declare-perl libpadwalker-perl
+    sudo apt-get install libfile-slurp-perl libcoro-perl
 
 APPENDIX B: References
 
+http://www.perlfoundation.org/perl6/index.cgi?mildew
 http://www.perlfoundation.org/perl6/index.cgi?smop
 http://www.perlfoundation.org/perl6/index.cgi?smop_dependencies
 
