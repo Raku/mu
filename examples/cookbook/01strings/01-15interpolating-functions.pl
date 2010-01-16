@@ -14,7 +14,7 @@ class Dog { method bark { 'woof!' } }
 my $answer = 'The quick ' ~ function() ~ ' over the lazy dog';
 
 # Or you can interpolate function calls using &function() by using "", qq//,
-# or q:f// string delimeters. The function call must begin with ampersand (&)
+# or q:f// string delimiters. The function call must begin with ampersand (&)
 # and end with paranthesis:
 $answer = "STRING &function() MORE STRING";
 $answer = qq/STRING &function() MORE STRING/;  # very liberal interpolation
