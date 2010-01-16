@@ -79,7 +79,7 @@ Circumfix macros take a single C<Expression> as a parameter.
 =item postcircumfix
 
 Postcircumfix macros take two parameters. The first a C<Value>. The
-second is an C<Expression> that comes inside of the circumfix delimeters.
+second is an C<Expression> that comes inside of the circumfix delimiters.
 
 =item regex_metachar
 
