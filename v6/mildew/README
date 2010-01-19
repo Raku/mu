@@ -157,7 +157,7 @@ Also install the following Perl 5 modules for mildew itself:
 On a Debian or compatible system (eg Ubuntu) the requirements are met
 with a series of commands such as the following:
 
-    sudo apt-get install libmoose-perl libyaml-libyaml-perl
+    sudo apt-get install libmoose-perl libyaml-perl
     sudo apt-get install ghc6 libghc6-parsec3-dev
     sudo apt-get install libghc6-utf8-string-dev scons libperl-dev
     sudo apt-get install libv8-dev libextutils-xspp-perl
