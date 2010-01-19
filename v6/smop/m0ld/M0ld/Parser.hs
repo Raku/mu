@@ -45,9 +45,9 @@ hint = do
         return $ [Hint RI reg (StringConstant ri)]
          
 stmt = do 
-    l <- option [] (try label)
+    l <- many $ (try label)
     body <- choice $ [goto,br,hint,noop,declaration,action]
-    return $ l ++ body
+    return $ concat l ++ body
 
 action = do
    lvalue <- tok $ register
