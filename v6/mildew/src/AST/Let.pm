@@ -13,7 +13,8 @@ class AST::Let extends AST::Base {
         . $self->block->(AST::Reg->new(name => $id))->pretty) . '}';
     }
     method simplified {
-        warn "AST::Let simplfied\n";
-        $self->block->(AST::unique_reg)->simplified;
+        my ($value,@value_setup) = $self->value->simplified;
+        my ($ret,@setup) = $self->block->($value)->simplified;
+        ($ret,@value_setup,@setup);
     }
 }

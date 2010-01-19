@@ -6,4 +6,7 @@ class AST::Assign extends AST::Base {
     method pretty {
        $self->lvalue->pretty . " = " . $self->rvalue->pretty;
     }
+    method m0ld($target) {
+        $self->rvalue->m0ld($self->lvalue->m0ld_literal);
+    }
 }

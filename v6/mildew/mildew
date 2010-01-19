@@ -336,6 +336,9 @@ sub main {
     } elsif ($C eq 'simplified') {
         output(parse->simplified->pretty."\n",$output);
         exit;
+    } elsif ($C eq 'simplified-m0ld') {
+        output(parse->simplified->m0ld('$main')."\n",$output);
+        exit;
     } elsif ($C eq 'ast-yaml') {
         use YAML::XS;
         my $ast = parse;

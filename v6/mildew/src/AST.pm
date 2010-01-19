@@ -138,7 +138,19 @@ class AST::Seq extends AST::Base {
         my $last = pop @stmts;
         my $m0ld = join('',map {$_->m0ld(AST::unique_id)} @stmts);
         $m0ld = $m0ld . $last->m0ld($ret) if $last;
+        $m0ld = $self->id . ": " . $m0ld;
         return $m0ld;
+    }
+    method simplified {
+        die "can't simplified a block with id" if $self->id;
+        my @stmts;
+        my $value;
+        for (@{$self->stmts}) {
+            my @side_effects;
+            ($value,@side_effects) = $_->simplified;
+            push (@stmts,@side_effects);
+        }
+        ($value,@stmts);
     }
 }
 
@@ -197,6 +209,9 @@ class AST::Reg extends AST::Base {
     method simplified {
         $self;
     }
+    method m0ld_literal {
+        $self->name;
+    }
 }
 
 class AST::Capture extends AST::Base {
@@ -213,15 +228,23 @@ class AST::Goto extends AST::Base {
     method pretty {
         "goto ".$self->block->id;
     }
+    method m0ld($target) {
+        "goto ".$self->block->id.";\n";
+    }
 }
 class AST::Branch extends AST::Base {
     has 'cond' => (is=>'ro');
-    has 'then' => (is=>'ro');
-    has 'else' => (is=>'ro');
+    has 'then' => (is=>'rw');
+    has 'else' => (is=>'rw');
     method pretty {
         "if "
         . $self->cond->pretty
         . " {goto " . $self->then->id . "} else {goto " . $self->else->id . "}";
+    }
+    method m0ld($target) {
+        "if "
+        . $self->cond->m0ld_literal
+        . " {goto " . $self->then->id . "} else {goto " . $self->else->id . "};\n";
     }
 }
 1;
