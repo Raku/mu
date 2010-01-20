@@ -18,6 +18,9 @@ Pm-15:  S11:300 gives the following as an example of importing
     Should this be :OUR(:ALL) instead?  It seems to me that
     :OUR<ALL> would attempt to import a &ALL symbol (since
     :MY<common> imports the &common symbol).
+
+Pm-16:  S03:1996 looks like a fossil, or at least inconsistent 
+    with S07:72.  Any clarifications?
         
 
 ===========================================================
