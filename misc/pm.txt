@@ -4,30 +4,6 @@ and/or others.  We'll likely record the answers here as well.
 
 Unanswered questions:
 
-Pm-13:  What's the parent type of C<Regex>?  (I hope it's C<Method>.)
-
-Pm-14:  Is the :c modifier allowed on token/regex/rule?  I.e., could
-    someone do...?
-        'abcdef' ~~ token :c(1) { cdef }
-
-Pm-15:  S11:300 gives the following as an example of importing
-    a tagset into package scope:
-
-        require Sense :OUR<ALL> # but this works
-
-    Should this be :OUR(:ALL) instead?  It seems to me that
-    :OUR<ALL> would attempt to import a &ALL symbol (since
-    :MY<common> imports the &common symbol).
-
-Pm-16:  S03:1996 looks like a fossil, or at least inconsistent 
-    with S07:72.  Any clarifications?
-
-Pm-17:  Are the builtin types such as C<Num>, C<Int>, C<Rat>, 
-    C<Str>, C<List>, etc.  subclasses of C<Cool> or do they
-    rely on C<Cool>'s method fallback mechanisms for the
-    common methods?  (Or, another way of asking:  is
-    C<List ~~ Cool> true?)
-    
 
 ===========================================================
 
@@ -235,3 +211,54 @@ regardless of how it's implemented.  We can always switch to
 a .parse option later.
 
 ----------------------
+
+Pm-13:  What's the parent type of C<Regex>?  (I hope it's C<Method>.)
+
+Don't see any reason why not, offhand, unless Regex is really a role
+that gets mixed into ordinary methods (hence we could mix it into
+such methods as the opp as well).
+
+----------------------
+
+Pm-14:  Is the :c modifier allowed on token/regex/rule?  I.e., could
+    someone do...?
+        'abcdef' ~~ token :c(1) { cdef }
+
+:c and :p are intended primarily as mods to the Cursor constructor, not to
+the matcher method, so I don't think so, unless we decide to support them
+anywhere within a regex, which seems relatively useless and confusing.  (Well,
+a better case can be made for internal :p(1) than for :c(1), in any case.)
+
+----------------------
+
+Pm-15:  S11:300 gives the following as an example of importing
+    a tagset into package scope:
+
+        require Sense :OUR<ALL> # but this works
+
+    Should this be :OUR(:ALL) instead?  It seems to me that
+    :OUR<ALL> would attempt to import a &ALL symbol (since
+    :MY<common> imports the &common symbol).
+
+Yes, just a typo.
+
+----------------------
+
+Pm-16:  S03:1996 looks like a fossil, or at least inconsistent 
+    with S07:72.  Any clarifications?
+
+See r29571.
+
+----------------------
+
+Pm-17:  Are the builtin types such as C<Num>, C<Int>, C<Rat>, 
+    C<Str>, C<List>, etc.  subclasses of C<Cool> or do they
+    rely on C<Cool>'s method fallback mechanisms for the
+    common methods?  (Or, another way of asking:  is
+    C<List ~~ Cool> true?)
+
+As it currently stands the fallback is only in the multi dispatcher.
+For single dispatch BuiltinType isa Cool.
+
+----------------------
+
