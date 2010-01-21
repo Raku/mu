@@ -21,7 +21,13 @@ Pm-15:  S11:300 gives the following as an example of importing
 
 Pm-16:  S03:1996 looks like a fossil, or at least inconsistent 
     with S07:72.  Any clarifications?
-        
+
+Pm-17:  Are the builtin types such as C<Num>, C<Int>, C<Rat>, 
+    C<Str>, C<List>, etc.  subclasses of C<Cool> or do they
+    rely on C<Cool>'s method fallback mechanisms for the
+    common methods?  (Or, another way of asking:  is
+    C<List ~~ Cool> true?)
+    
 
 ===========================================================
 
