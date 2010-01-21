@@ -6,8 +6,8 @@ Unanswered questions:
 
 Pm-18:  (Confirmation request)   S03:2111 indicates that the C< @(...) > 
     sigil contextualizer is the same as the C<list> listop.  Is this correct?
-    In particular, given C< my $a = [1,2,3]; >, then C< @($a) >  is 1 and  
-    C< @$a > is 3 ?   (For some reason I had been thinking that @($a) would
+    In particular, given C< my $a = [1,2,3]; >, then C< +@($a) >  is 1 and  
+    C< +@$a > is 3 ?   (For some reason I had been thinking that @($a) would
     act more like $a.list  than list($a).)
 
 
