@@ -11,23 +11,6 @@ Pm-18:  (Confirmation request)   S03:2111 indicates that the C< @(...) >
     act more like $a.list  than list($a).)
 
 
-Pm-16:  S03:1996 looks like a fossil, or at least inconsistent 
-    with S07:72.  Any clarifications?
-
-See r29571.
-
-    [Pm]  Okay, that helps, but there still seems to be an
-    inconsistency.  r29571 says that list assignment is "mostly
-    eager", but then says it evaluates leading iterators as long as 
-    they're known to be finite.  In other words, it suspends on the
-    first iterator that is not provably finite.  But S07 says that 
-    "mostly eager" obtains all items until reaching a value that is 
-    known to be infinite.  "Not provably finite" is not the same as 
-    "known to be infinite"; the S03 interpretation would stop obtaining 
-    values on anything that _might_ be infinite, the S07 interpretation 
-    would eagerly obtain values until it reaches something that is 
-    _known_ to be (or declares itself to be) infinite.
-
 ===========================================================
 
 Answered questions:
@@ -271,6 +254,21 @@ Pm-16:  S03:1996 looks like a fossil, or at least inconsistent
     with S07:72.  Any clarifications?
 
 See r29571.
+
+    [Pm]  Okay, that helps, but there still seems to be an
+    inconsistency.  r29571 says that list assignment is "mostly
+    eager", but then says it evaluates leading iterators as long as 
+    they're known to be finite.  In other words, it suspends on the
+    first iterator that is not provably finite.  But S07 says that 
+    "mostly eager" obtains all items until reaching a value that is 
+    known to be infinite.  "Not provably finite" is not the same as 
+    "known to be infinite"; the S03 interpretation would stop obtaining 
+    values on anything that _might_ be infinite, the S07 interpretation 
+    would eagerly obtain values until it reaches something that is 
+    _known_ to be (or declares itself to be) infinite.
+
+"Mostly Eager" is now allowed to slack off after chewing on (or refusing
+to chew on) something that is 'not provably infinite'.
 
 ----------------------
 
