@@ -1,5 +1,4 @@
 use v5.10;
-use AST;
 use MooseX::Declare;
 class AST::Call extends AST::Base {
     use namespace::autoclean;
