@@ -138,8 +138,7 @@ class AST::Seq extends AST::Base {
         my $last = pop @stmts;
         my $m0ld = join('',map {$_->m0ld(AST::unique_id)} @stmts);
         $m0ld = $m0ld . $last->m0ld($ret) if $last;
-        $m0ld = $self->id . ": " . $m0ld;
-        return $m0ld;
+        (defined($self->id) ? $self->id . ": " : '') . $m0ld ;
     }
     method simplified {
         die "can't simplified a block with id" if $self->id;
