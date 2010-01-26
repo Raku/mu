@@ -11,7 +11,7 @@ Pm-18:  (Confirmation request)   S03:2111 indicates that the C< @(...) >
     act more like $a.list  than list($a).)
 
 Pm-19:  In each statement below, how many times is the block argument
-    to .map() executed?
+    to .map() executed?  (Assume the block has arity/count of 1.)
 
         my @b  = (1,2,3 Z 4,5,6).map({ ... });
         my @@c = (1,2,3 Z 4,5,6).map({ ... });
