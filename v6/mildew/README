@@ -73,7 +73,7 @@ Usage: mildew [switches] [--] [programfile] [arguments]
 
 Mildew uses the 'viv' parser and the STD.pm grammar to convert Perl 6
 source code into an Abstract Syntax Tree.  An AST is a data structure
-that describes what the Perl 6 program is mean to do.  Mildew contains
+that describes what the Perl 6 program is meant to do.  Mildew contains
 various experimental backends selected by the -B and -C switches to
 export or to execute the code in the AST.
 
