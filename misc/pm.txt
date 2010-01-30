@@ -4,20 +4,6 @@ and/or others.  We'll likely record the answers here as well.
 
 Unanswered questions:
 
-Pm-18:  (Confirmation request)   S03:2111 indicates that the C< @(...) > 
-    sigil contextualizer is the same as the C<list> listop.  Is this correct?
-    In particular, given C< my $a = [1,2,3]; >, then C< +@($a) >  is 1 and  
-    C< +@$a > is 3 ?   (For some reason I had been thinking that @($a) would
-    act more like $a.list  than list($a).)
-
-Pm-19:  In each statement below, how many times is the block argument
-    to .map() executed?  (Assume the block has arity/count of 1.)
-
-        my @b  = (1,2,3 Z 4,5,6).map({ ... });
-        my @@c = (1,2,3 Z 4,5,6).map({ ... });
-
-        my ($x, $y, @@z) = (1,2,3 Z 4,5,6).map({ ... });
-
 ===========================================================
 
 Answered questions:
@@ -287,6 +273,101 @@ Pm-17:  Are the builtin types such as C<Num>, C<Int>, C<Rat>,
 
 As it currently stands the fallback is only in the multi dispatcher.
 For single dispatch BuiltinType isa Cool.
+
+----------------------
+
+Pm-18:  (Confirmation request)   S03:2111 indicates that the C< @(...) > 
+    sigil contextualizer is the same as the C<list> listop.  Is this correct?
+    In particular, given C< my $a = [1,2,3]; >, then C< +@($a) >  is 1 and  
+    C< +@$a > is 3 ?   (For some reason I had been thinking that @($a) would
+    act more like $a.list  than list($a).)
+
+This part of the design seems rather confused in several dimensions.
+We will need to detangle some things.  First off, we will probably
+need to decouple the sigils from specific flattening/non-flattening
+behavior.  The @ sigil is probably going to mean some combination of
+Positional/Iterable, and not imply anything further such as .list.
+(Further context is supplied by how you use it.)  The @@ sigil as
+slice context is almost certainly going away just for being too ugly,
+and slices are also fundamentally ordered just like flat lists.
+
+I think that @($a) and @$a must be made to mean the same thing.
+The form is fundamentally macroish, not function-callish.
+so @($a,$b) is not making a Capture out of $a and $b.  It does
+get a parcel, and whatever processes it treats that as an item,
+not as a list.  Parcel is iterable, so @ is basically a no-op.
+For @($a) or @$a, we have a degenerate parcel which would unwrap
+to $a in either case, so in both cases the make-iterable
+code sees $a direction, and not the parcel around it.
+
+Similarly for any other coercion, we want to force macroization to
+treat both Foo(...) and (...).Foo the same, so ... should be
+treated as bare Parcel without any additional assumptions.
+
+Therefore list($a) and $a.list should do the same thing, if indeed
+it's a coercion.  But again, that thing it's doing is something
+different from @.  We won't use the sigils to indicate the
+difference between flat/slice, just as we don't with lazy/eager/hyper.
+These contexts are looking more like dynamic variables or parameters
+internally, but attaching dynamic context to sigils is just as
+bad as trying to make other data structures intrinsically carry
+context they shouldn't know.
+
+I'm trying to come up with a new slice notation that isn't sigil
+based.
+
+----------------------
+
+Pm-19:  In each statement below, how many times is the block argument
+    to .map() executed?  (Assume the block has arity/count of 1.)
+
+        my @b  = (1,2,3 Z 4,5,6).map({ ... });
+        my @@c = (1,2,3 Z 4,5,6).map({ ... });
+
+        my ($x, $y, @@z) = (1,2,3 Z 4,5,6).map({ ... });
+
+Iterating subsignatures need a rethink, as discussed on IRC.  If people
+expect a map block of -> $x { $x } to flatten, then $x is being
+bound in the variadic/flattening part of a bind, not in the positional,
+which defaults to getitem.  So either we force people to write
+
+    -> *$x, *$y {...}
+
+(ick, doesn't extend to $^x or $_ easily) or we find some way
+of flipping the default binding of some block sigs to being slurpy
+scalars that use .get by default, and then use whatever slice notation
+we come up with to change the default back to .getitem.  So there's
+some hidden transmogrifier that map/grep use on their block parameter
+to make its sig behave, or they don't call the block directly, but
+rely on something else to do the transformation to a subpattern match.
+
+The former approach:
+
+    sub map (&block, \$orig) {
+	my &flatblock := &block.default_to_slurpy;
+	my $cursor = $orig.get_iter_cursor;
+	gather loop {
+	    take &flatblock($cursor, $newcursor) E last;
+	    $cursor = $newcursor; # or some such
+	}
+    }
+
+where .default_to_slurpy takes the sig of -> $x and turns it into -> *$x,
+and get_iter_cursor gets a thread of pattern-matching iteration from the original
+capture.  (Which we don't strictly have to keep around here, since there's
+no nextsame, but still.)
+
+The latter approach would be more like:
+
+    sub map (&block, \$orig) {
+	my $cursor = $orig.get_iter_cursor;
+	gather loop {
+	    take $cursor.apply(&block) E last;
+	}
+    }
+
+where .apply would both mutate the block's sig semantics somehow and also
+mutate the cursor so we don't have to track it.
 
 ----------------------
 
