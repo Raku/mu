@@ -7,6 +7,7 @@ package Mildew;
 do 'viv';
 use AST;
 use VAST;
+use SSA;
 use DumpMatch;
 use utf8;
 use YAML::XS;
@@ -330,6 +331,10 @@ sub main {
         exit;
     } elsif ($C eq 'simplified') {
         output(parse->simplified->pretty."\n",$output);
+        exit;
+    } elsif ($C eq 'ssa') {
+        my $ast = parse->simplified;
+        SSA::to_ssa($ast);
         exit;
     } elsif ($C eq 'simplified-m0ld') {
         output(parse->simplified->m0ld('$main')."\n",$output);

@@ -1,7 +1,6 @@
 class AST::Block extends AST::Base {
     has 'stmts' => (is=>'ro');
     has 'regs' => (is=>'ro',default=>sub {[]});
-    #has 'hints' => (is=>'ro',default=>sub {{}});
     method m0ld($ret) {
         "my $ret = mold {\n"
             . join('',map {'my $'.$_.";\n"} @{$self->regs})
