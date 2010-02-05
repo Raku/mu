@@ -1,6 +1,7 @@
 class AST::Seq extends AST::Base {
     has 'stmts' => (is=>'ro');
     has 'id' => (is=>'ro');
+    has 'next' => (is=>'rw');
     method pretty {
         '{' . (defined($self->id) ? $self->id . ": " : '')
         . join("",map {AST::terminate_stmt $_->pretty} @{$self->stmts}) . '}';
@@ -25,13 +26,12 @@ class AST::Seq extends AST::Base {
     }
     method jumps {
         my $last = $self->stmts->[-1];
-        unless ($last) {
-            return ();
-        }
-        if ($last->isa('AST::Goto')) {
+        if (defined $last && $last->isa('AST::Goto')) {
             $self->stmts->[-1]->block;
-        } elsif ($last->isa('AST::Branch')) {
+        } elsif (defined $last && $last->isa('AST::Branch')) {
             ($last->else,$last->then),;
+        } elsif ($self->next) {
+            $self->next;
         } else {
             ();
         }
