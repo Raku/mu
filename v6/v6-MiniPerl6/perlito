@@ -1,0 +1,115 @@
+#!/usr/local/bin/perl
+# perlito - launcher for the Perlito (MiniPerl6) compiler and runtime
+
+use strict;
+
+# Crudely grab all '-' options before the command line arguments without
+# using a convenient but probably slower module.
+my $option = substr($ARGV[0],0,1);
+my $help = 0;
+while ( $option eq '-' ) {
+    $option = shift @ARGV;
+    if ( $option eq '-h' ) { $help=1 };
+    $option = substr($ARGV[0],0,1);
+}
+
+if ( $help ) {
+    print "\nUsage: perlito [options] programfile [arguments]\n";
+    print "  -h  help\n\n";
+    exit 0;
+}
+
+my $script = shift @ARGV;
+
+# print "preparing to run $script\n";
+
+my @command_args = (
+   qq{ cat $script | perl -Ilib5 mp6-perl5.pl | perl -Ilib5 },
+   @ARGV
+);
+
+system( @command_args );
+
+my $status = 127;
+if ($? == -1) {
+    print "failed to execute: $!\n";
+}
+elsif ($? & 127) {
+    printf "child died with signal %d, %s coredump\n",
+    ($? & 127),  ($? & 128) ? 'with' : 'without';
+}
+else {
+    $status = $? >> 8;
+}
+
+exit $status;
+
+__END__
+
+=pod
+
+=head1 NAME
+
+perlito - launcher for the Perlito (MiniPerl6) compiler and runtime
+
+=head1 SYNOPSIS
+
+ perlito script.pl arg1 arg2 arg3
+ echo 'class A { my $x := "cool"; say "Perlito is " ~ $x; }' | perlito
+ perlito -h
+ perldoc perlito
+
+=head1 DESCRIPTION
+
+Perlito translates a subset of the Perl 6 language into several other
+languages.  It outputs Perl 5 by default.  There are also Lisp, Go,
+JavaScript and Parrot backends.  Supporting and documenting these others
+is TODO.
+
+If the program runs, Perlito returns its status to the calling program.
+Test it as $? in your shell.  If Perlito detects that the program did
+not run, it returns 125 (because bash uses 126-127), so avoid all those
+in your program.
+
+=head1 LANGUAGE SUBSET
+
+The language subset is limited, but powerful enough to self compile.
+Features of bigger implementations are missing.  The t/ and t-grammar/
+directories contain examples of what works.
+
+This document is not a language reference (there isn't one;).  Here are
+the main points.  Put all statements in a block (usually a class).  Do
+not assign with '=', bind with ':='.  The only C<use> command is
+C<use v6-alpha;>.
+
+=head1 CONFIGURATION
+
+The first line of this script assumes the computer runs perl (Perl 5)
+from the /usr/local/bin directory.  Your system may not.  You may need
+to add a symbolic link to perl in /usr/local/bin, for example on Debian
+or Ubuntu something like:
+
+    sudo ln -s /usr/bin/perl /usr/local/bin
+
+If that does not work for you, another solution is to edit the first
+line of this file to point to your Perl 5 executable (every time you
+download it).
+
+To be able to use the 'perlito' command without having to prefix it with
+a path, you could also execute the following in the v6/MiniPerl6
+directory:
+
+    chmod +x perlito                          # if it was not executable
+    sudo ln -s `pwd`/perlito /usr/local/bin
+
+=head1 SEE ALSO
+
+The subset of Perl 6 actually available is partly documented in
+L<miniperl6-spec.pod>.
+
+Go to L<http://www.perlito.org> to follow latest developments.
+
+At L<http://www.perlito.org/js> Perlito will compile your Perl 6 code to
+JavaScript and execute that in your browser.
+
+=cut
