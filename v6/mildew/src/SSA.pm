@@ -8,26 +8,28 @@ use strict;
 use warnings;
 sub postorder {
     my ($node,$numbering,$visited,$number) = @_;
-    $visited->{refaddr $node}++;
+    $visited->{$node}++;
     for ($node->jumps) {
         postorder($_,$numbering,$visited,$number) unless $visited->{$_};
     }
-    $numbering->{refaddr $node} = $$number++;
+    $numbering->{$node} = $$number++;
 }
 sub doms {
     my ($nodes) = @_;
-    my (%idoms,%postorder);
-    my %predecessors;
+    idhash my %idoms;
+    idhash my %postorder;
+    idhash my %predecessors;
     my $start = $nodes->[0];
-    $idoms{refaddr $start} = $start;
-    postorder($start,\%postorder,{},\(my $number = 0));
-    my @nodes = sort {$postorder{refaddr $b} <=> $postorder{refaddr $a}} @{$nodes};
+    $idoms{$start} = $start;
+    idhash my %visited;
+    postorder($start,\%postorder,do {idhash my %visited;\%visited},\(my $number = 0));
+    my @nodes = sort {$postorder{$b} <=> $postorder{$a}} @{$nodes};
     for my $node (@{$nodes}) {
-        $predecessors{refaddr $node} = [];
+        $predecessors{$node} = [];
     }
     for my $node (@{$nodes}) {
         for my $target ($node->jumps) {
-            push @{$predecessors{refaddr $target}},$node;
+            push @{$predecessors{$target}},$node;
         }
     }
     shift(@nodes);
@@ -38,82 +40,82 @@ sub doms {
     while ($changed) { 
         $changed = 0;
         for my $b (@nodes) {
-            my @predecessors = @{$predecessors{refaddr $b}};
+            my @predecessors = @{$predecessors{$b}};
             my $new_idom = shift @predecessors;
             for my $p (@predecessors) {
-                if (defined $idoms{refaddr $p}) {
+                if (defined $idoms{$p}) {
                     my $finger1 = $p;
                     my $finger2 = $new_idom;
                     while (refaddr $finger1 != refaddr $finger2) {
-                        while ($postorder{refaddr $finger1} < $postorder{refaddr $finger2}) {
-                            $finger1 = $idoms{refaddr $finger1};
+                        while ($postorder{$finger1} < $postorder{$finger2}) {
+                            $finger1 = $idoms{$finger1};
                         }
-                        while ($postorder{refaddr $finger2} < $postorder{refaddr $finger1}) {
-                            $finger2 = $idoms{refaddr $finger2};
+                        while ($postorder{$finger2} < $postorder{$finger1}) {
+                            $finger2 = $idoms{$finger2};
                         }
                     }
                     $new_idom = $finger1;
                 }
             }
-            if (!$idoms{refaddr $b} or refaddr $idoms{refaddr $b} != refaddr $new_idom) {
-                $idoms{refaddr $b} = $new_idom;
+            if (!$idoms{$b} or refaddr $idoms{$b} != refaddr $new_idom) {
+                $idoms{$b} = $new_idom;
                 $changed = 1;
             }
         }
     }
     for my $node (@{$nodes}) {
-        say "idom ",$node->id," = ",$idoms{refaddr $node}->id;
+        say "idom ",$node->id," = ",$idoms{$node}->id;
     }
-    my %dominace_frontier;
+    idhash my %dominace_frontier;
     for my $node (@{$nodes}) {
-        next unless @{$predecessors{refaddr $node}} >= 2;
-        for my $p (@{$predecessors{refaddr $node}}) {
+        next unless @{$predecessors{$node}} >= 2;
+        for my $p (@{$predecessors{$node}}) {
             my $runner = $p;
-            while (refaddr $runner != $idoms{refaddr $node}) {
+            while (refaddr $runner != $idoms{$node}) {
                 say $node->id," is in ",$runner->id," dominace frontier set";
-                $runner = $idoms{refaddr $runner};
-                push @{$dominace_frontier{refaddr $node}},$runner;
+                $runner = $idoms{$runner};
+                push @{$dominace_frontier{$node}},$runner;
             }
         }
     }
 
-    my %alive_regs;
-    my @blocks = sort {$postorder{refaddr $a} <=> $postorder{refaddr $b}} @{$nodes};
+    idhash my %alive_regs;
+    my @blocks = sort {$postorder{$a} <=> $postorder{$b}} @{$nodes};
     for my $block (@blocks) {
-        $alive_regs{refaddr $block} = Set::Object->new();
+        $alive_regs{$block} = Set::Object->new();
         for my $stmt (@{$block->stmts}) {
             if ($stmt->isa('AST::Assign')) {
                 if ($stmt->rvalue->isa('AST::Call')) {
                     my $capture = $stmt->rvalue->capture; 
-                    $alive_regs{refaddr $block}->insert(map {$_->name} grep {$_->isa('AST::Reg')} $capture->invocant,@{$capture->positional},@{$capture->named});
+                    $alive_regs{$block}->insert(map {$_->name} grep {$_->isa('AST::Reg')} $capture->invocant,@{$capture->positional},@{$capture->named});
                 }
             } elsif ($stmt->isa('AST::Branch')) {
                 say "inserting ",$stmt->cond->name;
-                #$alive_regs{refaddr $block}->insert($stmt->cond);
+                #$alive_regs{$block}->insert($stmt->cond);
             }
         }
     }
     for my $block (@blocks) {
         for my $p ($block->jumps) {
-            $alive_regs{refaddr $block} = $alive_regs{refaddr $block}->union($alive_regs{refaddr $p});
+            $alive_regs{$block} = $alive_regs{$block}->union($alive_regs{$p});
         }
     }
     for my $block (@blocks) {
         say $block->id;
-        for my $reg ($alive_regs{refaddr $block}->members) {
+        for my $reg ($alive_regs{$block}->members) {
             say "\t",$reg;
         }
     }
 
     my %unique;
-    my %regs;
+    idhash my %regs;
     for my $block ($start,@nodes) {
-        my $idom = $idoms{refaddr $block};
-        for my $reg ($alive_regs{refaddr $idom}->members) {
-            if ($regs{refaddr $idom}{$reg}) {
-                $regs{refaddr $block}{$reg} = $regs{refaddr $idom}{$reg};
+        my $idom = $idoms{$block};
+        for my $reg ($alive_regs{$idom}->members) {
+            if ($regs{$idom}{$reg}) {
+                $regs{$block}{$reg} = $regs{$idom}{$reg};
             }
-            for (@{$dominace_frontier{refaddr $block}}) {
+            for (@{$dominace_frontier{$block}}) {
                 
             }
         }
@@ -123,7 +125,7 @@ sub doms {
                 my $name = $stmt->lvalue->name;
                 $unique{$name}++;
                 my $reg = AST::Reg->new(name=>$name."_".$unique{$name});
-                $regs{refaddr $block}{$name} = $reg;
+                $regs{$block}{$name} = $reg;
                 $stmt = AST::Assign->new(lvalue=>$reg,rvalue=>$stmt->rvalue);
             }
         }
