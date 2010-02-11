@@ -59,7 +59,19 @@ sub doms {
         }
     }
     for my $node (@{$nodes}) {
-        say $node->id," = ",$idoms{refaddr $node}->id;
+        say "idom ",$node->id," = ",$idoms{refaddr $node}->id;
+    }
+    my %dominace_frontier;
+    for my $node (@{$nodes}) {
+        next unless @{$predecessors{refaddr $node}} >= 2;
+        for my $p (@{$predecessors{refaddr $node}}) {
+            my $runner = $p;
+            while (refaddr $runner != $idoms{refaddr $node}) {
+                say $node->id," is in ",$runner->id," dominace frontier set";
+                $runner = $idoms{refaddr $runner};
+                push @{$dominace_frontier{refaddr $node}},$runner;
+            }
+        }
     }
 }
 sub to_ssa {
