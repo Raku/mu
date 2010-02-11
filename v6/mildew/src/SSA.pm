@@ -1,5 +1,8 @@
 package SSA;
 use Scalar::Util qw(refaddr);
+use Set::Object ();
+use List::MoreUtils qw(uniq);
+use Hash::Util::FieldHash qw(idhash);
 use v5.10;
 use strict;
 use warnings;
@@ -73,30 +76,70 @@ sub doms {
             }
         }
     }
+
+    my %alive_regs;
+    my @blocks = sort {$postorder{refaddr $a} <=> $postorder{refaddr $b}} @{$nodes};
+    for my $block (@blocks) {
+        $alive_regs{refaddr $block} = Set::Object->new();
+        for my $stmt (@{$block->stmts}) {
+            if ($stmt->isa('AST::Assign')) {
+                if ($stmt->rvalue->isa('AST::Call')) {
+                    my $capture = $stmt->rvalue->capture; 
+                    $alive_regs{refaddr $block}->insert(map {$_->name} grep {$_->isa('AST::Reg')} $capture->invocant,@{$capture->positional},@{$capture->named});
+                }
+            } elsif ($stmt->isa('AST::Branch')) {
+                say "inserting ",$stmt->cond->name;
+                #$alive_regs{refaddr $block}->insert($stmt->cond);
+            }
+        }
+    }
+    for my $block (@blocks) {
+        for my $p ($block->jumps) {
+            $alive_regs{refaddr $block} = $alive_regs{refaddr $block}->union($alive_regs{refaddr $p});
+        }
+    }
+    for my $block (@blocks) {
+        say $block->id;
+        for my $reg ($alive_regs{refaddr $block}->members) {
+            say "\t",$reg;
+        }
+    }
+
+    my %unique;
+    my %regs;
+    for my $block ($start,@nodes) {
+        my $idom = $idoms{refaddr $block};
+        for my $reg ($alive_regs{refaddr $idom}->members) {
+            if ($regs{refaddr $idom}{$reg}) {
+                $regs{refaddr $block}{$reg} = $regs{refaddr $idom}{$reg};
+            }
+            for (@{$dominace_frontier{refaddr $block}}) {
+                
+            }
+        }
+
+        for my $stmt (@{$block->stmts}) {
+            if ($stmt->isa('AST::Assign')) {
+                my $name = $stmt->lvalue->name;
+                $unique{$name}++;
+                my $reg = AST::Reg->new(name=>$name."_".$unique{$name});
+                $regs{refaddr $block}{$name} = $reg;
+                $stmt = AST::Assign->new(lvalue=>$reg,rvalue=>$stmt->rvalue);
+            }
+        }
+    }
 }
 sub to_ssa {
     my ($mold) = @_;
     my @blocks;
     my %blocks_by_id;
-    my %unique;
     flatten($mold,\@blocks,\%blocks_by_id);
     fix_jumps(\@blocks,\%blocks_by_id);
     implicit_jumps(\@blocks);
     to_graph(\@blocks);
     doms(\@blocks);
-#    my @ssa_blocks = map {
-#        $_->map_stmts(sub {
-#            my ($stmt) = @_;
-#            if ($stmt->isa('AST::Assign')) {
-#                my $reg = $stmt->lvalue->name;
-#                $unique{$reg}++;
-#                #say $reg," = ",$unique{$reg};
-#                AST::Assign->new(lvalue=>AST::Reg->new(name=>$reg."_".$unique{$reg}),rvalue=>$stmt->rvalue);
-#            } else {
-#                $stmt;
-#            }
-#    })} @blocks;
-#    for my $block (@ssa_blocks) {
+    
+#    for my $block (@blocks) {
 #        say $block->pretty;
 #    }
 }
