@@ -41,6 +41,8 @@ sub value_to_ssa {
         $regs->{$value->name};
     } elsif ($value->isa('AST::Call')) {
         AST::Call->new(identifier=>$value->identifier,capture=>value_to_ssa($regs,$value->capture));
+    } elsif ($value->isa('AST::Block')) {
+        SSA::to_ssa($value);
     } elsif ($value->isa('AST::Capture')) {
         AST::Capture->new(
             ($value->invocant ? (invocant => value_to_ssa($regs,$value->invocant)) : ()),
@@ -192,7 +194,7 @@ sub doms {
             } else {
                 my @phi = uniq map {$regs{$_}{$reg} || ()} @{$dominance_frontiers->{$block}};
                 if (@phi > 2) {
-                    say "phi function for $reg";
+                    die "phi function for $reg";
                 } elsif (@phi) {
                     $regs{$block}{$reg} = $phi[0];
                 }
