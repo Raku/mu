@@ -6,6 +6,10 @@ use Hash::Util::FieldHash qw(idhash);
 use v5.10;
 use strict;
 use warnings;
+
+=over 
+=cut
+
 sub postorder {
     my ($node,$numbering,$visited,$number) = @_;
     $visited->{$node}++;
@@ -14,8 +18,34 @@ sub postorder {
     }
     $numbering->{$node} = $$number++;
 }
+
+=item value_to_ssa($registers,$value)
+
+Convert a value to SSA, mapping registers according to $registers
+
+=cut
+
+sub value_to_ssa {
+    my ($regs,$value) = @_;
+    if ($value->isa('AST::Reg')) {
+        use Data::Dumper;
+        die $value->name." is not in ".Dumper($regs) unless $regs->{$value->name};
+        $regs->{$value->name};
+    } elsif ($value->isa('AST::Call')) {
+        AST::Call->new(identifier=>$value->identifier,capture=>value_to_ssa($regs,$value->capture));
+    } elsif ($value->isa('AST::Capture')) {
+        AST::Capture->new(
+            ($value->invocant ? (invocant => value_to_ssa($regs,$value->invocant)) : ()),
+            positional => [map {value_to_ssa($regs,$_)} @{$value->positional}],
+            named=>[map {value_to_ssa($regs,$_)} @{$value->named}]
+        );
+    } else {
+        $value;
+    }
+}
+
 sub doms {
-    my ($nodes) = @_;
+    my ($mold,$nodes) = @_;
     idhash my %idoms;
     idhash my %postorder;
     idhash my %predecessors;
@@ -90,8 +120,7 @@ sub doms {
                     $alive_regs{$block}->insert(map {$_->name} grep {$_->isa('AST::Reg')} $capture->invocant,@{$capture->positional},@{$capture->named});
                 }
             } elsif ($stmt->isa('AST::Branch')) {
-                say "inserting ",$stmt->cond->name;
-                #$alive_regs{$block}->insert($stmt->cond);
+                $alive_regs{$block}->insert($stmt->cond) if $stmt->cond->isa('AST::Reg');
             }
         }
     }
@@ -100,26 +129,13 @@ sub doms {
             $alive_regs{$block} = $alive_regs{$block}->union($alive_regs{$p});
         }
     }
-    for my $block (@blocks) {
-        say $block->id;
-        for my $reg ($alive_regs{$block}->members) {
-            say "\t",$reg;
-        }
-    }
 
     my %unique;
     idhash my %regs;
+    for (@{$mold->regs}) {
+        $regs{$start}{'$'.$_} = AST::Reg->new(name=>'$'.$_);
+    }
     for my $block ($start,@nodes) {
-        my $idom = $idoms{$block};
-        for my $reg ($alive_regs{$idom}->members) {
-            if ($regs{$idom}{$reg}) {
-                $regs{$block}{$reg} = $regs{$idom}{$reg};
-            }
-            for (@{$dominace_frontier{$block}}) {
-                
-            }
-        }
-
         for my $stmt (@{$block->stmts}) {
             if ($stmt->isa('AST::Assign')) {
                 my $name = $stmt->lvalue->name;
@@ -127,6 +143,32 @@ sub doms {
                 my $reg = AST::Reg->new(name=>$name."_".$unique{$name});
                 $regs{$block}{$name} = $reg;
                 $stmt = AST::Assign->new(lvalue=>$reg,rvalue=>$stmt->rvalue);
+            }
+        }
+    }
+    for my $block ($start,@nodes) {
+        my $idom = $idoms{$block};
+        say "in block ",$block->id;
+        for my $reg ($alive_regs{$idom}->members) {
+            if ($regs{$block}{$reg}) {
+            } elsif ($regs{$idom}{$reg}) {
+                $regs{$block}{$reg} = $regs{$idom}{$reg};
+            } else {
+                my @phi = uniq map {$regs{$_}{$reg} || ()} @{$dominace_frontier{$block}};
+                if (@phi > 2) {
+                    say "phi function for $reg";
+                } elsif (@phi) {
+                    $regs{$block}{$reg} = $phi[0];
+                }
+            }
+        }
+
+        for my $stmt (@{$block->stmts}) {
+            if ($stmt->isa('AST::Assign')) {
+                $stmt = AST::Assign->new(lvalue=>$stmt->lvalue,rvalue=>value_to_ssa($regs{$block},$stmt->rvalue));
+            } elsif ($stmt->isa('AST::Branch')) {
+            } else {
+                $stmt = value_to_ssa($regs{$block},$stmt);
             }
         }
     }
@@ -139,11 +181,11 @@ sub to_ssa {
     fix_jumps(\@blocks,\%blocks_by_id);
     implicit_jumps(\@blocks);
     to_graph(\@blocks);
-    doms(\@blocks);
+    doms($mold,\@blocks);
     
-#    for my $block (@blocks) {
-#        say $block->pretty;
-#    }
+    for my $block (@blocks) {
+        say $block->pretty;
+    }
 }
 sub implicit_jumps {
     my ($blocks) = @_;
@@ -196,4 +238,7 @@ sub flatten {
         }
     }
 }
+
+=back
+=cut
 1;

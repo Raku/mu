@@ -4,7 +4,6 @@ class AST::Block extends AST::Base {
     method m0ld($ret) {
         "my $ret = mold {\n"
             . join('',map {'my $'.$_.";\n"} @{$self->regs})
-#            . join('',map {'RI($'.$_.",\"".$self->hints->{$_}."\");\n"} keys %{$self->hints})
             . join("",map { $_->m0ld('$void') } @{$self->stmts})
         . "};\n";
     }
