@@ -11,10 +11,18 @@ use warnings;
 =cut
 
 sub postorder {
+    my ($blocks) = @_;
+    idhash my %numbering;
+    postorder_numbering($blocks->[0],\%numbering,do {idhash my %visited;\%visited},\(my $number = 0));
+    my $postorder =  [sort {$numbering{$a} <=> $numbering{$b}} @{$blocks}];
+    (\%numbering,$postorder,[reverse @$postorder]);
+}
+
+sub postorder_numbering {
     my ($node,$numbering,$visited,$number) = @_;
     $visited->{$node}++;
     for ($node->jumps) {
-        postorder($_,$numbering,$visited,$number) unless $visited->{$_};
+        postorder_numbering($_,$numbering,$visited,$number) unless $visited->{$_};
     }
     $numbering->{$node} = $$number++;
 }
@@ -44,74 +52,16 @@ sub value_to_ssa {
     }
 }
 
-sub doms {
-    my ($mold,$nodes) = @_;
-    idhash my %idoms;
-    idhash my %postorder;
-    idhash my %predecessors;
-    my $start = $nodes->[0];
-    $idoms{$start} = $start;
-    idhash my %visited;
-    postorder($start,\%postorder,do {idhash my %visited;\%visited},\(my $number = 0));
-    my @nodes = sort {$postorder{$b} <=> $postorder{$a}} @{$nodes};
-    for my $node (@{$nodes}) {
-        $predecessors{$node} = [];
-    }
-    for my $node (@{$nodes}) {
-        for my $target ($node->jumps) {
-            push @{$predecessors{$target}},$node;
-        }
-    }
-    shift(@nodes);
+=item alive_regs($blocks_in_postorder_numbering)
 
+Calculates which registers might be alive in a given block
 
-    my $new_idom;
-    my $changed = 1;
-    while ($changed) { 
-        $changed = 0;
-        for my $b (@nodes) {
-            my @predecessors = @{$predecessors{$b}};
-            my $new_idom = shift @predecessors;
-            for my $p (@predecessors) {
-                if (defined $idoms{$p}) {
-                    my $finger1 = $p;
-                    my $finger2 = $new_idom;
-                    while (refaddr $finger1 != refaddr $finger2) {
-                        while ($postorder{$finger1} < $postorder{$finger2}) {
-                            $finger1 = $idoms{$finger1};
-                        }
-                        while ($postorder{$finger2} < $postorder{$finger1}) {
-                            $finger2 = $idoms{$finger2};
-                        }
-                    }
-                    $new_idom = $finger1;
-                }
-            }
-            if (!$idoms{$b} or refaddr $idoms{$b} != refaddr $new_idom) {
-                $idoms{$b} = $new_idom;
-                $changed = 1;
-            }
-        }
-    }
-    for my $node (@{$nodes}) {
-        say "idom ",$node->id," = ",$idoms{$node}->id;
-    }
-    idhash my %dominace_frontier;
-    for my $node (@{$nodes}) {
-        next unless @{$predecessors{$node}} >= 2;
-        for my $p (@{$predecessors{$node}}) {
-            my $runner = $p;
-            while (refaddr $runner != $idoms{$node}) {
-                say $node->id," is in ",$runner->id," dominace frontier set";
-                $runner = $idoms{$runner};
-                push @{$dominace_frontier{$node}},$runner;
-            }
-        }
-    }
+=cut
 
+sub alive_regs {
+    my ($postorder) = @_;
     idhash my %alive_regs;
-    my @blocks = sort {$postorder{$a} <=> $postorder{$b}} @{$nodes};
-    for my $block (@blocks) {
+    for my $block (@{$postorder}) {
         $alive_regs{$block} = Set::Object->new();
         for my $stmt (@{$block->stmts}) {
             if ($stmt->isa('AST::Assign')) {
@@ -124,18 +74,104 @@ sub doms {
             }
         }
     }
-    for my $block (@blocks) {
+    for my $block (@{$postorder}) {
         for my $p ($block->jumps) {
             $alive_regs{$block} = $alive_regs{$block}->union($alive_regs{$p});
         }
     }
+    \%alive_regs;
+}
+
+=item dominace_frontiers($block,$idoms,$predecessors)
+
+calculates the dominace frontier set
+
+=cut
+
+sub dominance_frontiers {
+    my ($blocks,$idoms,$predecessors) = @_;
+    idhash my %dominance_frontiers;
+    for my $block (@{$blocks}) {
+        next unless @{$predecessors->{$block}} >= 2;
+        for my $p (@{$predecessors->{$block}}) {
+            my $runner = $p;
+            while (refaddr $runner != $idoms->{$block}) {
+                $runner = $idoms->{$runner};
+                push @{$dominance_frontiers{$block}},$runner;
+            }
+        }
+    }
+    \%dominance_frontiers;
+}
+
+sub predecessors {
+    my ($blocks) = @_;
+    idhash my %predecessors;
+    for my $block (@{$blocks}) {
+        $predecessors{$block} = [];
+    }
+    for my $block (@{$blocks}) {
+        for my $target ($block->jumps) {
+            push @{$predecessors{$target}},$block;
+        }
+    }
+    \%predecessors;
+}
+sub idoms {
+    my ($rpostorder,$numbering,$predecessors) = @_;
+    my @blocks = @{$rpostorder};
+    my $start = shift @blocks;
+
+    idhash my %idoms;
+    $idoms{$start} = $start;
+    my $new_idom;
+    my $changed = 1;
+    while ($changed) { 
+        $changed = 0;
+        for my $b (@blocks) {
+            my @predecessors = @{$predecessors->{$b}};
+            my $new_idom = shift @predecessors;
+            for my $p (@predecessors) {
+                if (defined $idoms{$p}) {
+                    my $finger1 = $p;
+                    my $finger2 = $new_idom;
+                    while (refaddr $finger1 != refaddr $finger2) {
+                        while ($numbering->{$finger1} < $numbering->{$finger2}) {
+                            $finger1 = $idoms{$finger1};
+                        }
+                        while ($numbering->{$finger2} < $numbering->{$finger1}) {
+                            $finger2 = $idoms{$finger2};
+                        }
+                    }
+                    $new_idom = $finger1;
+                }
+            }
+            if (!$idoms{$b} or refaddr $idoms{$b} != refaddr $new_idom) {
+                $idoms{$b} = $new_idom;
+                $changed = 1;
+            }
+        }
+    }
+    \%idoms;
+}
+
+sub doms {
+    my ($mold,$blocks) = @_;
+
+    my ($numbering,$postorder,$rpostorder) = postorder($blocks);
+
+    my $predecessors = predecessors($blocks);
+    my $idoms = idoms($rpostorder,$numbering,$predecessors);
+    my $dominance_frontiers = dominance_frontiers($blocks,$idoms,$predecessors);
+    my $alive_regs = alive_regs($postorder);
 
     my %unique;
     idhash my %regs;
     for (@{$mold->regs}) {
-        $regs{$start}{'$'.$_} = AST::Reg->new(name=>'$'.$_);
+        $regs{$blocks->[0]}{'$'.$_} = AST::Reg->new(name=>'$'.$_);
     }
-    for my $block ($start,@nodes) {
+    # XXX - assigning to the value twice in the same block
+    for my $block (@{$postorder}) {
         for my $stmt (@{$block->stmts}) {
             if ($stmt->isa('AST::Assign')) {
                 my $name = $stmt->lvalue->name;
@@ -146,15 +182,15 @@ sub doms {
             }
         }
     }
-    for my $block ($start,@nodes) {
-        my $idom = $idoms{$block};
-        say "in block ",$block->id;
-        for my $reg ($alive_regs{$idom}->members) {
+
+    for my $block (@{$rpostorder}) {
+        my $idom = $idoms->{$block};
+        for my $reg ($alive_regs->{$idom}->members) {
             if ($regs{$block}{$reg}) {
             } elsif ($regs{$idom}{$reg}) {
                 $regs{$block}{$reg} = $regs{$idom}{$reg};
             } else {
-                my @phi = uniq map {$regs{$_}{$reg} || ()} @{$dominace_frontier{$block}};
+                my @phi = uniq map {$regs{$_}{$reg} || ()} @{$dominance_frontiers->{$block}};
                 if (@phi > 2) {
                     say "phi function for $reg";
                 } elsif (@phi) {
@@ -180,10 +216,10 @@ sub to_ssa {
     flatten($mold,\@blocks,\%blocks_by_id);
     fix_jumps(\@blocks,\%blocks_by_id);
     implicit_jumps(\@blocks);
-    to_graph(\@blocks);
+#    to_graph(\@blocks);
     doms($mold,\@blocks);
     
-    for my $block (@blocks) {
+for my $block (@blocks) {
         say $block->pretty;
     }
 }
