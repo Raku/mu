@@ -203,6 +203,7 @@ sub doms {
             if ($stmt->isa('AST::Assign')) {
                 $stmt = AST::Assign->new(lvalue=>$stmt->lvalue,rvalue=>value_to_ssa($regs{$block},$stmt->rvalue));
             } elsif ($stmt->isa('AST::Branch')) {
+                $stmt = AST::Branch->new(then=>$stmt->then,else=>$stmt->else,cond=>value_to_ssa($regs{$block},$stmt->cond));
             } else {
                 $stmt = value_to_ssa($regs{$block},$stmt);
             }
@@ -218,10 +219,7 @@ sub to_ssa {
     implicit_jumps(\@blocks);
 #    to_graph(\@blocks);
     doms($mold,\@blocks);
-    
-for my $block (@blocks) {
-        say $block->pretty;
-    }
+    AST::Block->new(regs=>$mold->regs,stmts=>\@blocks); 
 }
 sub implicit_jumps {
     my ($blocks) = @_;
