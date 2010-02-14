@@ -50,6 +50,9 @@ prove: CORE
 test-js: CORE-js
 	$(PROVE) 'perl mildew -Bjs' $(shell xargs -n 1 perl ../../t/spec/fudge --keep-exit-code mildew < TESTS-js)
 
+test-ssa: CORE
+	$(PROVE) 'perl mildew -Bssa' $(shell xargs -n 1 perl ../../t/spec/fudge --keep-exit-code mildew < TESTS) t
+
 test-js-t: CORE-js
 	$(PROVE) 'perl mildew -Bjs' t
 
