@@ -14,7 +14,7 @@ class AST::Seq extends AST::Base {
         (defined($self->id) ? $self->id . ": " : '') . $m0ld ;
     }
     method simplified {
-        die "can't simplified a block with id" if $self->id;
+        die "can't call simplified on a block with id" if $self->id;
         my @stmts;
         my $value;
         for (@{$self->stmts}) {
