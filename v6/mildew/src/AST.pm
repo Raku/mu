@@ -51,4 +51,5 @@ use AST::Goto;
 use AST::Block;
 use AST::Seq;
 use AST::Loop;
+use AST::Phi;
 1;

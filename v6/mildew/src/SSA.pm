@@ -177,8 +177,7 @@ sub doms {
         for my $stmt (@{$block->stmts}) {
             if ($stmt->isa('AST::Assign')) {
                 my $name = $stmt->lvalue->name;
-                $unique{$name}++;
-                my $reg = AST::Reg->new(name=>$name."_".$unique{$name});
+                my $reg = AST::Reg->new(name=>$name."_".++$unique{$name});
                 $regs{$block}{$name} = $reg;
                 $stmt = AST::Assign->new(lvalue=>$reg,rvalue=>$stmt->rvalue);
             }
@@ -186,10 +185,6 @@ sub doms {
     }
 
     for my $block (@{$rpostorder}) {
-        say "in ",$block->id;
-        for (@{$dominance_frontiers->{$block}}) {
-            say "dominated by ",$_->id;
-        }
         my $idom = $idoms->{$block};
         for my $reg ($alive_regs->{$idom}->members) {
             if ($regs{$block}{$reg}) {
@@ -199,7 +194,10 @@ sub doms {
 
                 my @phi = uniq map {$regs{$_}{$reg} || ()} @{$dominance_frontiers->{$block}};
                 if (@phi >= 2) {
-                    die "phi function for $reg: ",join ',',map {$_->name} @phi;
+                    #die "phi function for $reg: ",join ',',map {$_->name} @phi;
+                    my $new_reg = AST::Reg->new(name=>$reg."_".++$unique{$reg});
+                    $regs{$block}{$reg} = $new_reg;
+                    unshift @{$block->stmts},AST::Assign->new(lvalue=>$new_reg,rvalue=>AST::Phi->new(regs=>\@phi));
                 } elsif (@phi) {
                     $regs{$block}{$reg} = $phi[0];
                 }
@@ -224,7 +222,7 @@ sub to_ssa {
     flatten($mold,\@blocks,\%blocks_by_id);
     fix_jumps(\@blocks,\%blocks_by_id);
     implicit_jumps(\@blocks);
-    to_graph(\@blocks);
+#to_graph(\@blocks);
     doms($mold,\@blocks);
     AST::Block->new(regs=>$mold->regs,stmts=>\@blocks); 
 }
@@ -246,7 +244,7 @@ sub to_graph {
             $graph->add_edge($new,$_->id);
         }
     }
-    say $graph->as_ascii;
+    $graph;
 }
 sub fix_jumps {
     my ($blocks,$blocks_by_id) = @_;
