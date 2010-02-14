@@ -6,6 +6,7 @@ use Hash::Util::FieldHash qw(idhash);
 use v5.10;
 use strict;
 use warnings;
+use utf8;
 
 =over 
 =cut
@@ -36,9 +37,13 @@ Convert a value to SSA, mapping registers according to $registers
 sub value_to_ssa {
     my ($regs,$value) = @_;
     if ($value->isa('AST::Reg')) {
-        use Data::Dumper;
-        die $value->name." is not in ".Dumper($regs) unless $regs->{$value->name};
-        $regs->{$value->name};
+        if ($value->name =~ /^¢/) {
+            $value;
+        } else {
+            use Data::Dumper;
+            die $value->name." is not in ".Dumper($regs) unless $regs->{$value->name};
+            $regs->{$value->name};
+        }
     } elsif ($value->isa('AST::Call')) {
         AST::Call->new(identifier=>$value->identifier,capture=>value_to_ssa($regs,$value->capture));
     } elsif ($value->isa('AST::Block')) {
