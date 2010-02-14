@@ -11,4 +11,7 @@ class AST::IntegerConstant extends AST::Base {
     method simplified {
         $self;
     }
+    method m0ld_literal {
+        $self->value;
+    }
  }

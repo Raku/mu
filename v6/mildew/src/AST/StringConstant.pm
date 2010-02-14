@@ -4,11 +4,7 @@ class AST::StringConstant extends AST::Base {;
     has 'value' => (is=>'ro');
     method m0ld($ret) {
         #XXX metachars
-        my $str = $self->value;
-        $str =~ s/\\/\\\\/g;
-        $str =~ s/"/\\"/g;
-        $str =~ s/\n/\\n/g;
-        "my $ret = \"".$str."\";\n";
+        "my $ret = \"".$self->m0ld_literal."\";\n";
     }
     method pretty {
         #XXX metachars
@@ -16,5 +12,12 @@ class AST::StringConstant extends AST::Base {;
     }
     method simplified {
         $self;
+    }
+    method m0ld_literal {
+        my $str = $self->value;
+        $str =~ s/\\/\\\\/g;
+        $str =~ s/"/\\"/g;
+        $str =~ s/\n/\\n/g;
+        $str;
     }
 }

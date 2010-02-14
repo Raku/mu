@@ -1,6 +1,7 @@
 use v5.10;
 use MooseX::Declare;
 class AST::While extends AST::Base {
+    use AST::Helpers;
     has 'cond' => (is => 'ro');
     has 'body' => (is => 'ro');
 
@@ -24,5 +25,26 @@ class AST::While extends AST::Base {
         'while ' . $self->cond->pretty . " {\n"
         . AST::indent($self->body->pretty) . "\n"
         . "}\n";
+    }
+
+    method simplified {
+
+        my ($cond,@cond_setup) = call(true => FETCH($self->cond))->simplified;
+        my ($ret,@body_setup) = $self->body->simplified;
+
+        my $branch = AST::Branch->new(cond=>$cond);
+
+        my $cond_block = AST::Seq->new(id=>AST::unique_label,stmts=>[@cond_setup,$branch]);
+        my $body = AST::Seq->new(id=>AST::unique_label,stmts=>[
+            @body_setup,
+            AST::Goto->new(block=>$cond_block)
+        ]);
+
+        my $end = AST::Seq->new(id=>AST::unique_label,stmts=>[]);
+        
+        $branch->then($body);
+        $branch->else($end);
+
+        ($ret,$cond_block,$body,$end);
     }
 }

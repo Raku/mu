@@ -8,8 +8,6 @@ class AST::Loop extends AST::Base {
         'goto '.$label.';'."\n";
     }
     method simplified {
-        use AST::Helpers;
-        use Scalar::Util qw(weaken);
         my $goto = AST::Goto->new();
         my ($ret,@setup) = $self->code->simplified;
         my $block = AST::Seq->new(id=>AST::unique_label,stmts=>[@setup,$goto]);
