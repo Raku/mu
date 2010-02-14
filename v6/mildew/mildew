@@ -334,10 +334,7 @@ sub main {
         exit;
     } elsif ($C eq 'ssa') {
         my $ast = SSA::to_ssa(parse->simplified);
-        say $ast->pretty;
-        local $ENV{LD_LIBRARY_PATH} = 'CORE:../smop/build/lib';
-        local $ENV{PERL5LIB} = "../smop/SMOP/blib/lib/:../smop/SMOP/blib/arch:" . ($ENV{PERL5LIB} || '');
-        run_m0ld(mold_to_m0ld($ast,$C));
+        output($ast->pretty,$output);
         exit;
     } elsif ($C eq 'simplified-m0ld') {
         output(parse->simplified->m0ld('$main')."\n",$output);
@@ -381,6 +378,11 @@ sub main {
         local $ENV{LD_LIBRARY_PATH} = 'CORE:../smop/build/lib';
         local $ENV{PERL5LIB} = "../smop/SMOP/blib/lib/:../smop/SMOP/blib/arch:" . ($ENV{PERL5LIB} || '');
         run_m0ld(m0ld);
+    } elsif ($B eq 'ssa') {
+        my $ast = SSA::to_ssa(parse->simplified);
+        local $ENV{LD_LIBRARY_PATH} = 'CORE:../smop/build/lib';
+        local $ENV{PERL5LIB} = "../smop/SMOP/blib/lib/:../smop/SMOP/blib/arch:" . ($ENV{PERL5LIB} || '');
+        run_m0ld(mold_to_m0ld($ast,$C));
     } elsif ($B eq 'js') {
         require JavaScript::V8;
         my $ctx = JavaScript::V8::Context->new();

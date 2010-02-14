@@ -72,7 +72,7 @@ sub alive_regs {
                     $alive_regs{$block}->insert(map {$_->name} grep {$_->isa('AST::Reg')} $capture->invocant,@{$capture->positional},@{$capture->named});
                 }
             } elsif ($stmt->isa('AST::Branch')) {
-                $alive_regs{$block}->insert($stmt->cond) if $stmt->cond->isa('AST::Reg');
+                $alive_regs{$block}->insert($stmt->cond->name) if $stmt->cond->isa('AST::Reg');
             }
         }
     }
@@ -98,8 +98,8 @@ sub dominance_frontiers {
         for my $p (@{$predecessors->{$block}}) {
             my $runner = $p;
             while (refaddr $runner != $idoms->{$block}) {
-                $runner = $idoms->{$runner};
                 push @{$dominance_frontiers{$block}},$runner;
+                $runner = $idoms->{$runner};
             }
         }
     }
@@ -186,15 +186,20 @@ sub doms {
     }
 
     for my $block (@{$rpostorder}) {
+        say "in ",$block->id;
+        for (@{$dominance_frontiers->{$block}}) {
+            say "dominated by ",$_->id;
+        }
         my $idom = $idoms->{$block};
         for my $reg ($alive_regs->{$idom}->members) {
             if ($regs{$block}{$reg}) {
             } elsif ($regs{$idom}{$reg}) {
                 $regs{$block}{$reg} = $regs{$idom}{$reg};
             } else {
+
                 my @phi = uniq map {$regs{$_}{$reg} || ()} @{$dominance_frontiers->{$block}};
-                if (@phi > 2) {
-                    die "phi function for $reg";
+                if (@phi >= 2) {
+                    die "phi function for $reg: ",join ',',map {$_->name} @phi;
                 } elsif (@phi) {
                     $regs{$block}{$reg} = $phi[0];
                 }
@@ -219,7 +224,7 @@ sub to_ssa {
     flatten($mold,\@blocks,\%blocks_by_id);
     fix_jumps(\@blocks,\%blocks_by_id);
     implicit_jumps(\@blocks);
-#    to_graph(\@blocks);
+    to_graph(\@blocks);
     doms($mold,\@blocks);
     AST::Block->new(regs=>$mold->regs,stmts=>\@blocks); 
 }
