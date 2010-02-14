@@ -7,6 +7,7 @@ class VAST::statement_control__S_unless {
         my $then = call 'postcircumfix:( )' => code($self->{xblock}{pblock}{blockoid}),[capturize];
         AST::If->new
             ( cond => $self->{xblock}{EXPR}->emit_m0ld,
+              then => lookupf('False'),
               else => $then )
     }
 }
