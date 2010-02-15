@@ -329,14 +329,14 @@ Pm-19:  In each statement below, how many times is the block argument
 Iterating subsignatures need a rethink, as discussed on IRC.  If people
 expect a map block of -> $x { $x } to flatten, then $x is being
 bound in the variadic/flattening part of a bind, not in the positional,
-which defaults to getitem.  So either we force people to write
+which defaults to getobj.  So either we force people to write
 
     -> *$x, *$y {...}
 
 (ick, doesn't extend to $^x or $_ easily) or we find some way
 of flipping the default binding of some block sigs to being slurpy
 scalars that use .get by default, and then use whatever slice notation
-we come up with to change the default back to .getitem.  So there's
+we come up with to change the default back to .getobj.  So there's
 some hidden transmogrifier that map/grep use on their block parameter
 to make its sig behave, or they don't call the block directly, but
 rely on something else to do the transformation to a subpattern match.
@@ -368,6 +368,65 @@ The latter approach would be more like:
 
 where .apply would both mutate the block's sig semantics somehow and also
 mutate the cursor so we don't have to track it.
+
+Update: more recent discussion on IRC suggests that the instruction for whether
+to anchor the sig match at the end should not come in either of those ways,
+but as a flag within the cursor itself: whereas a normal capture always
+anchors, a CaptureCursor has a flag that can go either way, but is set by
+map/grep to not anchor, but just advance the pointer.  (Or possibly they never
+anchor, and you have to convert back to a Capture, if we want it type based.)
+I will assume there's a Capture method, .get_unanchored_cursor for the nonce,
+which does the right thing.
+
+With a mutable cursor, the notation is rather simple, (but the semantics
+are more problematic):
+
+    sub map (&block, \$cap) {
+	my CaptureCursor $cursor = $cap.get_unanchored_cursor;
+	gather loop {
+	    take block(|$cursor) E last;
+	}
+    }
+
+(That's assuming that |$cursor does the right thing there, and doesn't
+convert back to Capture.)
+
+Alternately, we could use immutable cursors, but then we need to tap in
+at a lower level for the invocation, in order to return both a new capture
+and a result parcel, something like:
+
+    sub map (&block, \$cap) {
+	my CaptureCursor $cursor = $cap.get_unanchored_cursor;
+	gather loop {
+	    my ($newcursor, $parcel) := &block.invoke($cursor);
+	    take |$parcel E last;
+	}
+    }
+
+Or maybe the last goes on the invoke:
+
+    sub map (&block, \$cap) {
+	my CaptureCursor $cursor = $cap.get_unanchored_cursor;
+	gather loop {
+	    my ($newcursor, $parcel) := &block.invoke($cursor) // last;
+	    take |$parcel;
+	}
+    }
+
+The immutable form is more amenable to invocation that has to track
+how many elements were consumed (like 'reduce' maybe?), since you
+could just compare the position of old cursor with the new, without
+having to remember the old position specially.  (I'm imagining cursors
+as lightweight objects pointing into the original capture here, not
+as heavy capture copies, much as a grammar parser doesn't pass the
+original text around, but just a match position into the original.)
+
+Multiple return values make it harder to do fancy junctional tricks
+on Z without temporaries, though.  Self-mutating cursors jangle my
+FP nerves, but maybe I can argue myself into liking them from an
+OO perspective.  Maybe a mutable cursor is just a container of
+the current immutable cursor, and we could perhaps have it both ways,
+modulo yet another level of indirection.  Performance suffers, maybe.
 
 ----------------------
 
