@@ -398,7 +398,7 @@ and a result parcel, something like:
     sub map (&block, \$cap) {
 	my CaptureCursor $cursor = $cap.get_unanchored_cursor;
 	gather loop {
-	    my ($newcursor, $parcel) := &block.invoke($cursor);
+	    my ($newcursor, $parcel) := INVOKE_WITH_CURSOR(&block, $cursor);
 	    take |$parcel E last;
 	}
     }
@@ -408,7 +408,7 @@ Or maybe the last goes on the invoke:
     sub map (&block, \$cap) {
 	my CaptureCursor $cursor = $cap.get_unanchored_cursor;
 	gather loop {
-	    my ($newcursor, $parcel) := &block.invoke($cursor) // last;
+	    my ($newcursor, $parcel) := INVOKE_WITH_CURSOR(&block, $cursor) // last;
 	    take |$parcel;
 	}
     }
