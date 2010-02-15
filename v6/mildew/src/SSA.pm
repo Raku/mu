@@ -34,26 +34,27 @@ Convert a value to SSA, mapping registers according to $registers
 
 =cut
 
-sub value_to_ssa {
-    my ($regs,$value) = @_;
-    if ($value->isa('AST::Reg')) {
-        if ($value->name =~ /^¢/) {
-            $value;
-        } else {
-            use Data::Dumper;
-            die $value->name." is not in ".Dumper($regs) unless $regs->{$value->name};
-            $regs->{$value->name};
+sub transform_stmt {
+    my ($callbacks,$value) = @_;
+    for my $class (keys %{$callbacks}) {
+        if ($value->isa($class)) {
+            return $callbacks->{$class}($value);
         }
-    } elsif ($value->isa('AST::Call')) {
-        AST::Call->new(identifier=>$value->identifier,capture=>value_to_ssa($regs,$value->capture));
-    } elsif ($value->isa('AST::Block')) {
-        SSA::to_ssa($value);
+    }
+
+    if ($value->isa('AST::Call')) {
+        AST::Call->new(identifier=>$value->identifier,capture=>transform_stmt($callbacks,$value->capture));
     } elsif ($value->isa('AST::Capture')) {
         AST::Capture->new(
-            ($value->invocant ? (invocant => value_to_ssa($regs,$value->invocant)) : ()),
-            positional => [map {value_to_ssa($regs,$_)} @{$value->positional}],
-            named=>[map {value_to_ssa($regs,$_)} @{$value->named}]
+            ($value->invocant ? (invocant => transform_stmt($callbacks,$value->invocant)) : ()),
+            positional => [map {transform_stmt($callbacks,$_)} @{$value->positional}],
+            named=>[map {transform_stmt($callbacks,$_)} @{$value->named}]
         );
+
+    } elsif ($value->isa('AST::Assign')) {
+        AST::Assign->new(lvalue=>transform_stmt($callbacks,$value->lvalue),rvalue=>transform_stmt($callbacks,$value->rvalue));
+    } elsif ($value->isa('AST::Branch')) {
+        AST::Branch->new(then=>$value->then,else=>$value->else,cond=>transform_stmt($callbacks,$value->cond));
     } else {
         $value;
     }
@@ -175,14 +176,14 @@ sub doms {
     my %unique;
     idhash my %regs;
     for (@{$mold->regs}) {
-        $regs{$blocks->[0]}{'$'.$_} = AST::Reg->new(name=>'$'.$_);
+        $regs{$blocks->[0]}{'$'.$_} = AST::Reg->new(name=>'$'.$_,real_name=>'$'.$_);
     }
-    # XXX - assigning to the value twice in the same block
+    # TODO - handle assigning to the value twice in the same block correctly
     for my $block (@{$postorder}) {
         for my $stmt (@{$block->stmts}) {
             if ($stmt->isa('AST::Assign')) {
                 my $name = $stmt->lvalue->name;
-                my $reg = AST::Reg->new(name=>$name."_".++$unique{$name});
+                my $reg = AST::Reg->new(name=>$name."_".++$unique{$name},real_name=>$name);
                 $regs{$block}{$name} = $reg;
                 $stmt = AST::Assign->new(lvalue=>$reg,rvalue=>$stmt->rvalue);
             }
@@ -200,7 +201,7 @@ sub doms {
                 my @phi = uniq map {$regs{$_}{$reg} || ()} @{$dominance_frontiers->{$block}};
                 if (@phi >= 2) {
                     #die "phi function for $reg: ",join ',',map {$_->name} @phi;
-                    my $new_reg = AST::Reg->new(name=>$reg."_".++$unique{$reg});
+                    my $new_reg = AST::Reg->new(name=>$reg."_".++$unique{$reg},real_name=>$reg);
                     $regs{$block}{$reg} = $new_reg;
                     unshift @{$block->stmts},AST::Assign->new(lvalue=>$new_reg,rvalue=>AST::Phi->new(regs=>\@phi));
                 } elsif (@phi) {
@@ -210,14 +211,26 @@ sub doms {
         }
 
         for my $stmt (@{$block->stmts}) {
-            if ($stmt->isa('AST::Assign')) {
-                $stmt = AST::Assign->new(lvalue=>$stmt->lvalue,rvalue=>value_to_ssa($regs{$block},$stmt->rvalue));
-            } elsif ($stmt->isa('AST::Branch')) {
-                $stmt = AST::Branch->new(then=>$stmt->then,else=>$stmt->else,cond=>value_to_ssa($regs{$block},$stmt->cond));
-            } else {
-                $stmt = value_to_ssa($regs{$block},$stmt);
-            }
-        }
+            $stmt = transform_stmt({
+                'AST::Reg'   => sub {
+                    my ($reg) = @_;
+                    if ($regs{$block}{$reg->name}) {
+                        $regs{$block}{$reg->name};
+                    } elsif ($reg->name =~ /^¢/) {
+                        $reg;
+                    } elsif ($reg->name =~ /_\d+$/) {
+                        $reg;
+                    } else {
+                        use Data::Dumper;
+                        die $reg->name." is not in ".Dumper($regs{$block});
+                    }
+                },
+                'AST::Block' => sub {
+                    my ($block) = @_;
+                    SSA::to_ssa($block);
+                }
+            },$stmt);
+        };
     }
 }
 sub to_ssa {
@@ -230,6 +243,38 @@ sub to_ssa {
 #to_graph(\@blocks);
     doms($mold,\@blocks);
     AST::Block->new(regs=>$mold->regs,stmts=>\@blocks); 
+}
+sub from_ssa {
+    my ($mold) = @_;
+    idhash my %unssa;
+    for my $block (@{$mold->stmts}) {
+        @{$block->stmts} = grep {
+            if ($_->isa('AST::Assign') && $_->rvalue->isa('AST::Phi')) {
+                $unssa{$_->lvalue} = 1;
+                for my $reg (@{$_->rvalue->regs}) {
+                    $unssa{$reg} = 1;
+                }
+                0;
+            } else {
+                1;
+            }
+        } @{$block->stmts};
+    }
+    for my $block (@{$mold->stmts}) {
+        for my $stmt (@{$block->stmts}) {
+            $stmt = transform_stmt({
+                'AST::Reg' => sub {
+                    my ($reg) = @_;       
+                    $unssa{$reg} ? AST::Reg->new(name=>$reg->real_name) : $reg;
+                },
+                'AST::Block' => sub {
+                     my ($block) = @_;       
+                     from_ssa($block);
+                     $block;
+                }
+            },$stmt);
+        }
+    }
 }
 sub implicit_jumps {
     my ($blocks) = @_;

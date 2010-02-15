@@ -380,6 +380,7 @@ sub main {
         run_m0ld(m0ld);
     } elsif ($B eq 'ssa') {
         my $ast = SSA::to_ssa(parse->simplified);
+        SSA::from_ssa($ast);
         local $ENV{LD_LIBRARY_PATH} = 'CORE:../smop/build/lib';
         local $ENV{PERL5LIB} = "../smop/SMOP/blib/lib/:../smop/SMOP/blib/arch:" . ($ENV{PERL5LIB} || '');
         run_m0ld(mold_to_m0ld($ast,$C));

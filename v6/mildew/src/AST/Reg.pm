@@ -2,6 +2,7 @@ use v5.10;
 use MooseX::Declare;
 class AST::Reg extends AST::Base {
     has 'name' => (is=>'ro');
+    has 'real_name' => (is=>'ro');
     method m0ld($ret) {
         "my $ret = ".$self->name.";\n";
     }
