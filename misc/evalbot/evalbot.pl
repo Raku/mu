@@ -81,12 +81,6 @@ null $P1
 set_hll_global [\'IO\'], \'Socket\', $P0
     };',
             },
-            ng => {
-                chdir       => '../../../rakudo-ng/',
-                cmd_line    => 'cat %i | PERL6LIB=lib ./perl6 %program >> %out 2>&1',
-                revision    => sub { get_revision_from_file('~/rakudo-ng/revision')},
-                filter      => \&filter_pct,
-            },
             nqp   => {
                 chdir       => '../../../nqp-rx',
                 cmd_line    => 'cat %i | ./nqp %program >> %out 2>&1',
