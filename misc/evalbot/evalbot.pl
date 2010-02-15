@@ -81,6 +81,22 @@ null $P1
 set_hll_global [\'IO\'], \'Socket\', $P0
     };',
             },
+            alpha => {
+                chdir       => '../../../rakudo-alpha/',
+                cmd_line    => 'cat %i | PERL6LIB=lib ../rakudo-alpha/perl6 %program >> %out 2>&1',
+                revision    => sub { get_revision_from_file('~/rakudo-alpha/revision')},
+                filter      => \&filter_pct,
+                program_prefix => 'my $ss_SS_S_S__S_S_s = -> *@a, *%h { die "operation not permitted in safe mode" };
+    Q:PIR {
+$P0 = get_hll_namespace
+$P1 = find_lex \'$ss_SS_S_S__S_S_s\'
+$P0[\'run\']  = $P1
+$P0[\'open\'] = $P1
+$P0[\'!qx\']  = $P1
+null $P1
+set_hll_global [\'IO\'], \'Socket\', $P0
+    };',
+            },
             nqp   => {
                 chdir       => '../../../nqp-rx',
                 cmd_line    => 'cat %i | ./nqp %program >> %out 2>&1',
