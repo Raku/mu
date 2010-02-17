@@ -33,6 +33,7 @@ say "Revision $available available";
 if ($available <= $revision) {
     chdir 'parrot';
     system('svn', 'up', "-r$revision")                  and die $?;
+    system('make', 'distclean');
     system($^X, 'Configure.pl', "--prefix=$home/$other",
                 '--nomanicheck', '--cc=ccache gcc')     and die $?;
     system('make', '-j2')                               and die $?;
