@@ -337,7 +337,7 @@ sub main {
         output($ast->pretty,$output);
         exit;
     } elsif ($C eq 'gtk') {
-        use Gtk2;
+        require Gtk2;
         Gtk2->init;
         use lib '/home/pawel/Forest-Gtk2/lib';
         use Forest::Gtk2;
@@ -346,6 +346,10 @@ sub main {
         $window->add($tree_view);
         $window->show_all;
         Gtk2->main;
+    } elsif ($C eq 'optC') {
+        my ($func,$expr) = SSA::to_ssa(parse->simplified)->emit_c; 
+        output($func . "/*********/\n" . $expr . "\n",$output);
+        exit;
     } elsif ($C eq 'simplified-m0ld') {
         output(parse->simplified->m0ld('$main')."\n",$output);
         exit;

@@ -49,6 +49,7 @@ use AST::Reg;
 use AST::Capture;
 use AST::Goto;
 use AST::Block;
+use AST::Block::SSA;
 use AST::Seq;
 use AST::Loop;
 use AST::Phi;

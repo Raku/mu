@@ -3,6 +3,7 @@ use Scalar::Util qw(refaddr);
 use Set::Object ();
 use List::MoreUtils qw(uniq);
 use Hash::Util::FieldHash qw(idhash);
+use Types;
 use v5.10;
 use strict;
 use warnings;
@@ -183,9 +184,13 @@ sub doms {
         for my $stmt (@{$block->stmts}) {
             if ($stmt->isa('AST::Assign')) {
                 my $name = $stmt->lvalue->name;
-                my $reg = AST::Reg->new(name=>$name."_".++$unique{$name},real_name=>$name);
+                my $reg = AST::Reg->new(
+                    name=>$name."_".++$unique{$name},
+                    real_name=>$name,
+                );
                 $regs{$block}{$name} = $reg;
                 $stmt = AST::Assign->new(lvalue=>$reg,rvalue=>$stmt->rvalue);
+                $reg->type_info(Type::Info->new(orgin=>$stmt));
             }
         }
     }
@@ -204,6 +209,8 @@ sub doms {
                     my $new_reg = AST::Reg->new(name=>$reg."_".++$unique{$reg},real_name=>$reg);
                     $regs{$block}{$reg} = $new_reg;
                     unshift @{$block->stmts},AST::Assign->new(lvalue=>$new_reg,rvalue=>AST::Phi->new(regs=>\@phi));
+
+                    $new_reg->type_info($block->stmts->[0]);
                 } elsif (@phi) {
                     $regs{$block}{$reg} = $phi[0];
                 }
@@ -242,7 +249,7 @@ sub to_ssa {
     implicit_jumps(\@blocks);
 #to_graph(\@blocks);
     doms($mold,\@blocks);
-    AST::Block->new(regs=>$mold->regs,stmts=>\@blocks); 
+    AST::Block::SSA->new(regs=>$mold->regs,stmts=>\@blocks); 
 }
 sub from_ssa {
     my ($mold) = @_;
