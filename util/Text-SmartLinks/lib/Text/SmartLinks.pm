@@ -949,7 +949,7 @@ sub gen_preamble {
 
     return qq{
             <I>This page was generated at $time.<br/>
-            (<a href="http://svn.pugscode.org/pugs/docs/Perl6/spec/">syn</a> <strong>$pugs_rev</strong>$smoke_info)</I>
+            (<a href="http://svn.pugscode.org/pugs/docs/Perl6/Spec/">syn</a> <strong>$pugs_rev</strong>$smoke_info)</I>
             &nbsp; [ <a href="http://perlcabal.org/syn/">Index of Synopses</a> ] <br/>
             <a id='__top'></a>
      };
