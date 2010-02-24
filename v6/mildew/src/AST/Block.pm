@@ -23,4 +23,7 @@ class AST::Block extends AST::Base {
         }
         AST::Block->new(regs=>$self->regs,stmts=>[@stmts,$value]);
     }
+    method forest {
+        Forest::Tree->new(node=>'mold {...}',children=>[map {$_->forest } @{$self->stmts}]);
+    }
 }

@@ -3,8 +3,8 @@ class AST::Seq extends AST::Base {
     has 'id' => (is=>'ro');
     has 'next' => (is=>'rw');
     method pretty {
-        '{' . (defined($self->id) ? $self->id . ": " : '')
-        . join("",map {AST::terminate_stmt $_->pretty} @{$self->stmts}) . '}';
+        (defined($self->id) ? $self->id . ": " : '')
+        . join("",map {AST::terminate_stmt $_->pretty} @{$self->stmts});
     }
     method m0ld($ret) {
         my @stmts = @{$self->stmts};
@@ -35,5 +35,8 @@ class AST::Seq extends AST::Base {
         } else {
             ();
         }
+    }
+    method forest {
+        Forest::Tree->new(node=>$self->id.':',children=>[map {$_->forest} @{$self->stmts}]); 
     }
 }

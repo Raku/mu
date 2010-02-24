@@ -9,4 +9,7 @@ class AST::Assign extends AST::Base {
     method m0ld($target) {
         $self->rvalue->m0ld($self->lvalue->m0ld_literal);
     }
+    method forest {
+        Forest::Tree->new(node=>$self->pretty,children=>[$self->lvalue->forest,$self->rvalue->forest]);
+    }
 }
