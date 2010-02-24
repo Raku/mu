@@ -1,6 +1,10 @@
 use v5.10;
 use MooseX::Declare;
+use Emit::Yeast;
 class AST::Block::SSA extends AST::Block {
+    sub reference {
+        "SMOP_REFERENCE(interpreter,$_[0])";
+    }
     method emit_c {
         state $unique_func_id = 0;
 
@@ -11,17 +15,27 @@ class AST::Block::SSA extends AST::Block {
 
         my %regs;
         my $reg_id = 0;
+        
+        my $constant_decls;
+        my $init_constants = "static void ${func_name}_init(interpreter) {";
 
-        my $reg = sub {
-            unless ($regs{$_[0]->name}) {
-                $regs{$_[0]->name} = ++$reg_id;
-            }
-            "frame->reg[" . $regs{$_[0]->name} . "]";
+        my $constants_id = 0;
+        my $constant = sub {
+            my $c = $func_name . "_constant_" . $constants_id++;
+            $constant_decls .= "static SMOP__Object* $c;\n";
+            $init_constants .= "$c = $_[0];\n";
+            $c;
         };
         my $value = sub {
             if ($_[0]->isa('AST::Reg')) {
-                "SMOP_REFERENCE(interpreter," . $reg->($_[0]) . ")";
-            } else {
+                unless ($regs{$_[0]->real_name}) {
+                    $regs{$_[0]->real_name} = ++$reg_id;
+                }
+                "frame->reg[" . $regs{$_[0]->real_name} . "]";
+            } elsif ($_[0]->isa('AST::StringConstant')) {
+                $constant->('SMOP__NATIVE__idconst_createn("' . quotemeta($_[0]->value) . '",' . length($_[0]->value) . ')');
+            } elsif ($_[0]->isa('AST::IntegerConstant')) {
+                $constant->('SMOP__NATIVE__int_create(' . $_[0]->value . ')');
             }
         };
 
@@ -41,7 +55,7 @@ class AST::Block::SSA extends AST::Block {
                     $code .= "frame->pc = " . $labels{$stmt->block->id} . ";" . "break;\n"
                 } elsif ($stmt->isa('AST::Branch')) {
                     $code .= "frame->pc = "
-                        . $reg->($stmt->cond)
+                        . $value->($stmt->cond)
                         . " == SMOP__NATIVE__bool_false ? "
                         . $labels{$stmt->then->id}
                         . " : "
@@ -51,13 +65,10 @@ class AST::Block::SSA extends AST::Block {
                     next;
                 } elsif ($stmt->isa('AST::Assign')) {
                     if ($stmt->rvalue->isa('AST::Call')) {
-
-                        $code .= "/*call*/\n";
+                        my $type = $stmt->rvalue->capture->invocant->type_info->type;
+                        $code .= $type->emit_call($i,$stmt,$value);
                     } else {
-                        my $target = $reg->($stmt->lvalue);
-
-                        $code .= "if ($target) SMOP_RELEASE(interpreter,$target);\n"
-                        . "$target = " . $value->($stmt->rvalue) . ";\n"
+                        Emit::Yeast::assign($value->($stmt->lvalue),$value->($stmt->rvalue));
                     }
                 } else {
                     $code .= "/*".ref($stmt)."*/\n";
@@ -65,11 +76,11 @@ class AST::Block::SSA extends AST::Block {
                 $i++;
         }
     }
-    ("static void " . $func_name . "(SMOP__Object* interpreter,SMOP__Yeast__Frame* frame) {" 
+    ($constant_decls . $init_constants . "}\n" . "static void " . $func_name . "(SMOP__Object* interpreter,SMOP__Yeast__Frame* frame) {" 
     . "  switch (frame->pc) {"
     . $code
     . "case $i : frame->pc = -1;\n" 
-    .  "  }\n","SMOP__Yeast_create(" . (scalar keys %regs)
+    .  "  }}\n","SMOP__Yeast_create(" . (scalar keys %regs)
     . ",(SMOP__Object*[]) {NULL}"
     . ",$func_name)");
     }

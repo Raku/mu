@@ -5,6 +5,7 @@ class AST::Call extends AST::Base {
     use AST::Helpers qw(YYY);
     has 'capture' => (is=>'ro');
     has 'identifier' => (is=>'ro');
+    #TODO delete
     method arguments {
         my @args = @{$self->capture->positional};
         my @named = @{$self->capture->named};
@@ -100,5 +101,8 @@ class AST::Call extends AST::Base {
         } else {
             $self->SUPER::pretty;
         }
+    }
+    method forest {
+        Forest::Tree->new(node=>$self->pretty,children=>[map {$_->forest} ($self->capture->invocant,$self->identifier,@{$self->capture->positional},@{$self->capture->named})]);
     }
 }

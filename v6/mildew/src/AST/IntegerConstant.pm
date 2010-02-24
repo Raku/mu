@@ -2,6 +2,7 @@ use v5.10;
 use MooseX::Declare;
 class AST::IntegerConstant extends AST::Base {
     has 'value' => (is=>'ro');
+    has 'type_info' => (is=>'ro',default=>sub {TypeInfo::IntegerConstant->new()});
     method m0ld($ret) {
         "my $ret = ".$self->value.";\n";
     }

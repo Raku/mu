@@ -177,7 +177,7 @@ sub doms {
     my %unique;
     idhash my %regs;
     for (@{$mold->regs}) {
-        $regs{$blocks->[0]}{'$'.$_} = AST::Reg->new(name=>'$'.$_,real_name=>'$'.$_);
+        $regs{$blocks->[0]}{'$'.$_} = AST::Reg->new(type_info=>TypeInfo->new(),name=>'$'.$_,real_name=>'$'.$_);
     }
     # TODO - handle assigning to the value twice in the same block correctly
     for my $block (@{$postorder}) {
@@ -190,7 +190,7 @@ sub doms {
                 );
                 $regs{$block}{$name} = $reg;
                 $stmt = AST::Assign->new(lvalue=>$reg,rvalue=>$stmt->rvalue);
-                $reg->type_info(Type::Info->new(orgin=>$stmt));
+                $reg->type_info(TypeInfo->new(orgin=>$stmt));
             }
         }
     }
@@ -210,7 +210,7 @@ sub doms {
                     $regs{$block}{$reg} = $new_reg;
                     unshift @{$block->stmts},AST::Assign->new(lvalue=>$new_reg,rvalue=>AST::Phi->new(regs=>\@phi));
 
-                    $new_reg->type_info($block->stmts->[0]);
+                    $new_reg->type_info(TypeInfo->new(orgin=>$block->stmts->[0]));
                 } elsif (@phi) {
                     $regs{$block}{$reg} = $phi[0];
                 }
