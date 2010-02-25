@@ -9,6 +9,8 @@ class AST::Block::SSA extends AST::Block {
         state $unique_func_id = 0;
 
         my $func_name = 'smop_yeast_' . $unique_func_id++;
+        my $funcs = '';
+        my $call_init_funcs = '';
         my $i = 0;
         my $code;
         my %labels;
@@ -43,8 +45,13 @@ class AST::Block::SSA extends AST::Block {
                 $constant->('SMOP__NATIVE__idconst_createn("' . $str . '",' . length($_[0]->value) . ')');
             } elsif ($_[0]->isa('AST::IntegerConstant')) {
                 $constant->('SMOP__NATIVE__int_create(' . $_[0]->value . ')');
+            } elsif ($_[0]->isa('AST::Block::SSA')) {
+                my ($func,$expr,$init) = $_[0]->emit_c;
+                $funcs .= $func;
+                $call_init_funcs .= $init;
+                $constant->($expr);
             } else {
-                'mold'
+                $constant->(ref $_[0].'???');
             }
         };
 
@@ -67,9 +74,9 @@ class AST::Block::SSA extends AST::Block {
                     $code .= "frame->pc = "
                         . $value->($stmt->cond)
                         . " == SMOP__NATIVE__bool_false ? "
-                        . $labels{$stmt->then->id}
-                        . " : "
                         . $labels{$stmt->else->id}
+                        . " : "
+                        . $labels{$stmt->then->id}
                         . ";break;\n";
                 } elsif ($stmt->isa('AST::Reg')) {
                     # noop
@@ -87,12 +94,12 @@ class AST::Block::SSA extends AST::Block {
                 $i++;
         }
     }
-    ($constant_decls . $init_constants . "}\n" . "static void " . $func_name . "(SMOP__Object* interpreter,SMOP__Yeast__Frame* frame) {" 
+    ($funcs . $constant_decls . $init_constants . "}\n" . "static void " . $func_name . "(SMOP__Object* interpreter,SMOP__Yeast__Frame* frame) {" 
     . "  switch (frame->pc) {"
     . $code
     . "case $i : frame->pc = -1;\n" 
     .  "  }}\n","SMOP__Yeast_create(" . (scalar keys %regs)
     . ",(SMOP__Object*[]) {NULL}"
-    . ",$func_name)","${func_name}_init");
+    . ",$func_name)","${call_init_funcs}${func_name}_init(interpreter);");
     }
 }

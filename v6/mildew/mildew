@@ -96,10 +96,10 @@ sub run_m0ld {
 
 sub compile_with_optC {
     my ($output) = @_;
-    my ($funcs,$expr,$init) = SSA::to_ssa(parse()->simplified)->emit_c; 
+    my ($funcs,$expr,$call_init_funcs) = SSA::to_ssa(parse()->simplified)->emit_c; 
 
     my $body = 
-        "$init();\n"
+        $call_init_funcs 
         . "SMOP__Object* yeast = " . $expr . ";\n"
         . "SMOP__Object* frame = SMOP__Yeast__Frame_create(interpreter,yeast);\n"
         . "yeast_reg_set(interpreter,frame,0,SMOP_REFERENCE(interpreter,interpreter));"
