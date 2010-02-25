@@ -26,16 +26,25 @@ class AST::Block::SSA extends AST::Block {
             $init_constants .= "$c = $_[0];\n";
             $c;
         };
+
+        for (@{$self->regs}) {
+            $regs{'$'.$_} = $reg_id++;
+        }
+
         my $value = sub {
             if ($_[0]->isa('AST::Reg')) {
-                unless ($regs{$_[0]->real_name}) {
-                    $regs{$_[0]->real_name} = ++$reg_id;
+                unless (defined $regs{$_[0]->real_name}) {
+                    $regs{$_[0]->real_name} = $reg_id++;
                 }
                 "frame->reg[" . $regs{$_[0]->real_name} . "]";
             } elsif ($_[0]->isa('AST::StringConstant')) {
-                $constant->('SMOP__NATIVE__idconst_createn("' . quotemeta($_[0]->value) . '",' . length($_[0]->value) . ')');
+                my $str = $_[0]->value;
+                # TODO properly quote characters
+                $constant->('SMOP__NATIVE__idconst_createn("' . $str . '",' . length($_[0]->value) . ')');
             } elsif ($_[0]->isa('AST::IntegerConstant')) {
                 $constant->('SMOP__NATIVE__int_create(' . $_[0]->value . ')');
+            } else {
+                'mold'
             }
         };
 
@@ -50,6 +59,7 @@ class AST::Block::SSA extends AST::Block {
         $i = 0;
         for my $block (@{$self->stmts}) {
             for my $stmt (@{$block->stmts}) {
+                $code .= "\n/*".$stmt->pretty."*/";
                 $code .= "case $i:";
                 if ($stmt->isa('AST::Goto')) {
                     $code .= "frame->pc = " . $labels{$stmt->block->id} . ";" . "break;\n"
@@ -62,7 +72,8 @@ class AST::Block::SSA extends AST::Block {
                         . $labels{$stmt->else->id}
                         . ";break;\n";
                 } elsif ($stmt->isa('AST::Reg')) {
-                    next;
+                    # noop
+                    $code .= ';';
                 } elsif ($stmt->isa('AST::Assign')) {
                     if ($stmt->rvalue->isa('AST::Call')) {
                         my $type = $stmt->rvalue->capture->invocant->type_info->type;
@@ -82,6 +93,6 @@ class AST::Block::SSA extends AST::Block {
     . "case $i : frame->pc = -1;\n" 
     .  "  }}\n","SMOP__Yeast_create(" . (scalar keys %regs)
     . ",(SMOP__Object*[]) {NULL}"
-    . ",$func_name)");
+    . ",$func_name)","${func_name}_init");
     }
 }

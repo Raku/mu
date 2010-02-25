@@ -21,7 +21,7 @@ class Type::Scope {
 class Type::Unknown {
     method emit_call($i,$stmt,$value) {
         my $list = sub {
-            "(SMOP__Object*) {" . (map {$value->($_)} @_) . ",NULL}"
+            "(SMOP__Object*[]) {" . join(',',(map {"SMOP_REFERENCE(interpreter,".$value->($_).")"} @_),"NULL") . "}"
         };
         my $capture = $stmt->rvalue->capture;
         "frame->pc = " . ($i+1) . ";\n" 
@@ -31,6 +31,7 @@ class Type::Unknown {
             . $value->($stmt->rvalue->identifier)
             . ",\nSMOP__NATIVE__capture_create(interpreter," 
             . $list->($capture->invocant,@{$capture->positional})
+            . ","
             . $list->(@{$capture->named})
             . ")\n" . ")")
         . "break;\n"

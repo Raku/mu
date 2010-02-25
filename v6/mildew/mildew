@@ -94,6 +94,27 @@ sub run_m0ld {
     }
 }
 
+sub compile_with_optC {
+    my ($output) = @_;
+    my ($funcs,$expr,$init) = SSA::to_ssa(parse()->simplified)->emit_c; 
+
+    my $body = 
+        "$init();\n"
+        . "SMOP__Object* yeast = " . $expr . ";\n"
+        . "SMOP__Object* frame = SMOP__Yeast__Frame_create(interpreter,yeast);\n"
+        . "yeast_reg_set(interpreter,frame,0,SMOP_REFERENCE(interpreter,interpreter));"
+        . "yeast_reg_set(interpreter,frame,1,SMOP_REFERENCE(interpreter,SMOP__S1P__LexicalPrelude));\n";
+    my $boilerplate = get_boilerplate();
+    $boilerplate =~ s/%%BODY%%/$body/;
+    $boilerplate =~ s/%%FUNCS%%/$funcs/;
+
+    my ($c_fh,$c_file) = tempfile();
+    binmode($c_fh,":utf8");
+    print $c_fh $boilerplate;
+    say "c file: ",$c_file;
+    system("gcc","-g","-xc","-L../smop/build/lib",@SMOP_INCLUDE,@MILDEW_LDOPTS,$c_file,"-o",$output);
+}
+
 sub compile_via_c {
     my ($m0ld,$output) = @_;
     my ($c_fh,$c_file) = tempfile();
@@ -346,10 +367,6 @@ sub main {
         $window->add($tree_view);
         $window->show_all;
         Gtk2->main;
-    } elsif ($C eq 'optC') {
-        my ($func,$expr) = SSA::to_ssa(parse->simplified)->emit_c; 
-        output($func . "/*********/\n" . $expr . "\n",$output);
-        exit;
     } elsif ($C eq 'simplified-m0ld') {
         output(parse->simplified->m0ld('$main')."\n",$output);
         exit;
@@ -368,6 +385,8 @@ sub main {
         die "-o is required when compiling to an executable\n" unless $output;
         local $ENV{LD_LIBRARY_PATH} = 'CORE:../smop/build/lib';
         compile_via_c(m0ld,$output);
+    } elsif ($C eq 'optC') {
+        compile_with_optC($output); 
     } elsif ($C eq 'so') {
         die "-o is required when compiling to a shared library \n" unless $output;
         compile_to_so(m0ld,$output);
@@ -392,6 +411,18 @@ sub main {
         local $ENV{LD_LIBRARY_PATH} = 'CORE:../smop/build/lib';
         local $ENV{PERL5LIB} = "../smop/SMOP/blib/lib/:../smop/SMOP/blib/arch:" . ($ENV{PERL5LIB} || '');
         run_m0ld(m0ld);
+    } elsif ($B eq 'optC') {
+        local $ENV{LD_LIBRARY_PATH} = 'CORE:../smop/build/lib';
+        local $ENV{PERL5LIB} = "../smop/SMOP/blib/lib/:../smop/SMOP/blib/arch:" . ($ENV{PERL5LIB} || '');
+        my $tmp = tmpnam;
+        compile_with_optC($tmp); 
+        if ($valgrind) {
+            exec('valgrind','-q','--leak-check=full','--show-reachable=yes',$tmp);
+        } elsif ($gdb) {
+            exec('gdb',$tmp);
+        } else {
+            exec($tmp);
+        }
     } elsif ($B eq 'ssa') {
         my $ast = SSA::to_ssa(parse->simplified);
         SSA::from_ssa($ast);
