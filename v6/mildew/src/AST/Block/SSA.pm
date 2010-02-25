@@ -51,7 +51,7 @@ class AST::Block::SSA extends AST::Block {
                 $call_init_funcs .= $init;
                 $constant->($expr);
             } else {
-                $constant->(ref $_[0].'???');
+                $constant->(ref($_[0]).'???');
             }
         };
 
@@ -79,14 +79,17 @@ class AST::Block::SSA extends AST::Block {
                         . $labels{$stmt->then->id}
                         . ";break;\n";
                 } elsif ($stmt->isa('AST::Reg')) {
-                    # noop
+                    # make it a noop
                     $code .= ';';
                 } elsif ($stmt->isa('AST::Assign')) {
                     if ($stmt->rvalue->isa('AST::Call')) {
                         my $type = $stmt->rvalue->capture->invocant->type_info->type;
                         $code .= $type->emit_call($i,$stmt,$value);
+                    } elsif ($stmt->rvalue->isa('AST::Phi')) {
+                        # TODO make it a noop
+                        $code .= ';';
                     } else {
-                        Emit::Yeast::assign($value->($stmt->lvalue),$value->($stmt->rvalue));
+                        $code .= Emit::Yeast::assign($value->($stmt->lvalue),$value->($stmt->rvalue));
                     }
                 } else {
                     $code .= "/*".ref($stmt)."*/\n";
