@@ -42,6 +42,8 @@ class AST::Block::SSA extends AST::Block {
             } elsif ($_[0]->isa('AST::StringConstant')) {
                 my $str = $_[0]->value;
                 # TODO properly quote characters
+                $str =~ s/(["\\])/\\$1/g;
+                $str =~ s/\n/\\n/g;
                 $constant->('SMOP__NATIVE__idconst_createn("' . $str . '",' . length($_[0]->value) . ')');
             } elsif ($_[0]->isa('AST::IntegerConstant')) {
                 $constant->('SMOP__NATIVE__int_create(' . $_[0]->value . ')');
