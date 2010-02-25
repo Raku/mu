@@ -13,6 +13,8 @@ class TypeInfo::Phi extends TypeInfo {
 }
 class TypeInfo::IntegerConstant extends TypeInfo {
 }
+class TypeInfo::StringConstant extends TypeInfo {
+}
 class Type {
     has name=>(is=>'rw');
 }
