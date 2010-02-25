@@ -386,6 +386,7 @@ sub main {
         local $ENV{LD_LIBRARY_PATH} = 'CORE:../smop/build/lib';
         compile_via_c(m0ld,$output);
     } elsif ($C eq 'optC') {
+        local $Mildew::no_setr = 1;
         compile_with_optC($output); 
     } elsif ($C eq 'so') {
         die "-o is required when compiling to a shared library \n" unless $output;
@@ -412,6 +413,7 @@ sub main {
         local $ENV{PERL5LIB} = "../smop/SMOP/blib/lib/:../smop/SMOP/blib/arch:" . ($ENV{PERL5LIB} || '');
         run_m0ld(m0ld);
     } elsif ($B eq 'optC') {
+        local $Mildew::no_setr = 1;
         local $ENV{LD_LIBRARY_PATH} = 'CORE:../smop/build/lib';
         local $ENV{PERL5LIB} = "../smop/SMOP/blib/lib/:../smop/SMOP/blib/arch:" . ($ENV{PERL5LIB} || '');
         my $tmp = tmpnam;
