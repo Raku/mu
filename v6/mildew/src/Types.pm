@@ -15,6 +15,8 @@ class TypeInfo::IntegerConstant extends TypeInfo {
 }
 class TypeInfo::StringConstant extends TypeInfo {
 }
+class TypeInfo::External extends TypeInfo {
+}
 class Type {
     has name=>(is=>'rw');
 }

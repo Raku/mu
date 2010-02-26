@@ -1,6 +1,7 @@
 use v5.10;
 use MooseX::Declare;
 use Emit::Yeast;
+use utf8;
 class AST::Block::SSA extends AST::Block {
     sub reference {
         "SMOP_REFERENCE(interpreter,$_[0])";
@@ -35,6 +36,11 @@ class AST::Block::SSA extends AST::Block {
 
         my $value = sub {
             if ($_[0]->isa('AST::Reg')) {
+                if ($_[0]->name =~ /^¢/) {
+                    my $n = $_[0]->name;
+                    $n =~ s/^¢//;
+                    return $n;
+                }
                 unless (defined $regs{$_[0]->real_name}) {
                     $regs{$_[0]->real_name} = $reg_id++;
                 }
