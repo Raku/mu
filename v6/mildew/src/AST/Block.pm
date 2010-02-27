@@ -8,6 +8,7 @@ class AST::Block extends AST::Base {
         . "};\n";
     }
     method pretty {
+        return 'mold {...}' if defined $Mildew::consise_pretty;
         "mold \{\n". AST::indent(
             join('',map {'my $'.$_.";\n"} @{$self->regs})
             . join("",map {AST::terminate_stmt  $_->pretty } @{$self->stmts})
@@ -24,6 +25,7 @@ class AST::Block extends AST::Base {
         AST::Block->new(regs=>$self->regs,stmts=>[@stmts,$value]);
     }
     method forest {
+        local $Mildew::consise_pretty = 1;
         Forest::Tree->new(node=>'mold {...}',children=>[map {$_->forest } @{$self->stmts}]);
     }
 }
