@@ -165,7 +165,7 @@ sub idoms {
 }
 
 sub doms {
-    my ($mold,$blocks) = @_;
+    my ($mold,$blocks,$types) = @_;
 
     my ($numbering,$postorder,$rpostorder) = postorder($blocks);
 
@@ -177,7 +177,12 @@ sub doms {
     my %unique;
     idhash my %regs;
     for (@{$mold->regs}) {
-        $regs{$blocks->[0]}{'$'.$_} = AST::Reg->new(type_info=>TypeInfo->new(),name=>'$'.$_,real_name=>'$'.$_);
+        my $reg = '$'.$_;
+        $regs{$blocks->[0]}{$reg} = AST::Reg->new(
+            type_info=>TypeInfo->new($types->{$reg} ? (type=>$types->{$reg}) : () ),
+            name=>$reg,
+            real_name=>$reg
+        );
     }
     # TODO - handle assigning to the value twice in the same block correctly
     for my $block (@{$postorder}) {
@@ -190,7 +195,6 @@ sub doms {
                 );
                 $regs{$block}{$name} = $reg;
                 $stmt = AST::Assign->new(lvalue=>$reg,rvalue=>$stmt->rvalue);
-                $reg->type_info(TypeInfo->new(orgin=>$stmt));
             }
         }
     }
@@ -210,7 +214,7 @@ sub doms {
                     $regs{$block}{$reg} = $new_reg;
                     unshift @{$block->stmts},AST::Assign->new(lvalue=>$new_reg,rvalue=>AST::Phi->new(regs=>\@phi));
 
-                    $new_reg->type_info(TypeInfo->new(orgin=>$block->stmts->[0]));
+                    $new_reg->type_info(TypeInfo::FromAssignment->new(orgin=>$block->stmts->[0]));
                 } elsif (@phi) {
                     $regs{$block}{$reg} = $phi[0];
                 }
@@ -241,16 +245,28 @@ sub doms {
             },$stmt);
         };
     }
+
+}
+sub set_reg_orgins {
+    my ($blocks) = @_;
+    for my $block (@{$blocks}) {
+        for my $stmt (@{$block->stmts}) {
+            if ($stmt->isa('AST::Assign')) {
+                $stmt->lvalue->type_info(TypeInfo::FromAssignment->new(orgin=>$stmt));
+            }
+        }
+    }
 }
 sub to_ssa {
-    my ($mold) = @_;
+    my ($mold,$types) = @_;
     my @blocks;
     my %blocks_by_id;
     flatten($mold,\@blocks,\%blocks_by_id);
     fix_jumps(\@blocks,\%blocks_by_id);
     implicit_jumps(\@blocks);
 #to_graph(\@blocks);
-    doms($mold,\@blocks);
+    doms($mold,\@blocks,$types);
+    set_reg_orgins(\@blocks);
     AST::Block::SSA->new(regs=>$mold->regs,stmts=>\@blocks); 
 }
 sub from_ssa {
