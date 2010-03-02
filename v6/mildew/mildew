@@ -97,14 +97,30 @@ sub run_m0ld {
 
 sub compile_with_optC {
     my ($output) = @_;
-    my ($funcs,$expr,$call_init_funcs) = SSA::to_ssa(parse()->simplified)->emit_c; 
+    my $ast = SSA::to_ssa(parse()->simplified);
+    my ($funcs,$expr,$call_init_funcs) = $ast->emit_c; 
 
     my $body = 
-        $call_init_funcs 
+          $call_init_funcs 
         . "SMOP__Object* yeast = " . $expr . ";\n"
         . "SMOP__Object* frame = SMOP__Yeast__Frame_create(interpreter,yeast);\n"
         . "yeast_reg_set(interpreter,frame,0,SMOP_REFERENCE(interpreter,interpreter));"
         . "yeast_reg_set(interpreter,frame,1,SMOP_REFERENCE(interpreter,SMOP__S1P__LexicalPrelude));\n";
+
+    if ($Mildew::profile_info) {
+        say "saving ast";
+        require KiokuDB;
+        say "#1";
+        my $dir = KiokuDB->connect('bdb:dir=profile',create=>1);
+        say "#2";
+        my $s = $dir->new_scope;
+        say "#3";
+        my $uid = $dir->insert($ast);
+        say "#4";
+        say "saving $ast as $uid";
+        $body = "smop_measure_init(\"prof\",\"$uid\");\n" . $body;
+    }
+
     my $boilerplate = get_boilerplate();
     $boilerplate =~ s/%%BODY%%/$body/;
     $boilerplate =~ s/%%FUNCS%%/$funcs/;
@@ -417,6 +433,7 @@ sub main {
         run_m0ld(m0ld);
     } elsif ($B eq 'optC') {
         local $Mildew::no_setr = 1;
+        local $Mildew::profile_info = 1 if $profile;
         local $ENV{LD_LIBRARY_PATH} = 'CORE:../smop/build/lib';
         local $ENV{PERL5LIB} = "../smop/SMOP/blib/lib/:../smop/SMOP/blib/arch:" . ($ENV{PERL5LIB} || '');
         my $tmp = tmpnam;

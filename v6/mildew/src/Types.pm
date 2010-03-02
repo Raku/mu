@@ -40,7 +40,8 @@ class Type {
             "(SMOP__Object*[]) {" . join(',',(map {"SMOP_REFERENCE(interpreter,".$value->($_).")"} @_),"NULL") . "}"
         };
         my $capture = $stmt->rvalue->capture;
-        "frame->pc = " . ($i+1) . ";\n" 
+
+        Emit::Yeast::measure($stmt->id,"frame->pc = " . ($i+1) . ";\n" 
         . "frame->ret = &" . $value->($stmt->lvalue) . ";\n" 
         . Emit::Yeast::assign($value->($stmt->lvalue),
             "SMOP_DISPATCH(\n" . "interpreter,\nSMOP_RI(" . $value->($capture->invocant) . "),\n"
@@ -50,7 +51,7 @@ class Type {
             . ","
             . $list->(@{$capture->named})
             . ")\n" . ")")
-        . "break;\n"
+        . "break;\n");
     }
 }
 class Type::Scope extends Type {

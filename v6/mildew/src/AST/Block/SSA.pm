@@ -68,6 +68,11 @@ class AST::Block::SSA extends AST::Block {
                 $labels{$block->id} = $i;
             }
             for my $stmt (@{$block->stmts}) {
+                if ($stmt->isa('AST::Assign')) {
+                    if ($stmt->rvalue->isa('AST::Call') && defined $Mildew::profile_info) {
+                        $i++; 
+                    }
+                }
                 $i++; 
             }
         }
@@ -92,7 +97,12 @@ class AST::Block::SSA extends AST::Block {
                 } elsif ($stmt->isa('AST::Assign')) {
                     if ($stmt->rvalue->isa('AST::Call')) {
                         my $type = $stmt->rvalue->capture->invocant->type_info->type;
-                        $code .= $type->emit_call($i,$stmt,$value);
+                        my ($c,$trailing) = $type->emit_call($i,$stmt,$value);
+                        $code .= $c;
+                        if ($trailing) {
+                            $i++;
+                            $code .= "case $i: frame->pc = " . ($i+1) . ';' . $trailing;
+                        }
                     } elsif ($stmt->rvalue->isa('AST::Phi')) {
                         # TODO make it a noop
                         $code .= ';';

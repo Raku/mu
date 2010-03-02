@@ -10,6 +10,7 @@
 #include <smop/p6opaque.h>
 #include <smop/s1p-oo.h>
 #include <smop/yeast.h>
+#include <smop/profile.h>
 #include <stdio.h>
 
 void smop_p5_init(SMOP__Object* interpreter);
