@@ -14,4 +14,7 @@ class AST::Base {
     method _build_id {
         $UID++;
     }
+    method took {
+        0;
+    }
 }

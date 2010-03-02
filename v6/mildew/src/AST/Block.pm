@@ -24,8 +24,15 @@ class AST::Block extends AST::Base {
         }
         AST::Block->new(regs=>$self->regs,stmts=>[@stmts,$value]);
     }
+    method took {
+        my $took = 0;
+        for (@{$self->stmts}) {
+            $took += $_->took;
+        }
+        $took;
+    }
     method forest {
         local $Mildew::consise_pretty = 1;
-        Forest::Tree->new(node=>'mold {...}',children=>[map {$_->forest } @{$self->stmts}]);
+        Forest::Tree->new(node=> 'mold {...}' . ($Mildew::took ? ' - ' . sprintf("%.4f",$self->took) : ''),children=>[map {$_->forest } @{$self->stmts}]);
     }
 }

@@ -39,4 +39,14 @@ class AST::Seq extends AST::Base {
     method forest {
         Forest::Tree->new(node=>$self->id.':',children=>[map {$_->forest} @{$self->stmts}]); 
     }
+    method took {
+        my $took = 0;
+        for (@{$self->stmts}) {
+            $took += $_->took;
+        }
+        $took;
+    }
+    method forest {
+        Forest::Tree->new(node=> $self->id.':' . ($Mildew::took ? ' - ' . sprintf("%.4f",$self->took) : ''),children=>[map {$_->forest } @{$self->stmts}]);
+    }
 }

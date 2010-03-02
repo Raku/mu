@@ -9,9 +9,12 @@ class AST::Assign extends AST::Base {
     method m0ld($target) {
         $self->rvalue->m0ld($self->lvalue->m0ld_literal);
     }
+    method took {
+        $Mildew::took->{$self->id};
+    }
     method forest {
         my $node = $self->pretty;
-        $node .= " - ".sprintf("%.4f",$Mildew::took->{$self->id}) if defined $Mildew::took && $Mildew::took->{$self->id};
+        $node .= " - ".sprintf("%.4f",$self->took) if defined $Mildew::took && $Mildew::took->{$self->id};
         Forest::Tree->new(node=>$node,children=>[$self->lvalue->forest,$self->rvalue->forest]);
     }
 }
