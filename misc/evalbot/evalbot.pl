@@ -65,6 +65,12 @@ package Evalbot;
                 cmd_line    => 'cat %i| ./elf_h %program >> %out 2>&1',
                 revision    => \&get_revision,
             },
+            perlito => {
+                chdir       => '../../../Perlito',
+                cmd_line    => 'cat %i| perl mp6.pl %program >> %out 2>&1',
+                program_prefix => 'class Main { ',
+                program_suffix => ' }',
+            },
             rakudo => {
                 chdir       => '../../../rakudo/',
                 cmd_line    => 'cat %i | PERL6LIB=lib ../p/bin/perl6 %program >> %out 2>&1',
@@ -78,8 +84,8 @@ $P0[\'run\']  = $P1
 $P0[\'open\'] = $P1
 $P0[\'!qx\']  = $P1
 null $P1
-set_hll_global [\'IO\'], \'Socket\', $P0
-    };',
+#set_hll_global [\'IO\'], \'Socket\', $P0
+    };'."\n",
             },
             alpha => {
                 chdir       => '../../../rakudo-alpha/',

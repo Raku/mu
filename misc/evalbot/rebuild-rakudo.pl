@@ -36,7 +36,7 @@ if ($available <= $revision) {
     system('make', 'distclean');
     system($^X, 'Configure.pl', "--prefix=$home/$other",
                 '--nomanicheck', '--cc=ccache gcc')     and die $?;
-    system('make', '-j2')                               and die $?;
+    system('make' )                              and die $?;
     system('make', 'install')                           and die $?;
     system('make', 'install-dev')                       and die $?;
     chdir "${home}rakudo";
@@ -53,6 +53,8 @@ eval {
 	chdir glob('~/blizkost/');
     system('make', 'clean');        # may fail, nor warning here
 	system('git', 'pull')           and warn $?;
+	print "$^X 'Configure.pl --parrot-config=$home$other/bin/parrot_config";
+	
 	system($^X, 'Configure.pl', "--parrot-config=$home$other/bin/parrot_config")
 		and warn $?;
 	system('make') 			and warn $?;

@@ -81,7 +81,7 @@ sub run {
     if (!length $response){
         $response = ' ( no output )';
     } elsif ($response !~ /^TIMED_OUT$/) {
-        $response = "OUTPUT«$response»";
+    $response = "OUTPUT«$response»";
     }
     my $newline = '␤';
     $response =~ s/\n/$newline/g;
@@ -102,8 +102,9 @@ sub _fork_and_eval {
     if (!defined $fork_val){
         confess "Can't fork(): $!";
     } elsif ($fork_val == 0) {
-#        local $SIG{ALRM} = sub { exit 14 };
+        local $SIG{ALRM} = sub { close $fh; exit 14 };
         _set_resource_limits();
+        alarm 14;
         _auto_execute($executer, $program, $fh, $filename);
         alarm 0;
         close $fh;
@@ -118,7 +119,7 @@ sub _fork_and_eval {
     open ($fh, '<:encoding(UTF-8)', $filename) or confess "Can't open temp file <$filename>: $!";
     my $result = do { local $/; <$fh> };
     unlink $filename or warn "couldn't delete '$filename': $!";
-    return 'TIMED_OUT' if $? == 14;
+   return 'TIMED_OUT' if $? == 14;
     if (reftype($executer) eq 'HASH' && $executer->{filter}){
         return $executer->{filter}->($result);
     }
@@ -136,6 +137,9 @@ sub _auto_execute {
         }
         if (exists $executer->{program_prefix}) {
             $program = $executer->{program_prefix} . $program;
+        }
+        if (exists $executer->{program_suffix}) {
+            $program .= $executer->{program_suffix};
         }
         my $cmd = $executer->{cmd_line} or confess "No command line given\n";
         my ($prog_fh, $program_file_name) = tempfile();
