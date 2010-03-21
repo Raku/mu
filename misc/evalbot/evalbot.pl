@@ -68,8 +68,13 @@ package Evalbot;
             perlito => {
                 chdir       => '../../../Perlito',
                 cmd_line    => 'cat %i| perl mp6.pl %program >> %out 2>&1',
-                program_prefix => 'class Main { ',
-                program_suffix => ' }',
+                program_munger => sub {
+                    my $inp = shift;
+                    if ($inp =~ /^\s*class/) {
+                        return $inp;
+                    }
+                    return 'class Main { ' . $inp . ' }';
+                },
             },
             rakudo => {
                 chdir       => '../../../rakudo/',

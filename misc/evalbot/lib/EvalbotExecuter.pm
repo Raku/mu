@@ -141,6 +141,9 @@ sub _auto_execute {
         if (exists $executer->{program_suffix}) {
             $program .= $executer->{program_suffix};
         }
+        if (exists $executer->{program_munger}) {
+            $program = $executer->{program_munger}->($program);
+        }
         my $cmd = $executer->{cmd_line} or confess "No command line given\n";
         my ($prog_fh, $program_file_name) = tempfile();
         binmode $prog_fh, ':encoding(UTF-8)';
