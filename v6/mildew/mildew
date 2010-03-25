@@ -375,6 +375,7 @@ sub main {
         output($ast->pretty,$output);
         exit;
     } elsif ($C eq 'gtk') {
+        local $Mildew::no_setr = 1;
         require Gtk2;
         Gtk2->init;
         use lib '/home/pawel/Forest-Gtk2/lib';

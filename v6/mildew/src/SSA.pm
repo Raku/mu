@@ -253,6 +253,13 @@ sub set_reg_orgins {
         for my $stmt (@{$block->stmts}) {
             if ($stmt->isa('AST::Assign')) {
                 $stmt->lvalue->type_info(TypeInfo::FromAssignment->new(orgin=>$stmt));
+                if ($stmt->rvalue->isa('AST::Call')) {
+                    my $capture = $stmt->rvalue->capture;
+                    for my $reg ($capture->invocant,@{$capture->named},@{$capture->positional}) {
+                        next unless $reg->isa('AST::Reg');
+                        $reg->type_info->add_usage($stmt);
+                    }
+                }
             }
         }
     }
