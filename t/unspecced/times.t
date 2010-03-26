@@ -40,7 +40,7 @@ cmp_ok(@diff[0], &infix:«<», 3, "Spent more than 2 seconds in user space")
     diag "End:   "~ @end;
   };
 
-is(@diff[1..3].map:{ $_ < 1 ?? 0 !! $_ }, [0,0,0], "Two successive calls spend zero time in IO")
+is(@diff[1..3].map:({ $_ < 1 ?? 0 !! $_ }), [0,0,0], "Two successive calls spend zero time in IO")
   or do {
     diag "Start: "~ @start;
     diag "End:   "~ @end;
