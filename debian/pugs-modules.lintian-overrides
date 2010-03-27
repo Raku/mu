@@ -1,5 +1,0 @@
-pugs-modules: script-not-executable ./usr/share/perl6/5.8/auto/pugs/perl5/lib/jspugs.pl
-pugs-modules: script-not-executable ./usr/share/perl6/5.8/auto/pugs/perl5/lib/pil2js.pl
-pugs-modules: script-not-executable ./usr/share/perl6/5.8/auto/pugs/perl5/lib/pugs-smokejs.pl
-pugs-modules: script-not-executable ./usr/share/perl6/5.8/auto/pugs/perl5/lib/runjs.pl
-pugs-modules: script-not-executable ./usr/share/perl6/5.8/auto/pugs/perl5/lib/PIL/pugs-p5.pl
