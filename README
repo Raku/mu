@@ -1,122 +1,23 @@
-=====================================================================
-|        ______                                                     |
-|      /\   __ \                                                    |
-|      \ \  \/\ \ __  __  ______  ______     (P)erl 6               |
-|       \ \   __//\ \/\ \/\  __ \/\  ___\    (U)ser's               |
-|        \ \  \/ \ \ \_\ \ \ \/\ \ \___  \   (G)olfing              |
-|         \ \__\  \ \____/\ \____ \/\_____\  (S)ystem               |
-|          \/__/   \/___/  \/___/\ \/____/                          |
-|                            /\____/                                |
-|                            \/___/                                 |
-|                                                                   |
-=====================================================================
+This is the pugs repository, but is nowadays a generic repository for hosting
+anything related to Perl 6. In particular, it contains the synopsis
+(specification), test suite, standard grammar, some implementations like SMOP,
+mildew, v6 and elf, various Perl 6 examples, documentation efforts and examples.
 
-Pugs is Copyright 2005-2008, The Pugs Contributors.
+If you have any questions, don't hesitate to to ask on the
+irc://irc.freenode.org/#perl6 IRC channel, or send an email to either
+perl6-users@perl.org or perl6-compilers.org. Do the same to obtain a commit
+bit for this repository.
 
-Pugs is a joint work of authorship by the Pugs Contributors.
+Once you have commit access, you can also invite others via the web interface
+at <http://commitbit.pugscode.org/admin/project/Pugs/people>.
 
-Pugs is free software; you can redistribute it and/or modify it under the
-terms of the Artistic License 2.0.  (Note that, unlike the Artistic License
-1.0, version 2.0 is GPL compatible by itself, hence there is no benefit to
-having an Artistic 2.0 / GPL disjunction.)
+Policy
+======
 
-In addition, you can redistribute and/or modify contributions under the
-src/ directory, as well as the "pugs" executable program produced by
-compilation, under the terms of the MIT license.
+We are rather liberal with what you can do here.
+The only limitations are: be friendly, stay on topic (projects in here should
+be related to Perl 6 in some way), only put free software in here, 
 
-Please see the "Artistic-2" and "MIT" files under the "LICENSE" directory
-for the full license text.
-
-
-INSTALLATION
-------------
-
-See the INSTALL file for instructions on building and installing Pugs.
-
-
-COPYRIGHTED WORKS FROM THIRD-PARTY PROJECTS
--------------------------------------------
-
-The following works are owned by third-party projects and are not
-subject to joint ownership.  Eventually, these packages should all
-be moved to the third-party/ directory.
-
-The "ByteString" subsystem is derived from Don Stewart et al's work,
-under a BSD-style license.  See third-party/fps/LICENSE.
-
-The "HsJudy" subsystem is derived from Caio Marcelo de Oliveira Filho's
-work, under a BSD-style license.  See third-party/HsJudy/HsJudy.cabal.
-
-The "HsSyck" subsystem is derived from "why the lucky stiff", Gaal Yahas
-and Audrey Tang's work, under a BSD-style license.
-See third-party/HsSyck/LICENSE.
-
-The "Judy" subsystem is derived from Doug Baskins's work, under the LGPL
-license, version 2.1. See third-party/judy/COPYING.
-
-The "PArrows" subsystem is derived from Einar Karttunen's work,
-under a BSD-style license.  See src/Text/Parser/PArrows.cabal.
-
-The "PCRE" subsystem is derived from PCRE 5.0 by Philip Hazel,
-under a BSD-style license.  See src/pcre/LICENCE.
-
-The "PGE" subsystem is derived from PGE by Patrick Michaud,
-under the same license as Parrot.  See src/pge/README.
-
-The "RRegex" subsystem is derived from hsregex 0.2 by John Meacham,
-under a BSD-style license.  See third-party/hsregex/RRegex/LICENSE.
-
-The "UTF8" subsystem is derived from Martin Norbäck's work,
-under a BSD-style license.  See src/UTF8.hs.
-
-
-COPYRIGHTED PERL 6 LIBRARY EXTENSIONS
--------------------------------------
-
-Except as listed below, all works under the ext/ directory can be
-redistributed and/or modified under the same license as Pugs itself.
-
-The "Locale-KeyedText" library is released by Darren Duncan under the GNU
-Lesser General Public License (LGPL), version 2.1 or later.  See
-LICENSE/LGPL-3 and LICENSE/GPL-3.
-
-The "Muldis-Rosetta" library is released by Darren Duncan under the GNU
-Lesser General Public License (LGPL), version 3.0 or later.  See
-LICENSE/LGPL-3 and LICENSE/GPL-3.
-
-The "WTemplate" library is released by Andras Barthazi under any
-version of the GNU General Public License (GPL).  See LICENSE/GPL-3.
-
-
-MAILING LISTS
--------------
-
-The mailing list for Pugs is perl6-compiler.  Subscribe by sending mail to
-<perl6-compiler-subscribe@perl.org>.  Mailing list archive is available at:
-
-    http://nntp.perl.org/group/perl.perl6.compiler          (HTTP)
-    http://groups-beta.google.com/group/perl.perl6.compiler (HTTP)
-    nntp://nntp.perl.org/perl.perl6.compiler                (NNTP)
-
-There's a Google Group which gathers commit mails from the pugs repository:
-
-    http://groups.google.com/group/pugs-commits?hl=en
-
-Please submit bug reports to <pugsbugs@perl.org>.
-
-WEB SITES
----------
-
-The Pugs homepage is at:
-
-    http://pugscode.org/
-
-For Perl 6 related information, please see:
-
-    http://dev.perl.org/perl6/
-
-Enjoy,
-The Pugs Contributors
-
-P.S. "Perl" stands for "Polymorphic Existential Recursive Lambdas", too!
-
+All code and documentation in this repository is considered as shared, so you
+are free to improve and enhance other people's code, and you should be open to
+contributions from others.
