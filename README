@@ -1,7 +1,10 @@
-This is the pugs repository, but is nowadays a generic repository for hosting
-anything related to Perl 6. In particular, it contains the synopsis
+This used to be the pugs repository, but is nowadays a generic repository
+for hosting anything related to Perl 6. In particular, it contains the synopsis
 (specification), test suite, standard grammar, some implementations like SMOP,
 mildew, v6 and elf, various Perl 6 examples, documentation efforts and examples.
+
+The sources for the Pugs Perl 6 compiler can be found at
+<http://github.com/audreyt/Pugs.hs>.
 
 If you have any questions, don't hesitate to to ask on the
 irc://irc.freenode.org/#perl6 IRC channel, or send an email to either
@@ -10,6 +13,10 @@ bit for this repository.
 
 Once you have commit access, you can also invite others via the web interface
 at <http://commitbit.pugscode.org/admin/project/Pugs/people>.
+
+Many outdated things have been removed from this repository. If you still want
+to see them, check out revision r30211, which was shortly before the big
+cleaning.
 
 Policy
 ======
