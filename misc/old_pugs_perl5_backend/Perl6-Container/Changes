@@ -1,6 +1,0 @@
-Revision history for Perl extension Perl6::Container::Array.
-
-0.01  Wed Aug 10 17:26:47 2005
-    - original version; created by h2xs 1.23 with options
-        -A -X -n Perl6::Container::Array --skip-exporter --use-new-tests --skip-autoloader
-
