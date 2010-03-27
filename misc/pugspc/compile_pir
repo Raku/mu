@@ -1,3 +1,0 @@
-#./pugspc -CPIL1 $1 2>&1 | perl -p -e 's/,/,\n/g' -
-./pugspc -CPIR $1 2>/dev/null
-
