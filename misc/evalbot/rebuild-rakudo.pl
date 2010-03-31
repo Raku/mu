@@ -15,9 +15,24 @@ my $now = readlink $link;
 my $other = $swap{$now};
 
 say "Other: '$other'";
-
 chdir "${home}rakudo";
 system('git', 'pull');
+
+my $revision_file = "$home$other/rakudo-revision";
+for ($revision_file) {
+    open my $fh, '<', $revision_file or break;
+    my $r = <$fh>;
+    close $fh;
+
+    chomp $r;
+    my $needs_rebuild = `git rev-parse HEAD | grep ^$r|wc -l`;
+    chomp $needs_rebuild;
+    if ($needs_rebuild) {
+        say "Don't need to rebuild, we are on the newest revision anyway";
+        exit;
+    }
+}
+
 my $revision = `cat build/PARROT_REVISION`;
 if ($revision =~ m/^(\d+)/) {
     $revision = $1;
@@ -45,7 +60,7 @@ if ($available <= $revision) {
 system($^X, 'Configure.pl', "--parrot-config=$parrot_config");
 system('make', 'Test.pir')      and die $?;
 system('make', 'install')       and die $?;
-system("git rev-parse HEAD | cut -b 1,2,3,4,5,6 > $home$other/rakudo-revision") and warn $?;
+system("git rev-parse HEAD | cut -b 1,2,3,4,5,6 > $revision_file") and warn $?;
 
 =for comment
 
