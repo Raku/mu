@@ -16,10 +16,12 @@ class TypeInfo {
 class TypeInfo::FromAssignment extends TypeInfo {
     has orgin=>(is=>'ro',isa=>'AST::Base',required=>1);
     method infer_type {
+        $self->type(Type::SelfRecursive->new());
         say "infering type for:",$self->orgin->pretty;
         my $rvalue = $self->orgin->rvalue;
         if ($rvalue->isa('AST::Call')) {
             my $type = $rvalue->capture->invocant->type_info->type->method_call($self->orgin);
+            $self->type($type);
             for my $usage (@{$self->usage}) {
                 $type->add_usage($self->orgin->lvalue,$usage);
             }
@@ -95,7 +97,7 @@ class Type::Prototype extends Type {
         my $call = $stmt->rvalue;
         my $id = Type::str($call->identifier);
         if ($id eq 'new') {
-            $self->type;
+            $self->type->();
         } elsif ($id eq 'FETCH') {
             $self;
         }
@@ -107,9 +109,11 @@ class Type::Scope extends Type {
     has outer=>(is=>'ro',isa=>'Type');
     use Scalar::Util qw(refaddr);
     use Term::ANSIColor qw(:constants);
+
+    # XXX do more genericly with add_usage
     method infer_lexicals {
 
-        
+        say "infering lexicals"; 
         #return undef unless $self->reg; 
 
         $self->content({});
@@ -126,8 +130,10 @@ class Type::Scope extends Type {
                         if (Type::str($call->identifier) eq 'postcircumfix:{ }') {
                             say "variable defined in scope: ",GREEN,$name,RESET;
                             $self->content->{$name} = Type::Lexical->new();
+                            $stmt->lvalue->type_info->type();
                         } elsif (Type::str($call->identifier) eq 'lookup') {
                             say "variable used in scope:",GREEN,$name,RESET;
+                            $stmt->lvalue->type_info->type();
                         } else {
                             say "unknown usage of scope:",RED,$stmt->pretty,RESET;
                         }
@@ -137,8 +143,10 @@ class Type::Scope extends Type {
                 }
             }
         }
+        say "infered lexicals";
     }
     method lookup($varname) {
+        say "looking up $varname";
         if (!defined $self->content) {
             return Type::Unknown->new();
         }
@@ -174,11 +182,11 @@ class Type::Lexical extends Type {
     has binds=>(is=>'ro',isa=>'ArrayRef[Type]',default=>sub {[]});
     has stores=>(is=>'ro',isa=>'ArrayRef[Type]',default=>sub {[]});
     method _build_content {
-        cluck "infering content of lexical";
+        say "infering content of lexical";
         my $container;
         if (@{$self->binds} == 1) {
             $container = $self->binds->[0];
-            say "1 BIND: ",$self->binds->[0]->pretty;
+            say "1 BIND: ",$self->binds->[0];
         } else {
             say "many BINDs";
             $container = Type::Scalar->new();
@@ -189,11 +197,13 @@ class Type::Lexical extends Type {
         if ($container->can('add_store')) {
             $container->add_store($_) for @{$self->stores};
         }
+        say "infered content of lexical";
         $container;
     }
     method method_call($call) {
         if (Type::str($call->rvalue->identifier) eq 'FETCH') {
-            $self->content;
+            say RED,"called FETCH on lexical",RESET;
+            $self->content->method_call($call);
         } elsif (Type::str($call->rvalue->identifier) eq 'BIND') {
             $self;
         } else {
@@ -203,49 +213,75 @@ class Type::Lexical extends Type {
     method add_usage($reg,$usage) {
         if ($usage->isa('AST::Assign')) {
             my $call = $usage->rvalue;
-            if ($call->isa('AST::Call') && refaddr $call->capture->invocant == refaddr $reg) {
+            if ($call->isa('AST::Call') && (refaddr $call->capture->invocant == refaddr $reg)) {
                 my $id = Type::str($call->identifier);
                 if ($id eq 'BIND') {
-                    say "BIND";
                     push (@{$self->binds},$call->capture->positional->[0]->type_info->type);
+                    say "propagating {";
+                    $usage->lvalue->type_info->type();
+                    say "}";
                     return;
                 } elsif ($id eq 'STORE') {
-                    cluck "STORE on lexicals";
+                    say "STORE on lexicals {";
                     push (@{$self->stores},$call->capture->positional->[0]->type_info->type);
+                    say "}";
+                    return;
+                } elsif ($id eq 'FETCH') {
                     return;
                 }
             }
         }
-        say RED,"usage ",$usage->pretty,RESET;
+        say RED,"unknow usage of lexical ",$reg->pretty,": ",$usage->pretty,RESET;
     }
     method pretty {
         (ref $self) . " of " . $self->content->pretty;
     }    
 }
 class Type::Scalar extends Type {
+    use Carp qw(cluck);
+    use Scalar::Util qw(refaddr);
     has stores=>(is=>'ro',isa=>'ArrayRef[Type]',default=>sub {[]});
-    has content=>(is=>'rw',builder=>'infer_content',lazy=>1);
+    has content=>(is=>'rw',builder=>'infer_content',lazy=>1,predicate=>'has_content');
     method add_store($content) {
+        say "adding store to ",(refaddr $self);
         push(@{$self->stores},$content);
     }
     method infer_content {
         if (@{$self->stores} == 1) {
+            say "just enough stores";
             $self->stores->[0];
+        } else {
+            use Data::Dumper;
+            cluck "wrong number of stores: ",(refaddr $self),Dumper($self->stores);
+            Type::Unknown->new();
+        }
+    }
+    method method_call($call) {
+        if (Type::str($call->rvalue->identifier) eq 'FETCH') {
+            $self->content;
         } else {
             Type::Unknown->new();
         }
     }
     method pretty {
-        (ref $self) . " of " . $self->content->pretty;
+        'Type::Scalar of ' . ($self->has_content ? $self->content->pretty : '(not calculated yet value)');
     }    
 }
 class Type::Unknown extends Type {
 }
+
+class Type::SelfRecursive extends Type::Unknown {
+    method method_call($call) {
+        say "method call on self recursive\n";
+        Type::SelfRecursive->new();
+    }
+}
+
 class Type::MildewSOLoader extends Type {
 }
 $Mildew::LexicalPreludeType = Type::Scope->new(
     content => {
         MildewSOLoader => Type::Lexical->new(content=>Type::MildewSOLoader->new()),
-        Scalar => Type::Prototype->new(type=>Type::Scalar->new()),
+        Scalar => Type::Prototype->new(type=>sub {Type::Scalar->new()}),
     }
 );
