@@ -18,7 +18,7 @@ class AST::Reg extends AST::Base {
         $self->name;
     }
     method forest {
-        Forest::Tree->new(node=>$self->pretty,children=>[Forest::Tree->new(node=>$self->type_info->type)]);
+        Forest::Tree->new(node=>$self->pretty,children=>[Forest::Tree->new(node=>$self->type_info->type->pretty)]);
     }
 }
 

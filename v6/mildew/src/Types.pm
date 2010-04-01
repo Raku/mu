@@ -62,19 +62,25 @@ class Type {
             . ")\n" . ")")
         . "break;\n");
     }
+    method add_usage($reg) {
+    }
+    method pretty() {
+        ref $self;
+    }
 }
 class Type::Scope extends Type {
-    has content_types=>(is=>'ro',lazy=>1,builder=>'_build_content_types');
+    has content=>(is=>'rw');
     has reg=>(is=>'rw',isa=>'AST::Reg');
     has outer=>(is=>'ro',isa=>'Type');
     use Scalar::Util qw(refaddr);
-    method _build_content_types {
-        say "_build_content_types";
+    use Term::ANSIColor qw(:constants);
+    method infer_lexicals {
 
+        
+        #return undef unless $self->reg; 
 
-        return undef unless $self->reg; 
+        $self->content({});
 
-        my %content;
         for my $stmt (@{$self->reg->type_info->usage}) {
             if ($stmt->rvalue->isa('AST::Call')) {
                 my $call = $stmt->rvalue;
@@ -83,19 +89,16 @@ class Type::Scope extends Type {
                         @{$call->capture->positional} == 1
                         && Type::is_str($call->capture->positional->[0])
                     ) {
-                        my $var = Type::str($call->capture->positional->[0]);
+                        my $name = Type::str($call->capture->positional->[0]);
                         if (Type::str($call->identifier) eq 'postcircumfix:{ }') {
-                            say "variable defined in scope: ",$var;
-                            for my $usage_of_lexical (@{$stmt->lvalue->type_info->usage}) {
-                                say "usage ",$usage_of_lexical->pretty;
-                            }
+                            say "variable defined in scope: ",GREEN,$name,RESET;
+                            my $var = $self->content->{$name} = Type::Lexical->new();
+                            $var->add_usage($stmt->lvalue);
                         } elsif (Type::str($call->identifier) eq 'lookup') {
-                            say "variable used in scope: $var";
-                            for my $usage_of_lexical (@{$stmt->lvalue->type_info->usage}) {
-                                say "usage ",$usage_of_lexical->pretty;
-                            }
+                            say "variable used in scope:",GREEN,$name,RESET;
+                            $self->lookup($name)->add_usage($stmt->lvalue);
                         } else {
-                            say "unknown usage of scope:",$stmt->pretty;
+                            say "unknown usage of scope:",RED,$stmt->pretty,RESET;
                         }
                     } else {
                         say "unknown usage of scope:",$stmt->pretty;
@@ -103,22 +106,12 @@ class Type::Scope extends Type {
                 }
             }
         }
-#                        $content{$stmt} = ;
-#                        say "postcircumfix ",$stmt->pretty," -> ";
-#                    if (Type::str($call->identifier) eq 'lookup') {
-#                        say "lookup ",$stmt->pretty," -> ";
-#                        for my $usage_of_lexical (@{$stmt->lvalue->type_info->usage}) {
-#                            say "  ",$usage_of_lexical->pretty;
-#                        }
-#                    } else {
-#                    }
-        \%content;
     }
     method lookup($varname) {
-        if (!defined $self->content_types) {
+        if (!defined $self->content) {
             return Type::Unknown->new();
         }
-        if (my $type = $self->content_types->{$varname}) {
+        if (my $type = $self->content->{$varname}) {
             $type;
         } elsif ($self->outer) {
             $self->outer->lookup($varname);
@@ -129,30 +122,69 @@ class Type::Scope extends Type {
     method method_call($stmt) {
         my $call = $stmt->rvalue;
         $self->reg($call->capture->invocant);
-        $self->content_types;
-        if (Type::str($call->identifier) eq 'lookup' && Type::is_str($call->capture->positional->[0])) {
+        if (!defined $self->content) {
+            $self->infer_lexicals;
+        }
+        my $id = Type::str($call->identifier);
+        if (($id eq 'lookup' || $id eq 'postcircumfix:{ }')  && Type::is_str($call->capture->positional->[0])) {
+            say "handling method:",$id;
             $self->lookup(Type::str($call->capture->positional->[0]));
         } else {
+            say "not handling method:",$id;
             Type::Unknown->new();
         }
     }
 }
 class Type::Lexical extends Type {
-    has content=>(is=>'ro',isa=>'Type');
-    method method_call($call) {
-        if (Type::str($call->rvalue->identifier) eq 'FETCH') {
-            $self->content;
+    use Term::ANSIColor qw(:constants);
+    has content=>(is=>'rw',isa=>'Type',lazy_build=>1);
+    has binds=>(is=>'ro',isa=>'ArrayRef[Type]',default=>sub {[]});
+    method _build_content {
+        my $container;
+        if (@{$self->binds} == 1) {
+            $container = $self->binds->[0];
+            say "1 BIND: ",$self->binds->[0]->pretty;
         } else {
-            Type::Unknown->new();
+            say "many BINDs";
+            $container = Type::Scalar->new();
+        }
+        $container;
+    }
+#    method method_call($call) {
+#        if (Type::str($call->rvalue->identifier) eq 'FETCH') {
+#            $self->content;
+#        } else {
+#            Type::Unknown->new();
+#        }
+#    }
+    method add_usage($reg) {
+        for my $usage (@{$reg->type_info->usage}) {
+            if ($usage->isa('AST::Assign')) {
+                my $call = $usage->rvalue;
+                if ($call->isa('AST::Call')) {
+                    my $id = Type::str($call->identifier);
+                    if ($id eq 'BIND') {
+                        say "BIND";
+                        push (@{$self->binds},$call->capture->positional->[0]->type_info->type);
+                        next;
+                    }
+                }
+            }
+            say RED,"usage ",$usage->pretty,RESET;
         }
     }
+    method pretty {
+        (ref $self) . " of " . $self->content->pretty;
+    }    
+}
+class Type::Scalar extends Type {
 }
 class Type::Unknown extends Type {
 }
 class Type::MildewSOLoader extends Type {
 }
 $Mildew::LexicalPreludeType = Type::Scope->new(
-    content_types => {
+    content => {
         'MildewSOLoader' => Type::Lexical->new(content=>Type::MildewSOLoader->new()),
     }
 );
