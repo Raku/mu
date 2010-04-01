@@ -27,6 +27,9 @@ class TypeInfo::FromAssignment extends TypeInfo {
 class TypeInfo::Phi extends TypeInfo {
 }
 class TypeInfo::IntegerConstant extends TypeInfo {
+    method infer_type {
+        Type::IntegerConstant->new();
+    }
 }
 class TypeInfo::StringConstant extends TypeInfo {
 }
@@ -66,6 +69,31 @@ class Type {
     }
     method pretty() {
         ref $self;
+    }
+}
+role Type::FETCH {
+    method method_call($stmt) {
+        my $call = $stmt->rvalue;
+        my $id = Type::str($call->identifier);
+        if ($id eq 'FETCH') {
+            $self;
+        } else {
+            Type::Unknown->new();
+        }
+    }
+}
+class Type::IntegerConstant extends Type with Type::FETCH {
+}
+class Type::Prototype extends Type {
+    has type=>(is=>'ro');
+    method method_call($stmt) {
+        my $call = $stmt->rvalue;
+        my $id = Type::str($call->identifier);
+        if ($id eq 'new') {
+            $self->type;
+        } elsif ($id eq 'FETCH') {
+            $self;
+        }
     }
 }
 class Type::Scope extends Type {
@@ -139,6 +167,7 @@ class Type::Lexical extends Type {
     use Term::ANSIColor qw(:constants);
     has content=>(is=>'rw',isa=>'Type',lazy_build=>1);
     has binds=>(is=>'ro',isa=>'ArrayRef[Type]',default=>sub {[]});
+    has stores=>(is=>'ro',isa=>'ArrayRef[Type]',default=>sub {[]});
     method _build_content {
         my $container;
         if (@{$self->binds} == 1) {
@@ -148,36 +177,63 @@ class Type::Lexical extends Type {
             say "many BINDs";
             $container = Type::Scalar->new();
         }
+
+        use Data::Dumper;
+        say 'stores = ',Dumper($self->stores);
+        if ($container->can('add_store')) {
+            $container->add_store($_) for @{$self->stores};
+        }
         $container;
     }
-#    method method_call($call) {
-#        if (Type::str($call->rvalue->identifier) eq 'FETCH') {
-#            $self->content;
-#        } else {
-#            Type::Unknown->new();
-#        }
-#    }
-    method add_usage($reg) {
-        for my $usage (@{$reg->type_info->usage}) {
-            if ($usage->isa('AST::Assign')) {
-                my $call = $usage->rvalue;
-                if ($call->isa('AST::Call')) {
-                    my $id = Type::str($call->identifier);
-                    if ($id eq 'BIND') {
-                        say "BIND";
-                        push (@{$self->binds},$call->capture->positional->[0]->type_info->type);
-                        next;
-                    }
-                }
-            }
-            say RED,"usage ",$usage->pretty,RESET;
+    method method_call($call) {
+        if (Type::str($call->rvalue->identifier) eq 'FETCH') {
+            $self->content;
+        } elsif (Type::str($call->rvalue->identifier) eq 'BIND') {
+            $self;
+        } else {
+            Type::Unknown->new();
         }
+    }
+    method add_usage($reg) {
+         for my $usage (@{$reg->type_info->usage}) {
+             if ($usage->isa('AST::Assign')) {
+                 my $call = $usage->rvalue;
+                 if ($call->isa('AST::Call')) {
+                     my $id = Type::str($call->identifier);
+                     if ($id eq 'BIND') {
+                         say "BIND";
+                         push (@{$self->binds},$call->capture->positional->[0]->type_info->type);
+                         next;
+                     } elsif ($id eq 'STORE') {
+                         say "STORE";
+                         push (@{$self->stores},$call->capture->positional->[0]->type_info->type);
+                         next;
+                     }
+                 }
+             }
+             say RED,"usage ",$usage->pretty,RESET;
+         }
     }
     method pretty {
         (ref $self) . " of " . $self->content->pretty;
     }    
 }
 class Type::Scalar extends Type {
+    has stores=>(is=>'ro',isa=>'ArrayRef[Type]',default=>sub {[]});
+    has content=>(is=>'rw',builder=>'infer_content',lazy=>1);
+    method add_store($content) {
+        push(@{$self->stores},$content);
+    }
+    method infer_content {
+        if (@{$self->stores} == 1) {
+            $self->stores->[0];
+        } else {
+            Type::Unknown->new();
+        }
+    }
+    method pretty {
+        (ref $self) . " of " . $self->content->pretty;
+    }    
 }
 class Type::Unknown extends Type {
 }
@@ -185,6 +241,7 @@ class Type::MildewSOLoader extends Type {
 }
 $Mildew::LexicalPreludeType = Type::Scope->new(
     content => {
-        'MildewSOLoader' => Type::Lexical->new(content=>Type::MildewSOLoader->new()),
+        MildewSOLoader => Type::Lexical->new(content=>Type::MildewSOLoader->new()),
+        Scalar => Type::Prototype->new(type=>Type::Scalar->new()),
     }
 );
