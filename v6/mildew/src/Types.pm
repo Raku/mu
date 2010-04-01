@@ -66,32 +66,45 @@ class Type {
 class Type::Scope extends Type {
     has content_types=>(is=>'ro',lazy=>1,builder=>'_build_content_types');
     has reg=>(is=>'rw',isa=>'AST::Reg');
+    has outer=>(is=>'ro',isa=>'Type');
     use Scalar::Util qw(refaddr);
     method _build_content_types {
         say "_build_content_types";
 
 
-        
+        return undef unless $self->reg; 
+
         my %content;
         for my $stmt (@{$self->reg->type_info->usage}) {
             if ($stmt->rvalue->isa('AST::Call')) {
                 my $call = $stmt->rvalue;
                 if (refaddr($call->capture->invocant) == refaddr($self->reg)) {
-                   if (
-                       Type::str($call->identifier) eq 'postcircumfix:{ }'
-                       && @{$call->capture->positional} == 1
-                       && Type::is_str($call->capture->positional->[0])
-                   ) {
-                        say "variable defined in scope: ",Type::str($call->capture->positional->[0]);
-                   }
+                    if (
+                        @{$call->capture->positional} == 1
+                        && Type::is_str($call->capture->positional->[0])
+                    ) {
+                        my $var = Type::str($call->capture->positional->[0]);
+                        if (Type::str($call->identifier) eq 'postcircumfix:{ }') {
+                            say "variable defined in scope: ",$var;
+                            for my $usage_of_lexical (@{$stmt->lvalue->type_info->usage}) {
+                                say "usage ",$usage_of_lexical->pretty;
+                            }
+                        } elsif (Type::str($call->identifier) eq 'lookup') {
+                            say "variable used in scope: $var";
+                            for my $usage_of_lexical (@{$stmt->lvalue->type_info->usage}) {
+                                say "usage ",$usage_of_lexical->pretty;
+                            }
+                        } else {
+                            say "unknown usage of scope:",$stmt->pretty;
+                        }
+                    } else {
+                        say "unknown usage of scope:",$stmt->pretty;
+                    }
                 }
             }
         }
 #                        $content{$stmt} = ;
 #                        say "postcircumfix ",$stmt->pretty," -> ";
-#                        for my $usage_of_lexical (@{$stmt->lvalue->type_info->usage}) {
-#                            say "   ",$usage_of_lexical->pretty;
-#                        }
 #                    if (Type::str($call->identifier) eq 'lookup') {
 #                        say "lookup ",$stmt->pretty," -> ";
 #                        for my $usage_of_lexical (@{$stmt->lvalue->type_info->usage}) {
@@ -101,20 +114,30 @@ class Type::Scope extends Type {
 #                    }
         \%content;
     }
+    method lookup($varname) {
+        if (!defined $self->content_types) {
+            return Type::Unknown->new();
+        }
+        if (my $type = $self->content_types->{$varname}) {
+            $type;
+        } elsif ($self->outer) {
+            $self->outer->lookup($varname);
+        } else {
+            Type::Unknown->new();
+        }
+    }
     method method_call($stmt) {
         my $call = $stmt->rvalue;
         $self->reg($call->capture->invocant);
         $self->content_types;
-        if (Type::str($call->identifier) eq 'lookup' && Type::str($call->capture->positional->[0]) eq 'MildewSOLoader') {
-            Type::Scalar->new(content=>Type::MildewSOLoader->new());
+        if (Type::str($call->identifier) eq 'lookup' && Type::is_str($call->capture->positional->[0])) {
+            $self->lookup(Type::str($call->capture->positional->[0]));
         } else {
             Type::Unknown->new();
         }
     }
 }
 class Type::Lexical extends Type {
-}
-class Type::Scalar extends Type {
     has content=>(is=>'ro',isa=>'Type');
     method method_call($call) {
         if (Type::str($call->rvalue->identifier) eq 'FETCH') {
@@ -128,3 +151,8 @@ class Type::Unknown extends Type {
 }
 class Type::MildewSOLoader extends Type {
 }
+$Mildew::LexicalPreludeType = Type::Scope->new(
+    content_types => {
+        'MildewSOLoader' => Type::Lexical->new(content=>Type::MildewSOLoader->new()),
+    }
+);

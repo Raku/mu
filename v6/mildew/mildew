@@ -381,7 +381,7 @@ sub main {
         use lib '/home/pawel/Forest-Gtk2/lib';
         require Forest::Gtk2;
         my $tree_view = Forest::Gtk2::tree_to_tree_view(SSA::to_ssa(parse->simplified,{
-            '$scope' => Type::Scope->new()
+            '$scope' => Type::Scope->new(outer=> $Mildew::LexicalPreludeType)
         })->forest); 
         my $window = Gtk2::Window->new('toplevel');
         $window->add($tree_view);
