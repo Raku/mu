@@ -16,9 +16,14 @@ class TypeInfo {
 class TypeInfo::FromAssignment extends TypeInfo {
     has orgin=>(is=>'ro',isa=>'AST::Base',required=>1);
     method infer_type {
+        say "infering type for:",$self->orgin->pretty;
         my $rvalue = $self->orgin->rvalue;
         if ($rvalue->isa('AST::Call')) {
-            $rvalue->capture->invocant->type_info->type->method_call($self->orgin);
+            my $type = $rvalue->capture->invocant->type_info->type->method_call($self->orgin);
+            for my $usage (@{$self->usage}) {
+                $type->add_usage($self->orgin->lvalue,$usage);
+            }
+            $type;
         } else {
             Type::Unknown->new();
         }
@@ -65,7 +70,7 @@ class Type {
             . ")\n" . ")")
         . "break;\n");
     }
-    method add_usage($reg) {
+    method add_usage($reg,$stmt) {
     }
     method pretty() {
         ref $self;
@@ -120,11 +125,9 @@ class Type::Scope extends Type {
                         my $name = Type::str($call->capture->positional->[0]);
                         if (Type::str($call->identifier) eq 'postcircumfix:{ }') {
                             say "variable defined in scope: ",GREEN,$name,RESET;
-                            my $var = $self->content->{$name} = Type::Lexical->new();
-                            $var->add_usage($stmt->lvalue);
+                            $self->content->{$name} = Type::Lexical->new();
                         } elsif (Type::str($call->identifier) eq 'lookup') {
                             say "variable used in scope:",GREEN,$name,RESET;
-                            $self->lookup($name)->add_usage($stmt->lvalue);
                         } else {
                             say "unknown usage of scope:",RED,$stmt->pretty,RESET;
                         }
@@ -165,10 +168,13 @@ class Type::Scope extends Type {
 }
 class Type::Lexical extends Type {
     use Term::ANSIColor qw(:constants);
+    use Scalar::Util qw(refaddr);
+    use Carp qw(cluck);
     has content=>(is=>'rw',isa=>'Type',lazy_build=>1);
     has binds=>(is=>'ro',isa=>'ArrayRef[Type]',default=>sub {[]});
     has stores=>(is=>'ro',isa=>'ArrayRef[Type]',default=>sub {[]});
     method _build_content {
+        cluck "infering content of lexical";
         my $container;
         if (@{$self->binds} == 1) {
             $container = $self->binds->[0];
@@ -194,25 +200,23 @@ class Type::Lexical extends Type {
             Type::Unknown->new();
         }
     }
-    method add_usage($reg) {
-         for my $usage (@{$reg->type_info->usage}) {
-             if ($usage->isa('AST::Assign')) {
-                 my $call = $usage->rvalue;
-                 if ($call->isa('AST::Call')) {
-                     my $id = Type::str($call->identifier);
-                     if ($id eq 'BIND') {
-                         say "BIND";
-                         push (@{$self->binds},$call->capture->positional->[0]->type_info->type);
-                         next;
-                     } elsif ($id eq 'STORE') {
-                         say "STORE";
-                         push (@{$self->stores},$call->capture->positional->[0]->type_info->type);
-                         next;
-                     }
-                 }
-             }
-             say RED,"usage ",$usage->pretty,RESET;
-         }
+    method add_usage($reg,$usage) {
+        if ($usage->isa('AST::Assign')) {
+            my $call = $usage->rvalue;
+            if ($call->isa('AST::Call') && refaddr $call->capture->invocant == refaddr $reg) {
+                my $id = Type::str($call->identifier);
+                if ($id eq 'BIND') {
+                    say "BIND";
+                    push (@{$self->binds},$call->capture->positional->[0]->type_info->type);
+                    return;
+                } elsif ($id eq 'STORE') {
+                    cluck "STORE on lexicals";
+                    push (@{$self->stores},$call->capture->positional->[0]->type_info->type);
+                    return;
+                }
+            }
+        }
+        say RED,"usage ",$usage->pretty,RESET;
     }
     method pretty {
         (ref $self) . " of " . $self->content->pretty;
