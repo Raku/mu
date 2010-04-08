@@ -54,6 +54,8 @@ sub transform_stmt {
 
     } elsif ($value->isa('AST::Assign')) {
         AST::Assign->new(lvalue=>transform_stmt($callbacks,$value->lvalue),rvalue=>transform_stmt($callbacks,$value->rvalue));
+    } elsif ($value->isa('AST::InferredTypeTest')) {
+        AST::InferredTypeTest->new(value=>transform_stmt($callbacks,$value->value),test=>$value->test);
     } elsif ($value->isa('AST::Branch')) {
         AST::Branch->new(then=>$value->then,else=>$value->else,cond=>transform_stmt($callbacks,$value->cond));
     } else {
@@ -72,11 +74,16 @@ sub alive_regs {
     idhash my %alive_regs;
     for my $block (@{$postorder}) {
         $alive_regs{$block} = Set::Object->new();
+        my $insert = sub {$alive_regs{$block}->insert(map {$_->name} grep {$_->isa('AST::Reg')} @_)};
         for my $stmt (@{$block->stmts}) {
             if ($stmt->isa('AST::Assign')) {
                 if ($stmt->rvalue->isa('AST::Call')) {
                     my $capture = $stmt->rvalue->capture; 
-                    $alive_regs{$block}->insert(map {$_->name} grep {$_->isa('AST::Reg')} $capture->invocant,@{$capture->positional},@{$capture->named});
+                     $insert->($capture->invocant,@{$capture->positional},@{$capture->named});
+                } elsif ($stmt->rvalue->isa('AST::InferredTypeTest')) {
+                    $insert->($stmt->rvalue->value);
+                } else {
+                    $insert->($stmt->rvalue);
                 }
             } elsif ($stmt->isa('AST::Branch')) {
                 $alive_regs{$block}->insert($stmt->cond->name) if $stmt->cond->isa('AST::Reg');

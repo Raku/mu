@@ -97,7 +97,9 @@ sub run_m0ld {
 
 sub compile_with_optC {
     my ($output) = @_;
-    my $ast = SSA::to_ssa(parse()->simplified);
+    my $ast = SSA::to_ssa(parse()->simplified,{
+            '$scope' => Type::Scope->new(outer=> $Mildew::LexicalPreludeType)
+        });
     my ($funcs,$expr,$call_init_funcs) = $ast->emit_c; 
 
     my $body = 

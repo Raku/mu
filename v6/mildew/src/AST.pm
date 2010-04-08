@@ -52,5 +52,6 @@ use AST::Block;
 use AST::Block::SSA;
 use AST::Seq;
 use AST::Loop;
+use AST::InferredTypeTest;
 use AST::Phi;
 1;

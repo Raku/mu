@@ -57,9 +57,10 @@ class AST::Block::SSA extends AST::Block {
                 my ($func,$expr,$init) = $_[0]->emit_c;
                 $funcs .= $func;
                 $call_init_funcs .= $init;
-                $constant->($expr);
+                $constant->($expr); 
             } else {
-                $constant->(ref($_[0]).'???');
+                die "don't know how to emit: ",ref($_[0]);
+                #$constant->(ref($_[0]).'???');
             }
         };
 
@@ -69,6 +70,7 @@ class AST::Block::SSA extends AST::Block {
             }
             for my $stmt (@{$block->stmts}) {
                 if ($stmt->isa('AST::Assign')) {
+                    # TODO - handle profile_info more cleanly
                     if ($stmt->rvalue->isa('AST::Call') && defined $Mildew::profile_info) {
                         $i++; 
                     }
@@ -106,6 +108,10 @@ class AST::Block::SSA extends AST::Block {
                     } elsif ($stmt->rvalue->isa('AST::Phi')) {
                         # TODO make it a noop
                         $code .= ';';
+                    } elsif ($stmt->rvalue->isa('AST::InferredTypeTest')) {
+                        my $type = $stmt->rvalue->value->type_info->type;
+                        $code .= Emit::Yeast::assign($value->($stmt->lvalue),$value->(AST::IntegerConstant->new(value=>eval($stmt->rvalue->test) ? 1 : 0)));
+                        die if $@;
                     } else {
                         $code .= Emit::Yeast::assign($value->($stmt->lvalue),$value->($stmt->rvalue));
                     }

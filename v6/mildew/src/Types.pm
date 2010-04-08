@@ -17,7 +17,6 @@ class TypeInfo::FromAssignment extends TypeInfo {
     has orgin=>(is=>'ro',isa=>'AST::Base',required=>1);
     method infer_type {
         $self->type(Type::SelfRecursive->new());
-        say "infering type for:",$self->orgin->pretty;
         my $rvalue = $self->orgin->rvalue;
         if ($rvalue->isa('AST::Call')) {
             my $type = $rvalue->capture->invocant->type_info->type->method_call($self->orgin);
