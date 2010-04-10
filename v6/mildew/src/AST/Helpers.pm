@@ -1,12 +1,12 @@
 package AST::Helpers;
 use Exporter 'import';
-our @EXPORT = qw(string reg integer call FETCH lookup capturize let fcall name_components empty_sig
-                 routine code move_CONTROL XXX trailing_return varname lookupf curlies named_and_positional dump YYY);
+our @EXPORT = qw(string reg integer call FETCH lookup capturize let fcall name_components empty_sig routine code move_CONTROL XXX trailing_return varname lookupf curlies named_and_positional dump lookup_package YYY);
 use Carp 'confess';
 use AST;
 use Term::ANSIColor qw(:constants);
 use PadWalker qw(peek_my);
 use YAML::XS qw(Dump);
+use utf8;
 use strict;
 
 sub YYY {
@@ -178,41 +178,17 @@ sub trailing_return {
 }
 
 sub varname {
-    my $m = shift;
-    my @components = name_components($m);
-    my $ret = @components[-1];
-    $ret;
+    my $var = shift;
+    ($var->{sigil}{TEXT} || '') . $var->{desigilname}{longname}{name}{identifier}{TEXT};
 }
 sub name_components {
     my $m = shift;
     if ($m->{sublongname}) {
-        my $shortname = $m->{sublongname}{subshortname};
-        if ($shortname->{desigilname}) {
-            my $longname = $shortname->{desigilname}{longname};
-            my $nibbles = $longname->{colonpair}[0]{v}{nibble}{nibbles}[0];
-            my @components = ($longname->{name}{identifier}{TEXT},map {$_->{identifier}[0]{TEXT}} @{$longname->{name}{morename}});
-            $components[-1] .= ':' . $nibbles if $nibbles;
-            $components[-1] = $m->{sigil}{TEXT}.($m->{twigil}[0]{TEXT} || '').$components[-1];
-
-            @components;
-        } elsif ($shortname->{category}) {
-            use YAML::XS;
-            my $single_variant = '';
-            if ($shortname->{colonpair}[1]) {
-               if ($shortname->{colonpair}[1]{fakesignature}) {
-                   # TODO handle whitespace sensibly
-                   $single_variant = ':(' . $shortname->{colonpair}[1]{fakesignature}->Str . ')';
-               } else {
-                   XXX;
-               } 
-            }
-            my $ret = $m->{sigil}{TEXT}.$shortname->{category}{TEXT}.':'.$shortname->{colonpair}[0]{v}{nibble}->Str . $single_variant;
-            return $ret;
-        }
+        $m->{sublongname}->components;
     } elsif ($m->{morename}) {
         ($m->{identifier}{TEXT},map {$_->{TEXT}} @{$m->{morename}[0]{identifier}});
     } elsif ($m->{desigilname}) {
-        $m->{sigil}{TEXT}.($m->{twigil}[0]{TEXT} || '').$m->{desigilname}{longname}->canonical;
+        $m->{desigilname}{longname}->components;
     } else {
         XXX;
     }
@@ -223,5 +199,12 @@ sub named_and_positional {
 }
 
 
+sub lookup_package {
+    my $package = lookup(shift(@_).'::');
+    for my $part (@_) {
+        $package = call('postcircumfix:{ }'=>FETCH($package),[string($part.'::')]);
+    }
+    $package;
+}
 
 1;
