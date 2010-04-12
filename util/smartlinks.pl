@@ -17,6 +17,7 @@ my $syn_dir = "$FindBin::Bin/../docs/Perl6/Spec";
 # Please don't set syn-dir to elsewhere unless you have a good reason.
 $ENV{PUGS_SMARTLINKS} = 1;
 system qq($^X -I $FindBin::Bin/Text-SmartLinks/lib $FindBin::Bin/Text-SmartLinks/script/smartlinks.pl @ARGV --version $version --pod-dir $syn_dir);
+system qq($^X -I $FindBin::Bin/Text-SmartLinks/lib $FindBin::Bin/Text-SmartLinks/script/smartlinks.pl @ARGV --version $version --pod-dir $syn_dir/S32-setting-library);
 
 sub get_pugs_rev {
 #    my $stdout = `$^X $FindBin::Bin/version_h.pl`;
