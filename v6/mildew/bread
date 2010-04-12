@@ -42,7 +42,7 @@ if ($e) {
 }
 
 if ($C and $B) {
-    die "can't specify both -C and -B\n";
+    die "You can't specify both -C and -B.\n";
 } elsif (!$C and !$B) {
     if ($output) {
         $C = 'via-C';
@@ -52,8 +52,15 @@ if ($C and $B) {
 }
 
 my %backends = (
-    "via-C" => 'Mildew::Backend::C',
+    "via-C"   => 'Mildew::Backend::C',
+    "desugar" => 'Mildew::Backend::Desugar',
 );
+
+if ($C and !$backends{$C}) {
+    die "Unknown backend $C passed to -C.";
+} elsif ($B and !$backends{$B}) {
+    die "Unknown backend $B passed to -B.";
+}
 
 my $c = container 'Mildew' => as {
     service 'backend'  => (class => $backends{$C // $B});
