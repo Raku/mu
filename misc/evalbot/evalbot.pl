@@ -56,6 +56,10 @@ package Evalbot;
                 chdir       => '../../v6/re-mildew',
                 cmd_line    => 'cat %i | perl mildew -Bjs %program >> %out 2>&1',
             },
+            perlesque => {
+                chdir       => '../../../perlesque/trunk/Sprixel/bin/Release',
+                cmd_line    => 'cat %i | mono Sprixel.exe %program >> %out 2>&1',
+            },
             mildew  => {
                 chdir       => '../../v6/re-mildew',
                 cmd_line    => 'cat %i | perl mildew %program >> %out 2>&1',
