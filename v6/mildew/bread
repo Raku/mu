@@ -1,11 +1,48 @@
 #!/usr/bin/perl
 # a rewrite of the mildew script using Bread::Board
 use Bread::Board;
+use File::Slurp qw(slurp);
+use Getopt::Long;
 use lib 'src';
+
+#my ($debug,$B,$C,$output,$help,$valgrind,$gdb,$empty_setting,$x,$target_stage,$yeast,$profile,$program);
+
+my ($C,$B,$help,$e);
+
+sub help {
+print <<'HELP';
+Usage: mildew [switches] [--] [programfile] [arguments]
+  -Bbackend       execute using the compiler backend
+  -Cbackend       compile using the compiler backend
+                  (valid backends are: via-C)
+  -e
+HELP
+exit;
+}
+
+Getopt::Long::Parser->new( config => [qw( bundling no_ignore_case pass_through require_order)], )->getoptions(
+    "C=s" => \$C,
+    "B=s" => \$B,
+    'h|help' => \$help,
+    'e=s' => \$e
+) || help;
+help if $help;
+
+
+my $source;
+if ($e) {
+    $source = $e;
+} elsif ($ARGV[0]) {
+    $source = slurp($ARGV[0]);
+} else {
+    $source = join('', <STDIN>);
+}
+
+
 my $c = container 'Mildew' => as {
     service 'backend'  => (class => 'Mildew::Backend::C');
     service 'parser'  => (class => 'Mildew::Parser');
     service 'compiler' => (class => 'Mildew::Compiler',dependencies=>{backend=>depends_on('backend'),parser=>depends_on('parser')});
 };
-no Bread::Board;
-$c->fetch('compiler')->get->run;
+
+$c->fetch('compiler')->get->run($source);
