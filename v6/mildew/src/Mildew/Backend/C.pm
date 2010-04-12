@@ -60,7 +60,6 @@ BOILERPLATE_BACK
         my @options;
 
         use IPC::Open2;
-        local $ENV{LD_LIBRARY_PATH} = '../smop/build/lib';
         open2(my $m0ld_exe_out,my $m0ld_exe_in,"../smop/m0ld_exe",@options);
         binmode $m0ld_exe_in, ':utf8';
         print $m0ld_exe_in $m0ld;
@@ -71,7 +70,7 @@ BOILERPLATE_BACK
     }
 
     method compile($ast,$output) {
-
+        die "-o is required when compiling to an executable\n" unless $output;
         my ($c_fh,$c_file) = tempfile();
         binmode($c_fh,":utf8");
         print $c_fh $self->c_source($ast);

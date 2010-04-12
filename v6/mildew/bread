@@ -5,26 +5,29 @@ use File::Slurp qw(slurp);
 use Getopt::Long;
 use lib 'src';
 
-#my ($debug,$B,$C,$output,$help,$valgrind,$gdb,$empty_setting,$x,$target_stage,$yeast,$profile,$program);
 
-my ($C,$B,$help,$e);
 
+# print the help message
 sub help {
 print <<'HELP';
 Usage: mildew [switches] [--] [programfile] [arguments]
-  -Bbackend       execute using the compiler backend
-  -Cbackend       compile using the compiler backend
+  -B<backend>     execute using the <backend> backend
+  -C<backend>     compile using the <backend> backend
                   (valid backends are: via-C)
   -e
+  -o <file>       Place the output into <file>
 HELP
 exit;
 }
 
+# get command line options
+my ($C,$B,$help,$e,$output);
 Getopt::Long::Parser->new( config => [qw( bundling no_ignore_case pass_through require_order)], )->getoptions(
     "C=s" => \$C,
     "B=s" => \$B,
     'h|help' => \$help,
-    'e=s' => \$e
+    'e=s' => \$e,
+    'o=s' => \$output
 ) || help;
 help if $help;
 
@@ -38,11 +41,28 @@ if ($e) {
     $source = join('', <STDIN>);
 }
 
+if ($C and $B) {
+    die "can't specify both -C and -B\n";
+} elsif (!$C and !$B) {
+    if ($output) {
+        $C = 'via-C';
+    } else {
+        $B = 'via-C';
+    }
+}
+
+my %backends = (
+    "via-C" => 'Mildew::Backend::C',
+);
 
 my $c = container 'Mildew' => as {
-    service 'backend'  => (class => 'Mildew::Backend::C');
+    service 'backend'  => (class => $backends{$C // $B});
     service 'parser'  => (class => 'Mildew::Parser');
     service 'compiler' => (class => 'Mildew::Compiler',dependencies=>{backend=>depends_on('backend'),parser=>depends_on('parser')});
 };
 
-$c->fetch('compiler')->get->run($source);
+if ($C) {
+    $c->fetch('compiler')->get->compile($source,$output);
+} elsif ($B) {
+    $c->fetch('compiler')->get->run($source);
+}
