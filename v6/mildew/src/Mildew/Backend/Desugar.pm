@@ -18,3 +18,15 @@ class Mildew::Backend::Desugar {
         die;
     }
 }
+__END__
+=pod 
+
+=head1 NAME
+
+Mildew::Backend::Desugar
+
+=head1 DESCRIPTION
+
+This backend prints out the AST in a pretty format.
+
+=cut
