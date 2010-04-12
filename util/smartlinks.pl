@@ -19,19 +19,20 @@ $ENV{PUGS_SMARTLINKS} = 1;
 system qq($^X -I $FindBin::Bin/Text-SmartLinks/lib $FindBin::Bin/Text-SmartLinks/script/smartlinks.pl @ARGV --version $version --pod-dir $syn_dir);
 
 sub get_pugs_rev {
-    my $stdout = `$^X $FindBin::Bin/version_h.pl`;
-    my ($pugs_rev) = ($stdout =~ /Current version is (\d+)/);
-    if (!$pugs_rev) {
-        # if we don't have access to others' svk info
-        # (which is the case on feather where i'm using
-        # Audrey's pugs working copy), then parse pugs_version.h
-        # directly:
-        if (open my $in, "$FindBin::Bin/../src/Pugs/pugs_version.h") {
-            warn "reading pugs_version.h...\n";
-            local $/;
-            my $str = <$in>;
-            ($pugs_rev) = ($str =~ /PUGS_SVN_REVISION\s+(\d+)/);
-        }
-    }
-    return $pugs_rev;
+#    my $stdout = `$^X $FindBin::Bin/version_h.pl`;
+#    my ($pugs_rev) = ($stdout =~ /Current version is (\d+)/);
+#    if (!$pugs_rev) {
+#        # if we don't have access to others' svk info
+#        # (which is the case on feather where i'm using
+#        # Audrey's pugs working copy), then parse pugs_version.h
+#        # directly:
+#        if (open my $in, "$FindBin::Bin/../src/Pugs/pugs_version.h") {
+#            warn "reading pugs_version.h...\n";
+#            local $/;
+#            my $str = <$in>;
+#            ($pugs_rev) = ($str =~ /PUGS_SVN_REVISION\s+(\d+)/);
+#        }
+#    }
+#    return $pugs_rev;
+    return 'unknown';
 }
