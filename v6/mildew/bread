@@ -1,0 +1,11 @@
+#!/usr/bin/perl
+# a rewrite of the mildew script using Bread::Board
+use Bread::Board;
+use lib 'src';
+my $c = container 'Mildew' => as {
+    service 'backend'  => (class => 'Mildew::Backend::C');
+    service 'parser'  => (class => 'Mildew::Parser');
+    service 'compiler' => (class => 'Mildew::Compiler',dependencies=>{backend=>depends_on('backend'),parser=>depends_on('parser')});
+};
+no Bread::Board;
+$c->fetch('compiler')->get->run;

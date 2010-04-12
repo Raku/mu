@@ -2,7 +2,7 @@ use v5.10;
 use MooseX::Declare;
 class AST::StringConstant extends AST::Base {;
     has 'value' => (is=>'ro');
-    has 'type_info' => (is=>'ro',default=>sub {TypeInfo::StringConstant->new()});
+    has 'type_info' => (is=>'ro',lazy=>1,default=>sub {TypeInfo::StringConstant->new()});
     method m0ld($ret) {
         #XXX metachars
         "my $ret = \"".$self->m0ld_literal."\";\n";

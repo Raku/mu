@@ -2,7 +2,6 @@ package AST::Helpers;
 use Exporter 'import';
 our @EXPORT = qw(string reg integer call FETCH lookup capturize let fcall name_components empty_sig routine code move_CONTROL XXX trailing_return varname lookupf curlies named_and_positional dump lookup_package YYY);
 use Carp 'confess';
-use AST;
 use Term::ANSIColor qw(:constants);
 use PadWalker qw(peek_my);
 use YAML::XS qw(Dump);
