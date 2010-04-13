@@ -12,17 +12,16 @@ use warnings;
 use FindBin;
 
 my $version = get_pugs_rev();
-my $syn_dir = "$FindBin::Bin/../docs/Perl6/Spec";
 # The directory where the Synopses live.
 # Please don't set syn-dir to elsewhere unless you have a good reason.
 $ENV{PUGS_SMARTLINKS} = 1;
-system qq($^X -I $FindBin::Bin/Text-SmartLinks/lib $FindBin::Bin/Text-SmartLinks/script/smartlinks.pl @ARGV --version $version --pod-dir $syn_dir);
-system qq($^X -I $FindBin::Bin/Text-SmartLinks/lib $FindBin::Bin/Text-SmartLinks/script/smartlinks.pl @ARGV --version $version --pod-dir $syn_dir/S32-setting-library);
+system qq($^X -I $FindBin::Bin/Text-SmartLinks/lib $FindBin::Bin/Text-SmartLinks/script/smartlinks.pl @ARGV --version $version);
 
 sub get_pugs_rev {
-#    my $stdout = `$^X $FindBin::Bin/version_h.pl`;
-#    my ($pugs_rev) = ($stdout =~ /Current version is (\d+)/);
-#    if (!$pugs_rev) {
+    my $stdout = `$^X $FindBin::Bin/version_h.pl`;
+    my ($pugs_rev) = ($stdout =~ /Current version is (\d+)/);
+    if (!$pugs_rev) {
+        die "Can't determine  version of the pugs repository via 'svn info'";
 #        # if we don't have access to others' svk info
 #        # (which is the case on feather where i'm using
 #        # Audrey's pugs working copy), then parse pugs_version.h
@@ -33,7 +32,6 @@ sub get_pugs_rev {
 #            my $str = <$in>;
 #            ($pugs_rev) = ($str =~ /PUGS_SVN_REVISION\s+(\d+)/);
 #        }
-#    }
-#    return $pugs_rev;
-    return 'unknown';
+    }
+    return $pugs_rev;
 }
