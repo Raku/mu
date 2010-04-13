@@ -14,6 +14,8 @@ Usage: mildew [switches] [--] [programfile] [arguments]
   -B<backend>     execute using the <backend> backend
   -C<backend>     compile using the <backend> backend
                   (valid backends are: via-C)
+  -P<parser>      parse using the <parser> parser
+                  (valid parsers are: STD,STD-cached)
   -e
   -o <file>       Place the output into <file>
 HELP
@@ -21,10 +23,11 @@ exit;
 }
 
 # get command line options
-my ($C,$B,$help,$e,$output);
+my ($C,$B,$P,$help,$e,$output);
 Getopt::Long::Parser->new( config => [qw( bundling no_ignore_case pass_through require_order)], )->getoptions(
     "C=s" => \$C,
     "B=s" => \$B,
+    "P=s" => \$P,
     'h|help' => \$help,
     'e=s' => \$e,
     'o=s' => \$output
@@ -51,6 +54,14 @@ if ($C and $B) {
     }
 }
 
+
+$P //= 'STD';
+
+my %parsers = (
+    "STD"   => 'Mildew::Parser::STD',
+    "STD-cached" => 'Mildew::Parser::STD::Cached',
+);
+
 my %backends = (
     "via-C"   => 'Mildew::Backend::C',
     "desugar" => 'Mildew::Backend::Desugar',
@@ -61,10 +72,13 @@ if ($C and !$backends{$C}) {
 } elsif ($B and !$backends{$B}) {
     die "Unknown backend $B passed to -B.";
 }
+unless ($parsers{$P}) {
+    die "Unknown parser $P passed to -P.";
+}
 
 my $c = container 'Mildew' => as {
     service 'backend'  => (class => $backends{$C // $B});
-    service 'parser'  => (class => 'Mildew::Parser');
+    service 'parser'  => (class => $parsers{$P});
     service 'compiler' => (class => 'Mildew::Compiler',dependencies=>{backend=>depends_on('backend'),parser=>depends_on('parser')});
 };
 
