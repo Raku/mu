@@ -5,8 +5,6 @@ use File::Slurp qw(slurp);
 use Getopt::Long;
 use lib 'src';
 
-
-
 # print the help message
 sub help {
 print <<'HELP';
@@ -53,7 +51,6 @@ if ($C and $B) {
         $B = 'via-C';
     }
 }
-
 
 $P //= 'STD';
 
