@@ -3,7 +3,9 @@
 use Bread::Board;
 use File::Slurp qw(slurp);
 use Getopt::Long;
+use Encode;
 use lib 'src';
+use utf8;
 
 # print the help message
 sub help {
@@ -20,6 +22,10 @@ HELP
 exit;
 }
 
+# make sure we use utf8 
+binmode STDOUT, ':utf8';
+binmode STDIN, ':utf8';
+
 # get command line options
 my ($C,$B,$P,$help,$e,$output);
 Getopt::Long::Parser->new( config => [qw( bundling no_ignore_case pass_through require_order)], )->getoptions(
@@ -35,9 +41,9 @@ help if $help;
 
 my $source;
 if ($e) {
-    $source = $e;
+    $source = Encode::decode_utf8($e);
 } elsif ($ARGV[0]) {
-    $source = slurp($ARGV[0]);
+    $source = Encode::decode_utf8(slurp($ARGV[0]));
 } else {
     $source = join('', <STDIN>);
 }
