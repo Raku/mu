@@ -1,6 +1,11 @@
 use v5.10;
-use MooseX::Declare;
 use lib '../../src/perl6';
+use MooseX::Declare;
+{
+    # STD needs to be important from the main package
+    package main;
+    use STD;
+}
 BEGIN {do 'viv'};
 class Mildew::Parser::STD {
     method parse($source) {
