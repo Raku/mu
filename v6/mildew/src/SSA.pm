@@ -87,6 +87,8 @@ sub alive_regs {
                 }
             } elsif ($stmt->isa('AST::Branch')) {
                 $alive_regs{$block}->insert($stmt->cond->name) if $stmt->cond->isa('AST::Reg');
+            } else {
+                $insert->($stmt);
             }
         }
     }

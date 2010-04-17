@@ -263,6 +263,10 @@ sub parse {
     }
 
     my $mold = $m->{'_ast'}->emit_m0ld($C);
+
+    # we insert reg '$scope' so that modules can return their outermost scope
+    my $stmts = [@{$m->{statementlist}->emit_m0ld},defined $Mildew::return_real_value ? () : reg '$scope' ];
+    $mold = AST::Block->new(regs=>['interpreter','scope'],stmts=>defined $Mildew::no_setr ? $stmts: trailing_return($stmts));
     
     unless ($empty_setting) {
         my $load_CORE = call(load => call(new => FETCH(lookup 'MildewSOLoader')),
