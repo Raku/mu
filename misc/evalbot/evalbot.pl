@@ -60,6 +60,10 @@ package Evalbot;
                 chdir       => '../../../perlesque/trunk/Sprixel/bin/Release',
                 cmd_line    => 'cat %i | mono Sprixel.exe %program >> %out 2>&1',
             },
+            perlesquel => {
+                chdir       => '../../../perlesque/trunk/Sprixel/bin/Release',
+                cmd_line    => '/usr/bin/time -p mono asmbly_1.exe >> %out 2>&1',
+            },
             mildew  => {
                 chdir       => '../../v6/re-mildew',
                 cmd_line    => 'cat %i | perl mildew %program >> %out 2>&1',
