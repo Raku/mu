@@ -4,6 +4,9 @@ and/or others.  We'll likely record the answers here as well.
 
 Unanswered questions:
 
+Pm-20:  What's the result of something like...?
+            my $x = [<a b c d>];  'a b c d' ~~ / $x /;
+
 ===========================================================
 
 Answered questions:
