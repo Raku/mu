@@ -17,7 +17,7 @@ use warnings;
 # Go to the Subversion checkout directory
 my $base = shift @ARGV // '.';
 chdir $base or die "Can't chdir '$base': $!";
-if ( !-d "$base/.svn" ) {
+if ( !-d '.svn' ) {
     die "'$base' does not appear to be a Subversion checkout\n";
 }
 
