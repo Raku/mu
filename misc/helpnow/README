@@ -1,0 +1,48 @@
+=head1 NAME
+
+This week's contribution to Perl 6
+
+=head1 SYNOPSIS
+
+Each week we pose a challenge to the general public: one contribution to
+Perl 6 that's achievable for a newcomer.
+
+=head1 PEOPLE
+
+    moritz
+    diakopter
+    colomon
+
+    YOUR NAME HERE
+
+=head1 IDEAS
+
+    Fix up a test file
+        - S05-grammar/parse_and_parsefile.t assumes that YourGrammar.parse is
+          not anchored. That's a wrong assumption => fix it
+
+    Port a smallish module
+        - ...
+
+    Implement $smallish_feature in $implementation
+
+    Fix $bug in $implementation
+
+    Write documentation/examples for $function/$feature
+
+=head1 SCHEDULE
+
+We don't have to keep the schedule to the day (but it would be nice). We
+plan one task per week.
+
+=over
+
+=item  2010-05-02
+    
+moritz: TODO
+
+=item  2010-05-09
+
+YOUR NAME HERE
+
+=back
