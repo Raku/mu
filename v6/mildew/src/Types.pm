@@ -50,6 +50,8 @@ class Type {
         my ($value) = @_;
         defined $value && $value->isa('AST::StringConstant');
     }
+    method debug {
+    }
     method method_call($call) {
         Type::Unknown->new();
     }
@@ -70,6 +72,33 @@ class Type {
             . $list->(@{$capture->named})
             . ")\n" . ")")
         . "break;\n");
+    }
+    method emit_perlesque_call($stmt,$value) {
+        my $list = sub {
+            "[" . join(',',(map {$value->($_)} @_)) . "]"
+        };
+        my $capture = $stmt->rvalue->capture;
+        my $perlesque_capture = AST::unique_id();
+
+        my $add_named = '';
+        my @named = @{$capture->named};
+        use Devel::PartialDump qw(warn);
+        while (@named) {
+            warn("named:",\@named);
+            $add_named .= "$perlesque_capture.add_named(" . $value->(shift @named) . $value->(shift @named) . ")";
+        }
+        "P6capture $perlesque_capture = P6capture.new();\n"
+        . $add_named
+        . join("\n",(map {"$perlesque_capture.add_positional(" . $value->($_) . ");\n"} @{$capture->positional}))
+        . $value->($stmt->lvalue) . " = " 
+        . $value->($capture->invocant)
+        . ".DISPATCH(" . $value->($stmt->rvalue->identifier) 
+        . ",$perlesque_capture"
+        #. ",p6capture("
+        #. $list->($capture->invocant,@{$capture->positional})
+        #. ','
+        #. $list->(@{$capture->named})
+        . "));"
     }
     method add_usage($reg,$stmt) {
     }
@@ -112,7 +141,7 @@ class Type::Scope extends Type {
     # XXX do more genericly with add_usage
     method infer_lexicals {
 
-        say "infering lexicals"; 
+        $self->debug("infering lexicals"); 
         #return undef unless $self->reg; 
 
         $self->content({});
@@ -127,25 +156,25 @@ class Type::Scope extends Type {
                     ) {
                         my $name = Type::str($call->capture->positional->[0]);
                         if (Type::str($call->identifier) eq 'postcircumfix:{ }') {
-                            say "variable defined in scope: ",GREEN,$name,RESET;
+                            $self->debug("variable defined in scope: ",GREEN,$name,RESET);
                             $self->content->{$name} = Type::Lexical->new();
                             $stmt->lvalue->type_info->type();
                         } elsif (Type::str($call->identifier) eq 'lookup') {
-                            say "variable used in scope:",GREEN,$name,RESET;
+                            $self->debug("variable used in scope:",GREEN,$name,RESET);
                             $stmt->lvalue->type_info->type();
                         } else {
-                            say "unknown usage of scope:",RED,$stmt->pretty,RESET;
+                            $self->debug("unknown usage of scope:",RED,$stmt->pretty,RESET);
                         }
                     } else {
-                        say "unknown usage of scope:",$stmt->pretty;
+                        $self->debug("unknown usage of scope:",$stmt->pretty);
                     }
                 }
             }
         }
-        say "infered lexicals";
+        $self->debug("infered lexicals");
     }
     method lookup($varname) {
-        say "looking up $varname";
+        $self->debug("looking up $varname");
         if (!defined $self->content) {
             return Type::Unknown->new();
         }
@@ -165,10 +194,10 @@ class Type::Scope extends Type {
         }
         my $id = Type::str($call->identifier);
         if (($id eq 'lookup' || $id eq 'postcircumfix:{ }')  && Type::is_str($call->capture->positional->[0])) {
-            say "handling method:",$id;
+            $self->debug("handling method:",$id);
             $self->lookup(Type::str($call->capture->positional->[0]));
         } else {
-            say "not handling method:",$id;
+            $self->debug("not handling method:",$id);
             Type::Unknown->new();
         }
     }
@@ -181,27 +210,27 @@ class Type::Lexical extends Type {
     has binds=>(is=>'ro',isa=>'ArrayRef[Type]',default=>sub {[]});
     has stores=>(is=>'ro',isa=>'ArrayRef[Type]',default=>sub {[]});
     method _build_content {
-        say "infering content of lexical";
+        $self->debug("infering content of lexical");
         my $container;
         if (@{$self->binds} == 1) {
             $container = $self->binds->[0];
-            say "1 BIND: ",$self->binds->[0];
+            $self->debug("1 BIND: ",$self->binds->[0]);
         } else {
-            say "many BINDs";
+            $self->debug("many BINDs");
             $container = Type::Scalar->new();
         }
 
         use Data::Dumper;
-        say 'stores = ',Dumper($self->stores);
+        $self->debug('stores = ',Dumper($self->stores));
         if ($container->can('add_store')) {
             $container->add_store($_) for @{$self->stores};
         }
-        say "infered content of lexical";
+        $self->debug("infered content of lexical");
         $container;
     }
     method method_call($call) {
         if (Type::str($call->rvalue->identifier) eq 'FETCH') {
-            say RED,"called FETCH on lexical",RESET;
+            $self->debug(RED,"called FETCH on lexical",RESET);
             $self->content->method_call($call);
         } elsif (Type::str($call->rvalue->identifier) eq 'BIND') {
             $self;
@@ -216,21 +245,21 @@ class Type::Lexical extends Type {
                 my $id = Type::str($call->identifier);
                 if ($id eq 'BIND') {
                     push (@{$self->binds},$call->capture->positional->[0]->type_info->type);
-                    say "propagating {";
+                    $self->debug("propagating {");
                     $usage->lvalue->type_info->type();
-                    say "}";
+                    $self->debug("}");
                     return;
                 } elsif ($id eq 'STORE') {
-                    say "STORE on lexicals {";
+                    $self->debug("STORE on lexicals {");
                     push (@{$self->stores},$call->capture->positional->[0]->type_info->type);
-                    say "}";
+                    $self->debug("}");
                     return;
                 } elsif ($id eq 'FETCH') {
                     return;
                 }
             }
         }
-        say RED,"unknow usage of lexical ",$reg->pretty,": ",$usage->pretty,RESET;
+        $self->debug(RED,"unknow usage of lexical ",$reg->pretty,": ",$usage->pretty,RESET);
     }
     method pretty {
         (ref $self) . " of " . $self->content->pretty;
@@ -242,12 +271,12 @@ class Type::Scalar extends Type {
     has stores=>(is=>'ro',isa=>'ArrayRef[Type]',default=>sub {[]});
     has content=>(is=>'rw',builder=>'infer_content',lazy=>1,predicate=>'has_content');
     method add_store($content) {
-        say "adding store to ",(refaddr $self);
+        $self->debug("adding store to ",(refaddr $self));
         push(@{$self->stores},$content);
     }
     method infer_content {
         if (@{$self->stores} == 1) {
-            say "just enough stores";
+            $self->debug("just enough stores");
             $self->stores->[0];
         } else {
             use Data::Dumper;
@@ -271,7 +300,7 @@ class Type::Unknown extends Type {
 
 class Type::SelfRecursive extends Type::Unknown {
     method method_call($call) {
-        say "method call on self recursive\n";
+        $self->debug("method call on self recursive\n");
         Type::SelfRecursive->new();
     }
 }

@@ -69,6 +69,7 @@ my %backends = (
     "via-C"   => 'Mildew::Backend::C::M0ld',
     "optC"   => 'Mildew::Backend::OptC',
     "desugar" => 'Mildew::Backend::Desugar',
+    "perlesque" => 'Mildew::Backend::Perlesque',
 );
 
 if ($C and !$backends{$C}) {
