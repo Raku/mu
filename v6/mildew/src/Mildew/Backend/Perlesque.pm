@@ -23,7 +23,7 @@ class Mildew::Backend::Perlesque with Mildew::Backend {
                 # TODO properly quote characters
                 $str =~ s/(["\\])/\\$1/g;
                 $str =~ s/\n/\\n/g;
-                'P6Str("' . $str . '")';
+                'P6Str.new("' . $str . '")';
             } else {
                 ref($_[0]);
             }

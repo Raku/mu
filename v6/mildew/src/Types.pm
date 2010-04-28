@@ -87,7 +87,7 @@ class Type {
             warn("named:",\@named);
             $add_named .= "$perlesque_capture.add_named(" . $value->(shift @named) . $value->(shift @named) . ")";
         }
-        "P6capture $perlesque_capture = P6capture.new();\n"
+        "my P6capture $perlesque_capture = P6capture.new();\n"
         . $add_named
         . join("\n",(map {"$perlesque_capture.add_positional(" . $value->($_) . ");\n"} @{$capture->positional}))
         . $value->($stmt->lvalue) . " = " 
@@ -98,7 +98,7 @@ class Type {
         #. $list->($capture->invocant,@{$capture->positional})
         #. ','
         #. $list->(@{$capture->named})
-        . "));"
+        . ");"
     }
     method add_usage($reg,$stmt) {
     }
