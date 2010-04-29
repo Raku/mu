@@ -8,7 +8,6 @@ class Mildew::Backend::OptC with Mildew::Backend::C {
         my $ssa_ast = SSA::to_ssa($ast->simplified,{
             '$scope' => Type::Scope->new(outer=> $Mildew::LexicalPreludeType)
         });
-        say "here";
         my ($funcs,$expr,$call_init_funcs) = $ssa_ast->emit_c; 
         my $boilerplate = $self->get_boilerplate;
         my $body = 

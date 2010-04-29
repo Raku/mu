@@ -14,10 +14,6 @@ class Mildew::Compiler {
     method ast($code) {
         my $ast = $self->parser->parse($code)->emit_m0ld;
 
-        # load the setting
-        my $load_CORE = call(load => call(new => FETCH(lookup 'MildewSOLoader')),
-        [string 'CORE.mildew.so',FETCH(lookup('$LexicalPrelude'))]);
-        unshift @{$ast->stmts},$load_CORE;
         $ast;
     }
     method run($code) {

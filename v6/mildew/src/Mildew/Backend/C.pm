@@ -1,6 +1,7 @@
 use v5.10;
 use MooseX::Declare;
 role Mildew::Backend::C {
+    use AST;
     use File::Temp qw(tempfile tmpnam);
 
     method c_source($ast) {
@@ -18,7 +19,7 @@ role Mildew::Backend::C {
         die "-o is required when compiling to an executable\n" unless $output;
         my ($c_fh,$c_file) = tempfile();
         binmode($c_fh,":utf8");
-        print $c_fh $self->c_source($ast);
+        print $c_fh $self->c_source($self->add_prelude_load($ast));
 
 
         my @SMOP_INCLUDE = map {"-I".$_} glob("../smop/*/include");
@@ -43,5 +44,12 @@ role Mildew::Backend::C {
 
         # TODO valgrind and gdb options
         exec($tmp_executable);
+    }
+    method add_prelude_load($ast) {
+        # load the setting
+        my $load_CORE = call(load => call(new => FETCH(lookup 'MildewSOLoader')),
+        [string 'CORE.mildew.so',FETCH(lookup('$LexicalPrelude'))]);
+        unshift @{$ast->stmts},$load_CORE;
+        $ast;
     }
 }
