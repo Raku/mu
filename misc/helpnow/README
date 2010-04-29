@@ -30,6 +30,11 @@ Perl 6 that's achievable for a newcomer.
 
     Write documentation/examples for $function/$feature
 
+    Others:
+        Write a website that gathers module URLs from proto's project.list,
+        parsers their descriptions (from the github pages) and displays all
+        of that in a nice list.
+
 =head1 SCHEDULE
 
 We don't have to keep the schedule to the day (but it would be nice). We
