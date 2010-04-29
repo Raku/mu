@@ -248,7 +248,7 @@ sub parse {
     my $m;
     die "output=$output too many arguments @ARGV" if scalar @ARGV > 1;
     if (@ARGV) {
-        $m = STD->parsefile($ARGV[0],actions=>'Actions');
+        $m = STD->parsefile($ARGV[0],actions=>'Actions',setting=>'MildewCORE');
     } else {
         $program = join('', <STDIN>) unless $program;
         $m = STD->parse($program, actions=>'Actions');

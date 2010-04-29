@@ -3,6 +3,7 @@ use utf8;
 use strict;
 use warnings;
 use AST::Helpers;
+use v5.10;
 
 sub emit_m0ld {
     my ($m) = @_;
@@ -11,8 +12,8 @@ sub emit_m0ld {
     if ($routine->{deflongname}[0]) {
         $name = '&'.$routine->{deflongname}[0]{name}{identifier}{TEXT};
         if (my $colonpair = $routine->{deflongname}[0]{colonpair}[0]) {
-            if ($colonpair->{circumfix}->isa('VAST::circumfix__S_Lt_Gt')) {
-                $name .= ':'.$colonpair->{v}{nibble}->Str;
+            if ($colonpair->{coloncircumfix}{circumfix}->isa('VAST::circumfix__S_Lt_Gt')) {
+                $name .= ':'.$colonpair->{coloncircumfix}{circumfix}->{nibble}->Str;
             } else {
                 XXX;
             }

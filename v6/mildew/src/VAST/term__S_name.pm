@@ -16,12 +16,6 @@ class VAST::term__S_name {
             } else {
                 lookup($name[-1]);
             }
-        } elsif ($name->{identifier}{TEXT} eq 'CALLER') {
-	    call new => reg '¢SMOP__S1P__FlattenedScope',
-	      [ call lexical => (call back => (call continuation => reg '$interpreter')) ];
-        } elsif ($name->{identifier}{TEXT} eq 'MY') {
-	    call new => reg '¢SMOP__S1P__FlattenedScope',
-	      [ reg '$scope' ];
 
         } elsif ($self->{args}) {
             my @name = $self->{longname}->components;
@@ -34,7 +28,21 @@ class VAST::term__S_name {
             }
             fcall FETCH($func) => named_and_positional($self->{args}->emit_m0ld);
         } else {
-            XXX;
-        }
+            my $pkg;
+            if ($name->{identifier}{TEXT} eq 'CALLER') {
+                $pkg = call new => reg '¢SMOP__S1P__FlattenedScope',
+                [ call lexical => (call back => (call continuation => reg '$interpreter')) ];
+            } elsif ($name->{identifier}{TEXT} eq 'MY') {
+                $pkg = call new => reg '¢SMOP__S1P__FlattenedScope',
+                [ reg '$scope' ];
+            } else {
+                XXX;
+            }
+            if ($self->{postcircumfix} && @{$self->{postcircumfix}}) {
+                call('postcircumfix:{ }'=>FETCH($pkg),[string($self->{postcircumfix}[0]{nibble}->Str)]);
+            } else {
+                $pkg;
+            }
+        } 
     }
 }
