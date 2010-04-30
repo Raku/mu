@@ -27,6 +27,8 @@ Perl 6 that's achievable for a newcomer.
     Implement $smallish_feature in $implementation
 
     Fix $bug in $implementation
+        - Right now, Rakudo fails to handle the case when &infix:<op>() doesn't exist
+        and you do "my $a; $a op= $b;"  This needs both a good test and a fix.
 
     Write documentation/examples for $function/$feature
 
