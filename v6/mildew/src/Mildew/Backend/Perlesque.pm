@@ -8,7 +8,10 @@ class Mildew::Backend::Perlesque with Mildew::Backend {
         my $ssa_ast = SSA::to_ssa($ast->simplified,{
             '$scope' => Type::Scope->new(outer=> $Mildew::LexicalPreludeType)
         });
-        $self->emit_block($ssa_ast);
+
+        'my $main = '.$self->emit_block($ssa_ast)."\n"
+        . 'my P6LexicalScope $scope = P6LexicalScope.new();'."\n" 
+        . '$main($scope);'."\n";
     }
     method emit_block($block) {
         my %regs;
@@ -92,7 +95,7 @@ class Mildew::Backend::Perlesque with Mildew::Backend {
         for (@{$block->regs}) {
             delete $regs{'$'.$_};
         }
-        "sub (P6object \$scope) {\n" . (join '',(map {"my P6object $_;\n"} keys %regs)) . "$code}";
+        "sub (P6object \$scope) {\n" . (join '',(map {"my P6object $_;\n"} keys %regs)) . "${code}return 1;\n}";
     }
     method compile($ast,$output) {
         $self->output($self->perlesque_source($ast)."\n",$output);

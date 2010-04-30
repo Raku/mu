@@ -85,11 +85,11 @@ class Type {
         use Devel::PartialDump qw(warn);
         while (@named) {
             warn("named:",\@named);
-            $add_named .= "$perlesque_capture.add_named(" . $value->(shift @named) . $value->(shift @named) . ")";
+            $add_named .= "$perlesque_capture.add_named(" . $value->(shift @named) . "," .$value->(shift @named) . ")";
         }
         "my P6capture $perlesque_capture = P6capture.new();\n"
         . $add_named
-        . join("\n",(map {"$perlesque_capture.add_positional(" . $value->($_) . ");\n"} @{$capture->positional}))
+        . join("",(map {"$perlesque_capture.add_positional(" . $value->($_) . ");\n"} ($capture->invocant,@{$capture->positional})))
         . $value->($stmt->lvalue) . " = " 
         . $value->($capture->invocant)
         . ".DISPATCH(" . $value->($stmt->rvalue->identifier) 
