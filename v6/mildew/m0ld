@@ -7,6 +7,7 @@ use Regexp::Common;
 use lib 'src';
 use AST;
 use Data::Dumper::Concise;
+use File::Slurp qw(slurp);
 sub stmts_to_block {
     my ($stmts) = @_;
     AST::Block->new(stmts=>$stmts);
@@ -16,18 +17,22 @@ my $parser = qr {
 <rule: top>
 ^ (?:<[stmt]> ;)* $
 (?{ $MATCH = stmts_to_block($MATCH{stmt}) })
+
+<token: ws>
+(?> (?: \s+ | \#[^\n]* )*)
+
 <token: stmt>
 (?: <MATCH=goto>|<MATCH=br>|<MATCH=assign>)
 <rule: call>
-<identifier=value> \. <invocant=value> 
+<invocant=value> \.  <identifier=value>
 \(
-<[argument]> ** ,
+(?:<[argument]> ** ,)?
 \)
 (?{ $MATCH = AST::Call->new(
     identifier=>$MATCH{identifier},
     capture=>AST::Capture->new(
         invocant=>$MATCH{invocant},
-        positional=>$MATCH{argument},
+        positional=>$MATCH{argument} // [],
         named=>[]
     )
 )})
@@ -61,7 +66,7 @@ if <value> <branch> else <branch>
 (\d+)
 (?{$MATCH = AST::IntegerConstant->new(value=>$+)})
 <token: register>
-(\$ \p{IsAlpha} \w*)
+((?>\$ \p{IsAlpha} \w*))
 (?{$MATCH = AST::Reg->new(name=>$+)})
 <token: string>
 " ((?:\.|[^\\"])*) "
@@ -72,5 +77,6 @@ mold \{
 \}
 (?{$MATCH = stmts_to_block($MATCH{stmt});})
 }x;
-'$foo = 1."foo"(1,2,mold {$x = $y;});' =~ $parser;
+my $code = slurp($ARGV[0]);
+$code =~ $parser;
 say $/{top}->pretty;
