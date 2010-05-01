@@ -6,13 +6,39 @@ use Regexp::Grammars;
 use Regexp::Common;
 use lib 'src';
 use AST;
-use Data::Dumper;
+use Data::Dumper::Concise;
 my $parser = qr {
-(?:<[stmt]>;)*
+<top>
+<rule: top>
+(?:<[stmt]> ;)*
+(?{ $MATCH = AST::Block->new(stmts=>$MATCH{stmt}) })
 <token: stmt>
-(?: <goto>|<br>)
+(?: <MATCH=goto>|<MATCH=br>|<MATCH=assign>)
+<rule: call>
+<identifier=value> \. <invocant=value> 
+\(
+<[argument]> ** ,
+\)
+(?{ $MATCH = AST::Call->new(
+    identifier=>$MATCH{identifier},
+    capture=>AST::Capture->new(
+        invocant=>$MATCH{invocant},
+        positional=>$MATCH{argument},
+        named=>[]
+    )
+)})
+<rule: assign>
+<register> = <rvalue>
+(?{ $MATCH = AST::Assign->new(lvalue=>$MATCH{register},rvalue=>$MATCH{rvalue}) })
+<token: rvalue>
+<MATCH=call> | <MATCH=value>
+
 <token: goto>
 goto \s+ <label>
+<token: argument>
+(?: <named_argument> | <MATCH=value> )
+<rule: named_argument>
+(?: \: <value> \( <value> \) )
 <token: noop>
 noop
 
@@ -37,6 +63,6 @@ if <value> <branch> else <branch>
 " ((?:\.|[^\\"])*) "
 (?{$MATCH = AST::StringConstant->new(value=>$+)})
 }x;
-'goto foo;if $foo {goto foo} else {goto bar};if "foo" {goto foo} else {goto bar};' =~ $parser;
-say Dumper(\%/);
+'$foo = 1."foo"(1,2,3);' =~ $parser;
+say $/{top}->pretty;
 

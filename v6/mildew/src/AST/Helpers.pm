@@ -10,7 +10,7 @@ use strict;
 
 sub YYY {
         use YAML::XS;
-        Mildew::prune($_[0]);
+#        Mildew::prune($_[0]);
         die Dump($_[0]);
 }
 sub string($) {
