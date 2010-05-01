@@ -1,0 +1,42 @@
+#!/usr/bin/perl
+use v5.10;
+use strict;
+use warnings;
+use Regexp::Grammars;
+use Regexp::Common;
+use lib 'src';
+use AST;
+use Data::Dumper;
+my $parser = qr {
+(?:<[stmt]>;)*
+<token: stmt>
+(?: <goto>|<br>)
+<token: goto>
+goto \s+ <label>
+<token: noop>
+noop
+
+<rule: br>
+if <value> <branch> else <branch>
+
+<rule: branch>
+\{ goto <label> ;? \}
+
+<token: label>
+\w+
+
+<token: value>
+(?: <MATCH=integer>  | <MATCH=register> | <MATCH=string> )
+<token: integer>
+(\d+)
+(?{$MATCH = AST::IntegerConstant->new(value=>$+)})
+<token: register>
+(\$ \p{IsAlpha} \w*)
+(?{$MATCH = AST::Reg->new(name=>$+)})
+<token: string>
+" ((?:\.|[^\\"])*) "
+(?{$MATCH = AST::StringConstant->new(value=>$+)})
+}x;
+'goto foo;if $foo {goto foo} else {goto bar};if "foo" {goto foo} else {goto bar};' =~ $parser;
+say Dumper(\%/);
+
