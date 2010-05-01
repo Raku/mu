@@ -3,7 +3,7 @@ use MooseX::Declare;
 use SSA;
 use Types;
 class Mildew::Backend::Perlesque with Mildew::Backend {
-#    use File::Temp qw(tempfile tmpnam);
+    use File::Temp qw(tempfile tmpnam);
     method perlesque_source($ast) {
         my $ssa_ast = SSA::to_ssa($ast->simplified,{
             '$scope' => Type::Scope->new(outer=> $Mildew::LexicalPreludeType)
@@ -99,5 +99,11 @@ class Mildew::Backend::Perlesque with Mildew::Backend {
     }
     method compile($ast,$output) {
         $self->output($self->perlesque_source($ast)."\n",$output);
+    }
+    method run($ast) {
+        my $tmp_file = tmpnam;
+        $self->compile($ast,$tmp_file);
+        die 'the SPRIXEL enviroinment variable needs to be set for -Bperlesque to work' unless $ENV{SPRIXEL};
+        exec('mono',$ENV{SPRIXEL},$tmp_file);
     }
 }
