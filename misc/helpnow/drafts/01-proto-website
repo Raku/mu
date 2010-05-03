@@ -1,0 +1,26 @@
+This Week's Contribution to Perl 6 Week 1: A website for proto
+
+<p>For this week's contribution to Perl 6 you don't need to write or
+understand a single line of Perl 6 code - Perl 5 or another scripting language
+woorks fine.</p>
+
+<h2>Background</h2>
+
+<p>As <a href="http://www.perlmonks.org/?node_id=837535">explained here</a>,
+we don't have a proper CPAN for Perl 6 yet - only a very coarse
+<a href="http://github.com/masak/proto/">prototype installer</a>.</p>
+
+<p>It has <a
+href="http://github.com/masak/proto/raw/master/projects.list">list of known
+projects</a> in its source repository.</p>
+
+<h2>What you can do</h2>
+
+<p>Write a script that downloads this file, and for each project extracts the
+one-line project description from the respective github pages.</p>
+
+<p>It should use the assembled data to build a website that links to all the
+projects, and contains their names and descriptions.</p>
+
+<p>You'll get bonus points if you make the list of projects, descriptions
+and URLs available in JSON format too.</p>
