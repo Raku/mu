@@ -2,6 +2,7 @@
 use v5.10;
 use lib '../../src/perl6';
 use lib 'src';
+use lib '../Mildew/lib';
 use STD;
 package Mildew;
 do 'viv';
@@ -49,11 +50,6 @@ my ($debug,$B,$C,$output,$help,$valgrind,$gdb,$empty_setting,$x,$target_stage,$y
 my @SMOP_INCLUDE;
 my @MILDEW_LDOPTS;
 
-BEGIN {
-    for (<src/VAST/*.pm>) {
-	require $_;
-    }
-}
 
 sub m0ld_to_c {
     my ($m0ld,@options) = @_;

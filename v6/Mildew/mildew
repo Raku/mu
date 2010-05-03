@@ -1,10 +1,9 @@
 #!/usr/bin/perl
-# a rewrite of the mildew script using Bread::Board
 use Bread::Board;
 use File::Slurp qw(slurp);
 use Getopt::Long;
 use Encode;
-use lib 'src';
+use lib 'lib';
 use utf8;
 
 # print the help message

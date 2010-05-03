@@ -1,6 +1,12 @@
 use v5.10;
 use Carp;
 use MooseX::Declare;
+{
+    package VAST;
+    use Module::Pluggable sub_name=>"subclasses",search_path=>["VAST"],require=>1;
+    # load all the VAST::* subclasses
+    VAST->subclasses;
+}
 class VAST::Base {
     method emit_m0ld {
         use AST::Helpers;
