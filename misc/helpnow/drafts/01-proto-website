@@ -10,7 +10,7 @@ woorks fine.</p>
 we don't have a proper CPAN for Perl 6 yet - only a very coarse
 <a href="http://github.com/masak/proto/">prototype installer</a>.</p>
 
-<p>It has <a
+<p>It has a <a
 href="http://github.com/masak/proto/raw/master/projects.list">list of known
 projects</a> in its source repository.</p>
 

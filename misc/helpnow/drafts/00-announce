@@ -18,10 +18,15 @@ might arise while working on the problem.</p>
 some nice stuff (T-shirts for now, but we are looking for sponsors for more).
 If you contribute a patch for <a href="http://rakudo.org/">Rakudo</a>, and
 your patch gets applied, your name will appear in the next release
-announcement - fame and eternal glory are are certain.</p>
+announcement - fame and eternal glory are certain.</p>
 
-<p>Sponsors:
+<p>Sponsors:</p>
 <ul>
     <li>2 T-shirts (Rakudo or Perl 6) from moritz</li>
-    <li>YOUR NAME AND DONATION HERE (I'm looking for more sponsors right now)</li>
+    <li>(your name and donation here) (I'm looking for more sponsors right now)</li>
+</ul>
+
+<h2>Challenges</h2>
+<ul>
+    <li><a href="">Week 1 - a website for proto</a>. Status: open</li>
 </ul>
