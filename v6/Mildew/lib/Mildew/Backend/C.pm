@@ -39,7 +39,7 @@ role Mildew::Backend::C {
         my $tmp_executable = tmpnam;
         $self->compile($ast,$tmp_executable);
 
-        local $ENV{LD_LIBRARY_PATH} = 'CORE:../smop/build/lib';
+        local $ENV{LD_LIBRARY_PATH} = '../mildew-old/CORE:../smop/build/lib';
         local $ENV{PERL5LIB} = "../smop/SMOP/blib/lib/:../smop/SMOP/blib/arch:" . ($ENV{PERL5LIB} || '');
 
         # TODO valgrind and gdb options
