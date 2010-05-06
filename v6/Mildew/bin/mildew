@@ -21,73 +21,104 @@ HELP
 exit;
 }
 
-# make sure we use utf8 
-binmode STDOUT, ':utf8';
-binmode STDIN, ':utf8';
-
-# get command line options
-my ($C,$B,$P,$help,$e,$output);
-Getopt::Long::Parser->new( config => [qw( bundling no_ignore_case pass_through require_order)], )->getoptions(
-    "C=s" => \$C,
-    "B=s" => \$B,
-    "P=s" => \$P,
-    'h|help' => \$help,
-    'e=s' => \$e,
-    'o=s' => \$output
-) || help;
-help if $help;
-
-
-my $source;
-if ($e) {
-    $source = Encode::decode_utf8($e);
-} elsif ($ARGV[0]) {
-    $source = Encode::decode_utf8(slurp($ARGV[0]));
-} else {
-    $source = join('', <STDIN>);
-}
-
-if ($C and $B) {
-    die "You can't specify both -C and -B.\n";
-} elsif (!$C and !$B) {
-    if ($output) {
-        $C = 'via-C';
+sub MAIN {
+    # make sure we use utf8 
+    binmode STDOUT, ':utf8';
+    binmode STDIN, ':utf8';
+    
+    # get command line options
+    my ($C,$B,$P,$help,$e,$output);
+    Getopt::Long::Parser->new( config => [qw( bundling no_ignore_case pass_through require_order)], )->getoptions(
+        "C=s" => \$C,
+        "B=s" => \$B,
+        "P=s" => \$P,
+        'h|help' => \$help,
+        'e=s' => \$e,
+        'o=s' => \$output
+    ) || help;
+    help if $help;
+    
+    
+    my $source;
+    if ($e) {
+        $source = Encode::decode_utf8($e);
+    } elsif ($ARGV[0]) {
+        $source = Encode::decode_utf8(slurp($ARGV[0]));
     } else {
-        $B = 'via-C';
+        $source = join('', <STDIN>);
+    }
+    
+    if ($C and $B) {
+        die "You can't specify both -C and -B.\n";
+    } elsif (!$C and !$B) {
+        if ($output) {
+            $C = 'via-C';
+        } else {
+            $B = 'via-C';
+        }
+    }
+    
+    $P //= 'STD';
+    
+    my %parsers = (
+        "STD"   => 'Mildew::Parser::STD',
+        "STD-cached" => 'Mildew::Parser::STD::Cached',
+    );
+    
+    my %backends = (
+        "via-C"   => 'Mildew::Backend::C::M0ld',
+        "optC"   => 'Mildew::Backend::OptC',
+        "desugar" => 'Mildew::Backend::Desugar',
+        "perlesque" => 'Mildew::Backend::Perlesque',
+    );
+    
+    if ($C and !$backends{$C}) {
+        die "Unknown backend $C passed to -C.";
+    } elsif ($B and !$backends{$B}) {
+        die "Unknown backend $B passed to -B.";
+    }
+    unless ($parsers{$P}) {
+        die "Unknown parser $P passed to -P.";
+    }
+    
+    my $c = container 'Mildew' => as {
+        service 'backend'  => (class => $backends{$C // $B});
+        service 'parser'  => (class => $parsers{$P});
+        service 'compiler' => (class => 'Mildew::Compiler',dependencies=>{backend=>depends_on('backend'),parser=>depends_on('parser')});
+    };
+    
+    if ($C) {
+        $c->fetch('compiler')->get->compile($source,$output);
+    } elsif ($B) {
+        $c->fetch('compiler')->get->run($source);
     }
 }
 
-$P //= 'STD';
-
-my %parsers = (
-    "STD"   => 'Mildew::Parser::STD',
-    "STD-cached" => 'Mildew::Parser::STD::Cached',
-);
-
-my %backends = (
-    "via-C"   => 'Mildew::Backend::C::M0ld',
-    "optC"   => 'Mildew::Backend::OptC',
-    "desugar" => 'Mildew::Backend::Desugar',
-    "perlesque" => 'Mildew::Backend::Perlesque',
-);
-
-if ($C and !$backends{$C}) {
-    die "Unknown backend $C passed to -C.";
-} elsif ($B and !$backends{$B}) {
-    die "Unknown backend $B passed to -B.";
-}
-unless ($parsers{$P}) {
-    die "Unknown parser $P passed to -P.";
-}
-
-my $c = container 'Mildew' => as {
-    service 'backend'  => (class => $backends{$C // $B});
-    service 'parser'  => (class => $parsers{$P});
-    service 'compiler' => (class => 'Mildew::Compiler',dependencies=>{backend=>depends_on('backend'),parser=>depends_on('parser')});
-};
-
-if ($C) {
-    $c->fetch('compiler')->get->compile($source,$output);
-} elsif ($B) {
-    $c->fetch('compiler')->get->run($source);
+if (@ARGV == 1 && $ARGV[0] eq '--server') {
+    require App::Persistent::Server;
+    {
+    package Dummy;
+    require Mildew::Backend::C;
+    require Mildew::Backend::Perlesque;
+    require Mildew::Parser::STD;
+    require Mildew::Compiler;
+    }
+    my $server = App::Persistent::Server->new(
+        code => sub {
+            my $info = shift;
+    
+            # fake environment
+            local %ENV = $info->environment;
+            local $0 = $info->program_name;
+            chdir $info->working_directory;
+            local @ARGV = $info->cmdline_args;
+    
+            MAIN;
+         },
+    );
+    $server->start;
+    exit if fork;
+    exit $server->completion_condvar->recv;
+} else {
+    MAIN;
 }
