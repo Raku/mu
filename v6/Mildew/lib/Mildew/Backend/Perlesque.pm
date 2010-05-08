@@ -95,7 +95,7 @@ class Mildew::Backend::Perlesque with Mildew::Backend {
         for (@{$block->regs}) {
             delete $regs{'$'.$_};
         }
-        "sub int (P6object \$scope) {\n" . (join '',(map {"my P6object $_;\n"} keys %regs)) . "${code}return 1;\n}";
+        "sub (P6object \$scope --> int) {\n" . (join '',(map {"my P6object $_;\n"} keys %regs)) . "${code}return 1;\n}";
     }
     method compile($ast,$output) {
         $self->output($self->perlesque_source($ast)."\n",$output);
