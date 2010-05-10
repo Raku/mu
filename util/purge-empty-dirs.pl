@@ -50,4 +50,4 @@ for my $dir ( @directories ) {
     }
 }
 
-say 'Now, "svn commit", if you dare.';
+say %gone ? 'Now, "svn commit", if you dare.' : 'Nothing done.';
