@@ -4,12 +4,18 @@ use strict;
 use warnings;
 
 use Pod::Html;
-use autodie;
 use FindBin;
+use File::Copy;
+use autodie;
 
 my $output_dir = shift(@ARGV) // '.';
 
 my $input_dir = "$FindBin::Bin/../documentation";
+
+for (qw(style.css)) {
+    copy("$FindBin::Bin/../script/$_", $output_dir);
+}
+
 chdir $input_dir;
 
 my @docs = map substr($_, 0, -4), glob '*.pod';
