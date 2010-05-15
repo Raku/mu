@@ -38,15 +38,26 @@ and the resulting junction is C<2|4|6>. This process of separating
 Junction arguments into multiple calls to a function is called
 I<autothreading>.
 
-=head1 Slurpy
+=head1 Instance
 
-A parameter of a sub or method is said to be I<slurpy> if it can
-consume an arbitrary number of arguments. It is indicated by an
-asterisk C<*> in front of the parameter name.
+An I<instance> of a class is also called an I<object> in some other
+programming languages. It has a storage for attributes, and is often
+the return value of a class to a method called C<new>, or a literal.
 
-    sub sum (*@numbers) {
-        return [+] @numbers;
-    }
+Instances of most types are defiC<defined($instance)> is C<True>.
+C<defined($instance)> is C<True>.
+
+Or to put it another way, a class has all the blueprint of methods and
+attributes, and an instance carries it forward into the real world.
+
+=head1 Literal
+
+A I<literal> is a piece of code that directly stands for a (often
+built-in) object, and also refers to the object itself.
+
+    my $x = 2;      # the 2 is a literal
+    say $x;         # $x is not a literal, but a variable
+
 
 =head1 lvalue
 
@@ -75,6 +86,35 @@ Examples of things that are not lvalues
    sub f { }; f();          # "normal" subs are not writable
    sub f($x) { $x = 3 };    # error - parameters are read-only by default
 
+
+=head1 Slurpy
+
+A parameter of a sub or method is said to be I<slurpy> if it can
+consume an arbitrary number of arguments. It is indicated by an
+asterisk C<*> in front of the parameter name.
+
+    sub sum (*@numbers) {
+        return [+] @numbers;
+    }
+
+=head1 Type Object
+
+A I<type object> is an object representing a class, role, package,
+grammar or anything else that does the I<Abstraction> role. It is
+generally accessible with the same name as a class.
+
+    class A { };
+    say A;              # A is the type object
+    my $x = A.new();    # same here
+
+    my $x = class {
+        method greet() {
+            say "hi";
+        }
+    }
+
+    # $x now holds a type object returned from the
+    # anonymous class defintion
 
 =end glossary
 
