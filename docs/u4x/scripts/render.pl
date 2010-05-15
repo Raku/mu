@@ -9,7 +9,7 @@ use FindBin;
 
 my $output_dir = shift(@ARGV) // '.';
 
-my $input_dir = "$FindBin::Bin/documentation";
+my $input_dir = "$FindBin::Bin/../documentation";
 chdir $input_dir;
 
 my @docs = map substr($_, 0, -4), glob '*.pod';
