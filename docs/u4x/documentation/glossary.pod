@@ -7,7 +7,7 @@ be called by name.
 
     # named subroutine
     sub double($x) { 2 * $x };
-
+    
     # anonymous subroutine, stored in a named scalar
     my $double = sub ($x) { 2 * $x };
 
@@ -53,12 +53,12 @@ i.e., C<defined($instance)> is C<True>.
     } else {
         say "No. Something off? ";
     }
-
+    
     ## if you wanted objects...
     class A { 
         # nothing here for now.
     }
-
+    
     my $an_instance = A.new;
     say $an_instance.defined.perl;# defined($an_instance) works too.
 
@@ -121,13 +121,13 @@ generally accessible with the same name as a class.
     class A { };
     say A;              # A is the type object
     my $x = A.new();    # same here
-
+    
     my $x = class {
         method greet() {
             say "hi";
         }
     }
-
+    
     # $x now holds a type object returned from the
     # anonymous class defintion
 
