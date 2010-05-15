@@ -20,7 +20,7 @@ Perl 6 that's achievable for a newcomer.
     Fix up a test file
 
     Port a smallish module
-        - ...
+        - Log::Message
 
     Implement $smallish_feature in $implementation
 
