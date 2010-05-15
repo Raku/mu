@@ -2,14 +2,21 @@
 
 =head1 Anonymous
 
-A subroutine, method or submethod is called I<anonymous> if it doesn't have a
-name.
+A subroutine, method or submethod is called I<anonymous> if it can't
+be called by name.
 
     # named subroutine
     sub double($x) { 2 * $x };
 
     # anonymous subroutine, stored in a named scalar
     my $double = sub ($x) { 2 * $x };
+
+Note that it is still allowed to have a name
+
+    # anonymous, but knows its own name
+    my $s = anon sub triple($x) { 3 * $x }
+    say $s.name;        # triple
+    
 
 =head1 Autothreading
 
