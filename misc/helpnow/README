@@ -21,6 +21,8 @@ Perl 6 that's achievable for a newcomer.
 
     Port a smallish module
         - Log::Message
+        - Text::Wrap
+        - Text::Soundex (but wait until Str.trans is implemented)
 
     Implement $smallish_feature in $implementation
 
