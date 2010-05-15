@@ -18,8 +18,6 @@ Perl 6 that's achievable for a newcomer.
 =head1 IDEAS
 
     Fix up a test file
-        - S05-grammar/parse_and_parsefile.t assumes that YourGrammar.parse is
-          not anchored. That's a wrong assumption => fix it
 
     Port a smallish module
         - ...
@@ -33,9 +31,8 @@ Perl 6 that's achievable for a newcomer.
     Write documentation/examples for $function/$feature
 
     Others:
-        Write a website that gathers module URLs from proto's project.list,
-        parsers their descriptions (from the github pages) and displays all
-        of that in a nice list.
+        come up with a (generated) index file for http://u4x.perl6.org/,
+        awesomeify 
 
 =head1 SCHEDULE
 
@@ -44,12 +41,14 @@ plan one task per week.
 
 =over
 
-=item  2010-05-02
+=item  2010-05-03
     
-moritz: TODO
+moritz: a website for proto
 
-=item  2010-05-09
+=item  2010-05-10
 
-YOUR NAME HERE
+moritz: fix up S05-grammar/parse_and_parsefile.t
 
 =back
+
+# vim: spell ft=pod
