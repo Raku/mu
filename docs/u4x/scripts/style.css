@@ -6,7 +6,7 @@ body {
 }
 /* Add Copyright TPF message, licence text, whatever */
 body:after {
-    content: "Feel free to use this!";
+    content: "This page is generated from the files in the pugs repository at http://svn.pugscode.org/pugs/docs/u4x/. You may used it under the terms of the Artistic License 2.0.";
     font-family: "Arial,Helvetica, Sans serif";
     font-size: 10px;
     color: green;
