@@ -86,7 +86,7 @@ of variables  and lvalue subroutines.
 Examples of lvalues:
 
     Declaration             lvalue          Comments
-
+    
     my $x;                  $x
     my ($a, $b);            ($a, $b)
     has $!attribute;        $!attribute     Only inside classes
