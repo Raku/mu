@@ -18,7 +18,7 @@ my $output_dir = shift(@ARGV) // '.';
 my $input_dir = "$FindBin::Bin/../documentation";
 
 for (qw(style.css)) {
-    copy("$FindBin::Bin/../script/$_", $output_dir);
+    copy("$FindBin::Bin/../scripts/$_", $output_dir) or warn "Can't copy $_: $!";
 }
 
 my @docs;  
