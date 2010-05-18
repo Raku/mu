@@ -1,4 +1,5 @@
 use v6;
+use File::Spec::Unix;
 
 ## declare global variables (globals RULE dude!)
 
@@ -11,23 +12,23 @@ my $allowed_bad_guesses   = 6;  # number of allowed bad guesses
 
 ## do our functions
 
-sub cls {
+sub cls returns Void {
     run(($?OS eq any <MSWin32 mingw cygwin>) ?? 'cls' !! 'clear');
 }
 
 sub get_committer_list (Str $dict_file) returns List {
     my @committers;
-    my $dict = open($dict_file) or die "Couldn't open the AUTHORS file.\nYou must run this script from within the main pugs\ndirectory or within the examples/ sub-directory.";
+    my $dict = open($dict_file) or die "Couldn't open the AUTHORS file.\n"; 
 
     # Skip the intro text
-    1 while $dict.lines ~~ rx:P5/\S/;
+    1 while $dict.lines ~~ /\S/;
 
     for $dict.lines -> $name {
         # Capture the real name part
-        if ($name ~~ rx:P5/^(.+?)(?:\s\s|$)/) {
+        if $name ~~ /(<alpha>+)>>\s*/ {
             my $realname = $0;
             # Remove nickname
-            $realname ~~ s:P5/\s*".*"\s*/ /;
+            $realname ~~ s/\s*\".*\"\s*/ /;
             @committers.push($realname);
         }
     }
@@ -41,19 +42,29 @@ sub pick_committer (@committers) returns Str {
 
 sub draw_board returns Str {
     my $output = '';
-    for (0 .. (+@letters - 1)) -> $i {
-        if (@letters[$i] ~~ rx:P5/[-.,\s]/) {
-            $output ~= @letters[$i];
-            @solution[$i] = @letters[$i];
-        }
-        elsif (@solution[$i] ne '') {
-            $output ~= @solution[$i];
-        }
-        else {
-            $output ~= '_';
-        }
-    }
-    return $output;
+    my @letters if !defined(@letters);
+#    for (0...+@letters-1) -> $i {
+#        if @letters[$i] ~~ /[-.,\s]/ {
+#            $output ~= @letters[$i];
+#            @solution[$i] = @letters[$i];
+#        }
+#        elsif @solution[$i] ne '' {
+#            $output ~= @solution[$i];
+#        }
+#        else {
+#            $output ~= '_';
+#        }
+#    }
+    for(0..+@letters-1) -> $item {
+       if $item ~~ /<[\-\.,\s]>/ {
+          $output = @letters[$item];
+       } elsif @solution[$item] ne '' {
+          $output = @solution[$item];
+       } else {
+          $output = '_';
+       }
+   } 
+   return $output;
 }
 
 sub has_won returns Bool {
@@ -68,7 +79,7 @@ sub guess (Str $g) returns Bool {
     my $success = 0;
     my $i;
     for 0 .. +@letters - 1 -> $i {
-        if (uc(@letters[$i]) eq $guess) {
+        if uc(@letters[$i]) eq $guess {
             @solution[$i] = @letters[$i];
             $success = 1;
         }
@@ -101,12 +112,14 @@ $msg";
 }
 
 ## main loop
-use lib 'ext/File-Spec/lib', '../ext/File-Spec/lib', '../../ext/File-Spec/lib';
-use File::Spec;
+#use lib 'ext/File-Spec/lib', '../ext/File-Spec/lib', '../../ext/File-Spec/lib';
+#use File::Spec;
 
 my $progdir    = splitpath($*PROGRAM_NAME)[1] || ".";
 my $dict       = canonpath("$progdir/../../AUTHORS");
+say "Getting committers list...";
 my @committers = get_committer_list($dict);
+say "I got committers list..." ~ @committers>>.Str.join(",").perl.say;
 my $current_committer = pick_committer(@committers);
 
 @letters = split("", $current_committer);
@@ -117,15 +130,15 @@ print draw_hangman("guess a letter? ");
 while my $letter = $*IN.get {
     cls;
 
-    if (guess($letter)) {
-        if (has_won()) {
+    if guess($letter) {
+        if has_won() {
             print draw_hangman("You won!!!!\n");
             exit;
         }
     }
     else {
         $number_of_bad_guesses++;
-        if ($number_of_bad_guesses >= $allowed_bad_guesses) {
+        if $number_of_bad_guesses >= $allowed_bad_guesses {
             print draw_hangman(
                 "You have exceeded the maximum number of tries.\n" ~
                 "Sorry, the committer was '$current_committer'\n"
@@ -136,6 +149,7 @@ while my $letter = $*IN.get {
 
     print draw_hangman("guess a letter? ");
 }
+
 
 =begin pod
 =head1 NAME
@@ -169,3 +183,6 @@ it under the same terms as Perl itself.
 See http://www.perl.com/perl/misc/Artistic.html
 
 =end pod
+
+
+## vim: ft=perl6
