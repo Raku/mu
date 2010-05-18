@@ -1,6 +1,6 @@
 use v6;
 
-module File::Spec::Unix-0.0.1;
+module File::Spec::Unix;
 
 sub curdir        returns Str  is export { '.'         }
 sub updir         returns Str  is export { '..'        }
@@ -20,7 +20,8 @@ sub splitpath (Str $path, Bool $nofile?) returns Array is export {
         $directory = $path;
     }
     else {
-        $path ~~ m:P5"^((?:.*/(?:\.\.?\Z(?!\n))?)?)([^/]*)";
+        #$path ~~ m:P5"^((?:.*/(?:\.\.?\Z(?!\n))?)?)([^/]*)";
+	$path ~~ rx{ :s (.*\/) ( <-[ / ]> ) };
         $directory = ~$0;
         $file      = ~$1;
     }
@@ -116,7 +117,9 @@ sub abs2rel (Str $_path, Str $_base) returns Str is export {
     # $base now contains the directories the resulting relative path
     # must ascend out of before it can descend to $path_directory.  So,
     # replace all names with $parentDir
-    $base ~~ s:P5:g"[^/]+"..";
+    #$base ~~ s:P5:g"[^/]+"..";
+    #$base ~~ s:g"[^/]+"..";
+    $base .= subst(/ <-[ / ]>+ /, "..", :g);
 
     # Glue the two together, using a separator if necessary, and preventing an
     # empty result.
@@ -135,11 +138,16 @@ sub canonpath (Str $_path) returns Str is export {
     # replace this with 'is copy' parameter 
     # trait at some point    
     my $path = $_path;
-    $path ~~ s:P5:g"/+"/";                            # xx////xx  -> xx/xx
-    $path ~~ s:P5:g"(/\.)+(/|\Z(?!\n))"/";            # xx/././xx -> xx/xx
-    $path ~~ s:P5:g"^(\./)+"" unless $path eq "./";   # ./xx      -> xx
-    $path ~~ s:P5:g"^/(\.\./)+"/";                    # /../../xx -> xx
-    $path ~~ s:P5:g"/\Z(?!\n)"" unless $path eq "/";  # xx/       -> xx
+#    $path ~~ s:P5:g"/+"/";                            # xx////xx  -> xx/xx
+#    $path ~~ s:P5:g"(/\.)+(/|\Z(?!\n))"/";            # xx/././xx -> xx/xx
+#    $path ~~ s:P5:g"^(\./)+"" unless $path eq "./";   # ./xx      -> xx
+#    $path ~~ s:P5:g"^/(\.\./)+"/";                    # /../../xx -> xx
+#    $path ~~ s:P5:g"/\Z(?!\n)"" unless $path eq "/";  # xx/       -> xx
+    $path .= subst(/ \/+ /, "/", :g);		          # xx////xx  -> xx/xx
+    $path .= subst( rx{ ( \/\. )+ \/ }, "/", :g);         # xx/././xx -> xx/xx
+    $path .= subst(/ (\.\/)+ /, "",:g) eq "./";           # ./xx      -> xx
+    $path .= subst(/ ^\/(\.\.\/)+/, "", :g);              # /../../xx -> xx
+    $path .= subst(/ \/$ /, "", :g) unless $path eq "/";  # xx/       -> xx
     return $path;
 }
 
@@ -150,7 +158,8 @@ sub no_upwards (*@filenames) returns Array is export {
 }
 
 sub file_name_is_absolute (Str $file) returns Bool is export {
-    ?($file ~~ m:P5"^/")  # needs to work in the multi-line string
+#    ?($file ~~ m:P5"^/")  # needs to work in the multi-line string
+    ?( $file ~~ m/ ^\/ / )  # needs rework to find the absolute path...
 }
 
 sub path returns Array is export {
@@ -201,6 +210,7 @@ sub tmpdir returns Str is export {
 #     return $tmpdir;
 # }
 
+=begin File::Spec::Unix Documentation
 =kwid
 
 = NAME
@@ -278,3 +288,5 @@ it under the same terms as Perl itself.
 See http://www.perl.com/perl/misc/Artistic.html
 
 =cut
+=end File::Spec::Unix Documentation
+## vim: ft=perl6
