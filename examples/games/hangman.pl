@@ -12,7 +12,7 @@ my $allowed_bad_guesses   = 6;  # number of allowed bad guesses
 
 ## do our functions
 
-sub cls returns Void {
+sub cls returns Sink {
     run(($?OS eq any <MSWin32 mingw cygwin>) ?? 'cls' !! 'clear');
 }
 
@@ -25,7 +25,7 @@ sub get_committer_list (Str $dict_file) returns List {
 
     for $dict.lines -> $name {
         # Capture the real name part
-        if $name ~~ /(<alpha>+)>>\s*/ {
+        if $name ~~ /(<alpha>+)»\s*/ {
             my $realname = $0;
             # Remove nickname
             $realname ~~ s/\s*\".*\"\s*/ /;
@@ -55,7 +55,7 @@ sub draw_board returns Str {
 #            $output ~= '_';
 #        }
 #    }
-    for(0..+@letters-1) -> $item {
+    for 0..+@letters-1 -> $item {
        if $item ~~ /<[\-\.,\s]>/ {
           $output = @letters[$item];
        } elsif @solution[$item] ne '' {
