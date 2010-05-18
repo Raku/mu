@@ -11,13 +11,13 @@ my $allowed_bad_guesses   = 6;  # number of allowed bad guesses
 
 ## do our functions
 
-sub cls returns Void {
+sub cls {
     run(($?OS eq any <MSWin32 mingw cygwin>) ?? 'cls' !! 'clear');
 }
 
 sub get_committer_list (Str $dict_file) returns List {
     my @committers;
-    my $dict = open($dict_file) orelse die "Couldn't open the AUTHORS file.\nYou must run this script from within the main pugs\ndirectory or within the examples/ sub-directory.";
+    my $dict = open($dict_file) or die "Couldn't open the AUTHORS file.\nYou must run this script from within the main pugs\ndirectory or within the examples/ sub-directory.";
 
     # Skip the intro text
     1 while $dict.lines ~~ rx:P5/\S/;
