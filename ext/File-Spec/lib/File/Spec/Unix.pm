@@ -22,8 +22,8 @@ sub splitpath (Str $path, Bool $nofile?) returns Array is export {
     else {
         #$path ~~ m:P5"^((?:.*/(?:\.\.?\Z(?!\n))?)?)([^/]*)";
 	$path ~~ rx{ :s (.*\/) ( <-[ / ]> ) };
-        $directory = ~$0;
-        $file      = ~$1;
+        $directory = $0;
+        $file      = $1;
     }
     return ($volume, $directory, $file);
 }
@@ -143,9 +143,10 @@ sub canonpath (Str $_path) returns Str is export {
 #    $path ~~ s:P5:g"^(\./)+"" unless $path eq "./";   # ./xx      -> xx
 #    $path ~~ s:P5:g"^/(\.\./)+"/";                    # /../../xx -> xx
 #    $path ~~ s:P5:g"/\Z(?!\n)"" unless $path eq "/";  # xx/       -> xx
-    $path .= subst(/ \/+ /, "/", :g);		          # xx////xx  -> xx/xx
+
+    $path .= subst(rx{:!s ( \/\/ )+ }, "/", :g);	  # xx////xx  -> xx/xx
     $path .= subst( rx{ ( \/\. )+ \/ }, "/", :g);         # xx/././xx -> xx/xx
-    $path .= subst(/ (\.\/)+ /, "",:g) eq "./";           # ./xx      -> xx
+    $path .= subst(/ (\.\/)+ /, "",:g) unless $path ~~ m/ ^\.\/\.\. /;           # ./xx      -> xx
     $path .= subst(/ ^\/(\.\.\/)+/, "", :g);              # /../../xx -> xx
     $path .= subst(/ \/$ /, "", :g) unless $path eq "/";  # xx/       -> xx
     return $path;
