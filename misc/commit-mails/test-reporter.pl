@@ -49,7 +49,7 @@ my $msg_rx = qr{
     (?: for \s+ )?
     \[?
         (?: bug | rt | perl )
-        \s* [#]? (?<bugno> \d+ )
+        \s* [#]? (?<bugno> \d\d+ )
     \]?
 }xmsi;
 
