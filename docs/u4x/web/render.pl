@@ -44,7 +44,7 @@ for my $pod (@docs) {
         "--podroot=/$input_dir",
         "--htmlroot=/",
 #        "--libpods=" . join(':', @docs),
-        "--css=$outputdirname/style.css",
+        "--css=/style.css",
         "--htmldir=$output_dir",
     );
 }
