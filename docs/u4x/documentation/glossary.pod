@@ -1,5 +1,3 @@
-=begin glossary
-
 =head1 Anonymous
 
 A subroutine, method or submethod is called I<anonymous> if it can't
@@ -130,7 +128,5 @@ generally accessible with the same name as a class.
     
     # $x now holds a type object returned from the
     # anonymous class defintion
-
-=end glossary
 
 # vim: ft=perl6 tw=70
