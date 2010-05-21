@@ -9,6 +9,8 @@ use File::Copy;
 use File::Find;
 use File::Spec;
 use autodie;
+use Cwd;
+use HTML::Template;
 
 use vars qw/*name/;
 *name   = *File::Find::name;
@@ -30,6 +32,7 @@ sub pods_wanted
     push(@docs, $name) if $name=~/^.*\.pod\z/s;
 }
 my $outputdirname = File::Spec->rel2abs($output_dir);
+my $webdir = getcwd();
 chdir $input_dir;
 
 
@@ -51,29 +54,16 @@ for my $pod (@docs) {
 open(OUTHTML, "+>", "$outputdirname/index.html") || die "Cannot open index.html for writing!, $!";
 
 # get the initial html markup out of the way... 
-my $sometitle=" u4x Index ";
-print OUTHTML << "CHUNK_OF_XHTML";
-<?xml version="1.0" ?>
-<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
-<html xmlns="http://www.w3.org/1999/xhtml">
-<head> 
-<title>$sometitle</title> 
-<link rel="stylesheet" type="text/css" href="style.css"/>
-<meta http-equiv="content-type" content="text/html;charset=utf-8" /> 
-</head> 
-<body> 
-<ul> 
-CHUNK_OF_XHTML
-
+chdir $webdir;
+my $template = HTML::Template->new(filename => 'index.tmpl');
 
 # here I come parsing for output files... 
+
+my @file_list;
 for my $key (sort keys %files) {
-    print OUTHTML "<li><a href=\"$files{$key}\">$key</a></li>";
+    push @file_list { file => $files{$key}, fname => $key }
 }
 
-print OUTHTML <<"BOTTOM_CHUNK";
-</ul>
-</body>
-</html>
-BOTTOM_CHUNK
+$template->param(file_list => \@file_list);
+print OUTHTML $template->output;
 close OUTHTML;
