@@ -56,7 +56,7 @@ open(OUTHTML, "+>", "$outputdirname/index.html") || die "Cannot open index.html 
 # here I come parsing for output files... 
 my @file_list;
 for my $key (sort keys %files) {
-    push @file_list { file => $files{$key}, fname => $key }
+    push @file_list, { file => $files{$key}, fname => $key }
 }
 
 $template->param(file_list => \@file_list);
