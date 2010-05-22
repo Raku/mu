@@ -9,7 +9,6 @@ use File::Copy;
 use File::Find;
 use File::Spec;
 use autodie;
-use Cwd;
 use HTML::Template;
 
 use vars qw/*name/;
@@ -32,7 +31,9 @@ sub pods_wanted
     push(@docs, $name) if $name=~/^.*\.pod\z/s;
 }
 my $outputdirname = File::Spec->rel2abs($output_dir);
-my $webdir = getcwd();
+
+# get the initial html markup out of the way... 
+my $template = HTML::Template->new(filename => 'index.tmpl');
 chdir $input_dir;
 
 
@@ -40,7 +41,6 @@ for my $pod (@docs) {
     my $filename = File::Spec->splitpath($pod);
     my $outfilename = (split(/\./, $filename))[0];
     $files{$outfilename} = "$outfilename.html";
-    copy($pod, $outputdirname) or die "Coudn't copy $pod!, $!\n";
     pod2html(
         "--infile=$pod",
         "--outfile=$outputdirname/$outfilename.html",
@@ -53,12 +53,7 @@ for my $pod (@docs) {
 }
 open(OUTHTML, "+>", "$outputdirname/index.html") || die "Cannot open index.html for writing!, $!";
 
-# get the initial html markup out of the way... 
-chdir $webdir;
-my $template = HTML::Template->new(filename => 'index.tmpl');
-
 # here I come parsing for output files... 
-
 my @file_list;
 for my $key (sort keys %files) {
     push @file_list { file => $files{$key}, fname => $key }
