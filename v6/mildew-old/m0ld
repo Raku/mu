@@ -8,7 +8,7 @@ use lib '../Mildew/lib';
 use AST;
 use Data::Dumper::Concise;
 use File::Slurp qw(slurp);
-my $REGS = [];
+our $REGS = [];
 sub stmts_to_block {
     my ($stmts) = @_;
     my @stmts;
@@ -98,8 +98,9 @@ if <value> <branch> else <branch>
 (?{$MATCH = AST::StringConstant->new(value=>$+)})
 
 <rule: submold>
+(?{local $REGS = []})
 mold \{
-(?:<[stmt]> ;)*
+(?: <[stmt]> ; )*
 \}
 (?{$MATCH = stmts_to_block($MATCH{stmt});})
 }x;
