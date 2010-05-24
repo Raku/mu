@@ -4,50 +4,72 @@ use strict;
 use warnings;
 use Regexp::Grammars;
 use Regexp::Common;
-use lib 'src';
+use lib '../Mildew/lib';
 use AST;
 use Data::Dumper::Concise;
 use File::Slurp qw(slurp);
+my $REGS = [];
 sub stmts_to_block {
     my ($stmts) = @_;
-    AST::Block->new(stmts=>$stmts);
+    my @stmts;
+    for my $stmt (@{$stmts}) {
+        if (ref $stmt eq 'ARRAY') {
+            push(@stmts,@{$stmt});
+        } else {
+            push(@stmts,$stmt);
+        }
+    }
+    AST::Block->new(stmts=>\@stmts,regs=>$REGS);
 }
 my $parser = qr {
-<top>
+^<top>$
 <rule: top>
-^ (?:<[stmt]> ;)* $
+(?: <[stmt]> ; )*
 (?{ $MATCH = stmts_to_block($MATCH{stmt}) })
 
 <token: ws>
 (?> (?: \s+ | \#[^\n]* )*)
 
 <token: stmt>
-(?: <MATCH=goto>|<MATCH=br>|<MATCH=assign>)
+(?: <MATCH=goto>|<MATCH=br>|<MATCH=assign>|<MATCH=decl>)
+
+<rule: decl>
+my <register>
+(?{ my $reg = substr($MATCH{register}->name,1);push(@{$REGS},$reg);$MATCH = [] })
+
 <rule: call>
 <invocant=value> \.  <identifier=value>
 \(
 (?:<[argument]> ** ,)?
 \)
-(?{ $MATCH = AST::Call->new(
-    identifier=>$MATCH{identifier},
-    capture=>AST::Capture->new(
-        invocant=>$MATCH{invocant},
-        positional=>$MATCH{argument} // [],
-        named=>[]
+(?{ 
+    $MATCH = AST::Call->new(
+        identifier=>$MATCH{identifier},
+        capture=>AST::Capture->new(
+            invocant => $MATCH{invocant},
+            positional => [grep { ! $_->isa('AST::Pair') } @{$MATCH{argument}}],
+            named => [map { $_->key, $_->value } grep { $_->isa('AST::Pair') } @{$MATCH{argument}}]
+        )
     )
-)})
+})
+
 <rule: assign>
-<register> = <rvalue>
+(?:my)? <register> = <rvalue>
 (?{ $MATCH = AST::Assign->new(lvalue=>$MATCH{register},rvalue=>$MATCH{rvalue}) })
 <token: rvalue>
 <MATCH=call> | <MATCH=value>
 
 <token: goto>
 goto \s+ <label>
+
 <token: argument>
-(?: <named_argument> | <MATCH=value> )
+(?: <MATCH=named_argument> | <MATCH=value> )
+
 <rule: named_argument>
-(?: \: <value> \( <value> \) )
+(?: \: <key=value> \( <val=value> \) )
+(?{$MATCH = AST::Pair->new(key=>$MATCH{key},value=>$MATCH{val})})
+
+
 <token: noop>
 noop
 
@@ -62,21 +84,28 @@ if <value> <branch> else <branch>
 
 <token: value>
 (?: <MATCH=integer>  | <MATCH=register> | <MATCH=string> | <MATCH=submold>)
+
 <token: integer>
 (\d+)
 (?{$MATCH = AST::IntegerConstant->new(value=>$+)})
+
 <token: register>
 ((?>\$ \p{IsAlpha} \w*))
 (?{$MATCH = AST::Reg->new(name=>$+)})
+
 <token: string>
 " ((?:\.|[^\\"])*) "
 (?{$MATCH = AST::StringConstant->new(value=>$+)})
+
 <rule: submold>
 mold \{
 (?:<[stmt]> ;)*
 \}
 (?{$MATCH = stmts_to_block($MATCH{stmt});})
 }x;
+
 my $code = slurp($ARGV[0]);
 $code =~ $parser;
+use Data::Dumper::Concise;
+#say Dumper($/{top});
 say $/{top}->pretty;
