@@ -71,6 +71,7 @@ sub MAIN {
         "optC"   => 'Mildew::Backend::OptC',
         "desugar" => 'Mildew::Backend::Desugar',
         "perlesque" => 'Mildew::Backend::Perlesque',
+        "m0ld" => 'Mildew::Backend::M0ld'
     );
     
     if ($C and !$backends{$C}) {
