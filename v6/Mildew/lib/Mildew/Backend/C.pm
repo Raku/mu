@@ -2,6 +2,7 @@ use v5.10;
 use MooseX::Declare;
 role Mildew::Backend::C {
     use AST;
+    use AST::Helpers;
     use File::Temp qw(tempfile tmpnam);
 
     method c_source($ast) {

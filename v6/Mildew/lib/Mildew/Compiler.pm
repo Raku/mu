@@ -12,9 +12,7 @@ class Mildew::Compiler {
     has frontend  => (is=>'ro');
     has backend => (is=>'ro');
     method ast($code) {
-        my $ast = $self->frontend->parse($code)->emit_m0ld;
-
-        $ast;
+        $self->frontend->parse($code);
     }
     method run($code) {
         $self->backend->run($self->ast($code));

@@ -14,7 +14,7 @@ Usage: mildew [switches] [--] [programfile] [arguments]
   -C<backend>     compile using the <backend> backend
                   (valid backends are: via-C)
   -F<frontend>      use the <frontend> frontend
-                  (valid frontends are: STD,STD-cached)
+                  (valid frontends are: STD,STD-cached,m0ld)
   -e
   -o <file>       Place the output into <file>
 HELP
@@ -63,6 +63,7 @@ sub MAIN {
     my %frontends = (
         "STD"   => 'Mildew::Frontend::STD',
         "STD-cached" => 'Mildew::Frontend::STD::Cached',
+        "m0ld" => 'Mildew::Frontend::M0ld',
     );
     
     my %backends = (
