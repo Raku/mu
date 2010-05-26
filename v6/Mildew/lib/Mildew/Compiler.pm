@@ -9,10 +9,10 @@ BEGIN {
 }
 class Mildew::Compiler {
     use AST::Helpers;
-    has parser  => (is=>'ro');
+    has frontend  => (is=>'ro');
     has backend => (is=>'ro');
     method ast($code) {
-        my $ast = $self->parser->parse($code)->emit_m0ld;
+        my $ast = $self->frontend->parse($code)->emit_m0ld;
 
         $ast;
     }

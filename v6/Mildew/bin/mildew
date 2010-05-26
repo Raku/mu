@@ -13,8 +13,8 @@ Usage: mildew [switches] [--] [programfile] [arguments]
   -B<backend>     execute using the <backend> backend
   -C<backend>     compile using the <backend> backend
                   (valid backends are: via-C)
-  -P<parser>      parse using the <parser> parser
-                  (valid parsers are: STD,STD-cached)
+  -F<frontend>      use the <frontend> frontend
+                  (valid frontends are: STD,STD-cached)
   -e
   -o <file>       Place the output into <file>
 HELP
@@ -27,11 +27,11 @@ sub MAIN {
     binmode STDIN, ':utf8';
     
     # get command line options
-    my ($C,$B,$P,$help,$e,$output);
+    my ($C,$B,$F,$help,$e,$output);
     Getopt::Long::Parser->new( config => [qw( bundling no_ignore_case pass_through require_order)], )->getoptions(
         "C=s" => \$C,
         "B=s" => \$B,
-        "P=s" => \$P,
+        "F=s" => \$F,
         'h|help' => \$help,
         'e=s' => \$e,
         'o=s' => \$output
@@ -58,11 +58,11 @@ sub MAIN {
         }
     }
     
-    $P //= 'STD';
+    $F //= 'STD';
     
-    my %parsers = (
-        "STD"   => 'Mildew::Parser::STD',
-        "STD-cached" => 'Mildew::Parser::STD::Cached',
+    my %frontends = (
+        "STD"   => 'Mildew::Frontend::STD',
+        "STD-cached" => 'Mildew::Frontend::STD::Cached',
     );
     
     my %backends = (
@@ -77,14 +77,14 @@ sub MAIN {
     } elsif ($B and !$backends{$B}) {
         die "Unknown backend $B passed to -B.";
     }
-    unless ($parsers{$P}) {
-        die "Unknown parser $P passed to -P.";
+    unless ($frontends{$F}) {
+        die "Unknown frontend $F passed to -F.";
     }
     
     my $c = container 'Mildew' => as {
         service 'backend'  => (class => $backends{$C // $B});
-        service 'parser'  => (class => $parsers{$P});
-        service 'compiler' => (class => 'Mildew::Compiler',dependencies=>{backend=>depends_on('backend'),parser=>depends_on('parser')});
+        service 'frontend'  => (class => $frontends{$F});
+        service 'compiler' => (class => 'Mildew::Compiler',dependencies=>{backend=>depends_on('backend'),frontend=>depends_on('frontend')});
     };
     
     if ($C) {
@@ -100,7 +100,7 @@ if (@ARGV == 1 && $ARGV[0] eq '--server') {
     package Dummy;
     require Mildew::Backend::C;
     require Mildew::Backend::Perlesque;
-    require Mildew::Parser::STD;
+    require Mildew::Frontend::STD;
     require Mildew::Compiler;
     }
     my $server = App::Persistent::Server->new(

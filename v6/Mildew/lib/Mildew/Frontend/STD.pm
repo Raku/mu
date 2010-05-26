@@ -7,7 +7,7 @@ use MooseX::Declare;
     use STD;
 }
 BEGIN {do 'viv'};
-class Mildew::Parser::STD {
+class Mildew::Frontend::STD {
     method parse($source) {
         VIV::SET_OPT('match'=>1,'pos'=>1);
         my $m = STD->parse($source, actions=>'Actions');
