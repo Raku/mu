@@ -1,6 +1,6 @@
 class AST::Block extends AST::Base {
-    has 'stmts' => (is=>'ro');
-    has 'regs' => (is=>'ro',default=>sub {[]});
+    has 'stmts' => (is=>'ro',isa=>'ArrayRef[AST::Base]');
+    has 'regs' => (is=>'ro',default=>sub {[]},isa=>'ArrayRef[Str]');
     method m0ld($ret) {
         "my $ret = mold {\n"
             . join('',map {'my $'.$_.";\n"} @{$self->regs})
@@ -22,7 +22,7 @@ class AST::Block extends AST::Base {
             ($value,@side_effects) = $_->simplified;
             push (@stmts,@side_effects);
         }
-        AST::Block->new(regs=>$self->regs,stmts=>[@stmts,$value]);
+        AST::Block->new(regs=>$self->regs,stmts=>[@stmts,$value ? ($value) : ()]);
     }
     method took {
         my $took = 0;

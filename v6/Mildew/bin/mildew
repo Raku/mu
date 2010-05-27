@@ -79,6 +79,14 @@ sub MAIN {
         desugar    => sub {$_[0]->pretty."\n" },
         simplified => sub {$_[0]->simplified->pretty."\n" },
         m0ld       => sub {$_[0]->m0ld('$main')},
+        'simplified-dd' => sub {
+            use Data::Dumper::Concise;
+            Dumper($_[0]->simplified)
+        },
+        'ast-dd'    => sub {
+            use Data::Dumper::Concise;
+            Dumper($_[0]);
+        }
     );
     my $c = container 'Mildew' => as {
         service 'frontend'  => (class => $frontends{$F});
