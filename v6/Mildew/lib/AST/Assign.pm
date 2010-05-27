@@ -12,6 +12,10 @@ class AST::Assign extends AST::Base {
     method took {
         $Mildew::took->{$self->id};
     }
+    method simplified {
+        my ($rvalue,@setup) = $self->rvalue->simplified;
+        ($self->lvalue,@setup,AST::Assign->new(lvalue=>$self->lvalue,rvalue=>$rvalue));
+    }
     method forest {
         my $node = $self->pretty;
         $node .= " - ".sprintf("%.4f",$self->took) if defined $Mildew::took && $Mildew::took->{$self->id};
