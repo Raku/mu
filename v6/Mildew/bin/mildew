@@ -86,7 +86,8 @@ sub MAIN {
         'ast-dd'    => sub {
             use Data::Dumper::Concise;
             Dumper($_[0]);
-        }
+        },
+        ssa => sub {require SSA;SSA::to_ssa($_[0]->simplified,{})->pretty."\n"},
     );
     my $c = container 'Mildew' => as {
         service 'frontend'  => (class => $frontends{$F});

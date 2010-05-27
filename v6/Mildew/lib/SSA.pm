@@ -278,11 +278,13 @@ sub to_ssa {
     my @blocks;
     my %blocks_by_id;
     flatten($mold,\@blocks,\%blocks_by_id);
-    fix_jumps(\@blocks,\%blocks_by_id);
-    implicit_jumps(\@blocks);
+    if (@blocks) {
+        fix_jumps(\@blocks,\%blocks_by_id);
+        implicit_jumps(\@blocks);
 #to_graph(\@blocks);
-    doms($mold,\@blocks,$types);
-    set_reg_orgins(\@blocks);
+        doms($mold,\@blocks,$types);
+        set_reg_orgins(\@blocks);
+    }
     AST::Block::SSA->new(regs=>$mold->regs,stmts=>\@blocks); 
 }
 sub from_ssa {
