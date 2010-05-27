@@ -5,6 +5,7 @@ use Getopt::Long;
 use Encode;
 use lib 'lib';
 use utf8;
+use v5.10;
 
 # print the help message
 sub help {
@@ -66,26 +67,50 @@ sub MAIN {
         "m0ld" => 'Mildew::Frontend::M0ld',
     );
     
-    my %backends = (
-        "via-C"   => 'Mildew::Backend::C::M0ld',
-        "optC"   => 'Mildew::Backend::OptC',
-        "desugar" => 'Mildew::Backend::Desugar',
-        "perlesque" => 'Mildew::Backend::Perlesque',
-        "m0ld" => 'Mildew::Backend::M0ld'
-    );
-    
-    if ($C and !$backends{$C}) {
-        die "Unknown backend $C passed to -C.";
-    } elsif ($B and !$backends{$B}) {
-        die "Unknown backend $B passed to -B.";
-    }
     unless ($frontends{$F}) {
         die "Unknown frontend $F passed to -F.";
     }
     
+    
     my $c = container 'Mildew' => as {
-        service 'backend'  => (class => $backends{$C // $B});
         service 'frontend'  => (class => $frontends{$F});
+        (service 'backend'  => (block => sub {
+            my $s = shift;
+
+            given ($B // $C) {
+                when("via-C") {
+                    require Mildew::Backend::C::M0ld;
+                    return Mildew::Backend::C::M0ld->new()
+                }
+                when("optC") {
+                    require Mildew::Backend::OptC;
+                    return Mildew::Backend::OptC->new()
+                }
+                when("perlesque") {
+                    require Mildew::Backend::Perlesque;
+                    return Mildew::Backend::Perlesque->new()
+                }
+                when("desugar") {
+                    require 'Mildew::Backend::DumpAST';
+                    return Mildew::Backend::DumpAST->new(format=>
+                        sub {$_[0]->pretty."\n" }
+                    )
+                }
+                when("simplified") {
+                    require Mildew::Backend::DumpAST;
+                    return Mildew::Backend::DumpAST->new(format=>
+                        sub {$_[0]->simplified->pretty."\n" }
+                    )
+                }
+                default { 
+                    if ($C) {
+                        die "Unknown backend $C passed to -C.";
+                    } elsif ($B) {
+                        die "Unknown backend $B passed to -B.";
+                    }
+                }
+            }
+        })),
         service 'compiler' => (class => 'Mildew::Compiler',dependencies=>{backend=>depends_on('backend'),frontend=>depends_on('frontend')});
     };
     
