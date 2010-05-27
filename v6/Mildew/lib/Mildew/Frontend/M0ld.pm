@@ -92,9 +92,13 @@ class Mildew::Frontend::M0ld {
     ((?> (?: \$ | \? | ¢) \p{IsAlpha} \w*))
     (?{$MATCH = AST::Reg->new(name=>$+)})
     
+    <token: string_part>
+    (?:
+    \\(.) (?{my %meta = (n=>"\n");$MATCH = ($meta{$^N} || $^N)}) |
+    ([^\\"])  (?{$MATCH = $^N}) )
     <token: string>
-    " ((?:\.|[^\\"])*) "
-    (?{$MATCH = AST::StringConstant->new(value=>$+)})
+    " (<[string_part]>*) "
+    (?{$MATCH = AST::StringConstant->new(value=>join('',@{$MATCH{string_part}}))})
     
     <rule: submold>
     (?{local $REGS = []})
@@ -105,7 +109,9 @@ class Mildew::Frontend::M0ld {
     /x;
 
     method parse($source) {
-        $source =~ $parser;
+        unless ($source =~ $parser) {
+            die "Can't parse m0ld code";
+        }
         $/{top};
     }
 }
