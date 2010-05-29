@@ -19,17 +19,17 @@ multi myprompt ($prompt, @options is rw) {
     }
 
     my %options_by_key = @options.kv;
-    $choice = %options_by_key.{$choice};
+    $choice = %options_by_key{$choice};
     return $choice.param // $choice.key;
 }
 
 
 
-sub cls { 
-   #run(($*OS eq any <MSWin32 mingw>) ?? 'cls' !! 'clear'); 
+sub cls {
+   run(($*OS eq any <MSWin32 mingw>) ?? 'cls' !! 'clear'); 
  }
 
-sub random ($low,$high) {int( ($high - $low).rand + $low ) + 1; };
+sub random ($low,$high) {( ($high - $low).rand + $low ).Int + 1; }
 #multi sub infix:<.?.> ($low,$high) {int( rand($high - $low) + $low ) + 1; };
 
 class Option {
@@ -44,14 +44,14 @@ class WObject {
     has Str $.last_location is rw;
     has Int $.plural;
     method where () {
-        ($.name, ($.plural ?? 'are' !! 'is'), "currently in the", $.location).join;
-    };
+        ($.name, ($.plural ??  ' are '  !!  ' is ' ),  " currently in the " , $.location).join;
+    }
 }
 
 class Weapon is WObject {
     has Int $.power         is rw;
     has Int $.powerRange    is rw;
-    method damage () { random($.power - $.powerRange, $.power + $.powerRange);};
+    method damage () { random($.power - $.powerRange, $.power + $.powerRange);}
 }
 
 class Mortal is WObject {
@@ -69,8 +69,8 @@ class Mortal is WObject {
       my $power  = $.weapon.damage;
       die "No enemy?" unless $enemy;
       if ($power > 0) {
-            say $.name, " attacks ", $enemy.name(),
-                "with ", $weapon.name(), " doing ", $power, " damage!";
+            say $.name, " attacks ", $enemy.name,
+                " with ", $weapon.name, " doing ", $power, " damage!";
             $enemy.damage($power);
       } elsif ($power < 0) {
             say $.name, "'s attack backfires, doing ", $power, " damage!";
@@ -88,14 +88,14 @@ class Room is WObject {
    has Monster @.monsters is rw;
    has Str     @.exits is rw;
    method are_monsters () { @.monsters // 0 }
-   method monster ()      {
+   method monster () {
       say '@.monsters : ', @.monsters.perl if $DEBUG;
       my $x = shift @.monsters;
       say 'shifted    : ', $x.perl if $DEBUG;
       say '@.monsters : ', @.monsters.perl if $DEBUG;
       return $x;
-    }
-};
+   }
+}
 
 class Person is Mortal {
     has Weapon  @.weapons   is rw;
@@ -112,7 +112,7 @@ class Person is Mortal {
             for @.weapons -> $wep {
                 @options.push( 
                      Option.new(
-                         :text("attack with $wep.name" ),
+                         :text("attack with " ~ $wep.name ),
                          :param($wep)
                      )
                 );
@@ -125,9 +125,9 @@ class Person is Mortal {
                 when 'f' {
                     say "You ran away from the " , $enemy.name;
                 }
-                #when Weapon {  #not yet working right.
-                when .does(Weapon) {
-                    $.weapon = $_;
+
+                when Weapon {
+                    $.weapon = $_; 
                     self.attack($enemy);
                 }
                 default {
@@ -148,69 +148,93 @@ class Person is Mortal {
 
         say '';
         say "Your health: ", $.life, "/", $.max_life, "\t",
-            $enemy.name(),": ", $enemy.life(), "/", $enemy.max_life();
+            $enemy.name,": ", $enemy.life, "/", $enemy.max_life;
 
         exit if self.dead;
     }
-
-
 }
 
 
-my $person = Person.new( Mortal{ :life(100),:max_life(100) },
-    :weapons((Weapon.new(WObject{ :name<sword> }, :power(4), :powerRange(2)),
-              Weapon.new(WObject{ :name<spell> }, :power(0), :powerRange(7)))),
+my $person = Person.new(
+                 :life(100),
+                 :max_life(100) ,
+                 :weapons(
+                     (
+                         Weapon.new(  :name<sword> , :power(4), :powerRange(2) ),
+                         Weapon.new(  :name<spell> , :power(0), :powerRange(7) )
+                     )
+                 ),
 );
 
 my $frogs  = sub {
     my $life = (10..20).pick;
-   Monster.new( WObject{ :name("Army of frogs") }, 
-                :gold( (0..100).pick),
-                Mortal{ 
-                    :life(1), 
-                    :max_life(1) ,
-                    :weapon( Weapon.new( 
-                                   WObject{ :name<froggers> }, 
-                                   :power(5), :powerRange(2)
-                                    )
-                           ) 
-		   }
-              );
+    Monster.new(  
+        :name("Army of frogs") , 
+        :gold( (0..100).pick),
+        :life(1), 
+        :max_life(1) ,
+        :weapon( 
+            Weapon.new( 
+               :name<froggers> , 
+               :power(5), 
+               :powerRange(2)
+            )
+       ) 
+    );
 };
 
-my $bat    = sub {
+my $bat = sub {
     my $life = (20..30).pick;
-    Monster.new(WObject{ :name("Bat")}, :gold( (0..100).pick ),
-                Mortal{ :life($life), :max_life($life) ,
-                        :weapon( Weapon.new(WObject{ :name<claws>}, :power(5), :powerRange(3))) 
-                });
+    Monster.new( 
+        :name("Bat"), 
+        :gold( (0..100).pick ),
+        :life($life), 
+        :max_life($life) ,
+        :weapon( Weapon.new( :name<claws>, :power(5), :powerRange(3))) 
+    );
 };
 my $skeleton  = sub {
     my $life = (30..50).pick;
-    Monster.new(WObject{ :name("Skeleton")}, :gold( (0..100).pick ), 
-                Mortal{ :life($life),:max_life($life) ,
-                        :weapon( Weapon.new(WObject{ :name<Fists> }, :power(5), :powerRange(10)))} );
+    Monster.new( 
+        :name("Skeleton"), 
+        :gold( (0..100).pick ), 
+        :life($life),
+        :max_life($life) ,
+        :weapon( 
+             Weapon.new( 
+                 :name<Fists> , 
+                 :power(5), 
+                 :powerRange(10)
+            )
+        ) 
+    );
 };
 
 my %world;
-%world<Lobby>   = Room.new( WObject{ :name("Lobby")  }, :exits("Forest","Dungeon"), :monsters($frogs()));
-%world<Forest>  = Room.new( WObject{ :name("Forest") }, :exits("Lobby"), :monsters($bat()));
-%world<Dungeon> = Room.new( WObject{ :name("Dungeon")}, :exits("Lobby"), :monsters($skeleton()));
+%world<Lobby>   = Room.new(  :name("Lobby")  , :exits("Forest","Dungeon"), :monsters($frogs()));
+%world<Forest>  = Room.new(  :name("Forest") , :exits("Lobby"), :monsters($bat()));
+%world<Dungeon> = Room.new(  :name("Dungeon"), :exits("Lobby"), :monsters($skeleton()));
 $person.last_location = $person.location = "Lobby";
 
 $person.name = capitalize(myprompt("What is your name: "));
 say "Greetings, ", $person.name();
 say $person.where;
 until ($person.dead) {
-  %world.{$person.location}.perl.say if $DEBUG;
-  if (%world.{$person.location}.are_monsters) {
-     my $monster = %world.{$person.location}.monster;
+  %world{$person.location}.perl.say if $DEBUG;
+  if (%world{$person.location}.are_monsters) {
+     my $monster = %world{$person.location}.monster;
      unless ( $person.battle($monster) ) {
-         push %world.{$person.location}.monsters, $monster;
+         push %world{$person.location}.monsters, $monster;
          $person.location = $person.last_location;
      }
   } else {
-     my @choices = %world.{$person.location}.exits.map: { Option.new( :text($_), :param($_)) };
+     my @choices = %world{$person.location}\
+                            .exits.map({ 
+                                    Option.new( 
+                                        :text($_), 
+                                        :param($_) 
+                                    ) 
+                                });
      $person.last_location = $person.location;
      $person.location = myprompt("Go to:" ,@choices);
      cls;
