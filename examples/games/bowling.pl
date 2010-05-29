@@ -5,13 +5,14 @@ my $team_handicap;
 
 for (1..2) -> $bowler {
   say "Please enter Bowler {$bowler}'s scores:";
+  @bowlers[$bowler] = {average=>0, handicap => 0 };
   for (0..2) {
       print "Score $_:";
       my $score = $*IN.get;
       @bowlers[$bowler]<average> += $score;
   }
-  @bowlers[$bowler]<average> = int(@bowlers[$bowler]<average> / 3);
-  @bowlers[$bowler]<handicap> = int((200 - @bowlers[$bowler]<average> ) * .85);
+  @bowlers[$bowler]<average> = (@bowlers[$bowler]<average> / 3).Int;
+  @bowlers[$bowler]<handicap> = ((200 - @bowlers[$bowler]<average> ) * .85).Int;
   $team_handicap += @bowlers[$bowler]<handicap>;
 }
 say;

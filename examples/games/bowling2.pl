@@ -9,6 +9,7 @@ my @bowlers;
 
 for (1 .. $bowlers) {
     my $bowler;
+    $bowler = { id => 0, total=>0, avg=>0, handicap=>0,games => [] };
     say "Enter scores for bowler $_:";
     for (1.. $games) {
       print "game $_ score:";
@@ -18,7 +19,7 @@ for (1 .. $bowlers) {
     $bowler<id>       = $_;
     $bowler<total>    = [+] @($bowler<games>);  
     $bowler<avg>      = $bowler<total> / $games;
-    $bowler<handicap> = Int( (200 - $bowler<avg>) * .8);
+    $bowler<handicap> = ( (200 - $bowler<avg>) * .8).Int;
     @bowlers.push($bowler);
 }
 
