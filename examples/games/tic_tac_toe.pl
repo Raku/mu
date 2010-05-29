@@ -1,6 +1,6 @@
 use v6;
 
-sub print_board (@b) returns Void {
+sub print_board (@b) { # returns Void {
     say "+---+---+---+";
     for @b -> $x, $y, $z {
         say "| $x | $y | $z |";
@@ -10,7 +10,7 @@ sub print_board (@b) returns Void {
 
 my %player  = ( X => 'Player 1', O => 'Player 2' );
 my $entered = any();
-my $choice  = any(0 .. 8);
+my $choice  = one(0 .. 8);
 
 my $player = 'X';
 my @board   = (1..9);
@@ -22,10 +22,10 @@ while (any(@board) eq one(1..9) ) {
 
     my $idx = $*IN.get - 1;
 
-    if (not ($idx == $choice)) {
+    if (!($idx eq $choice)) {
         say "*** Please enter a value within 1-9";
     }
-    elsif $idx == $entered {
+    elsif $idx eq $entered {
         say "*** Some one already played at { $idx + 1 }";
     }
     else {
@@ -38,7 +38,7 @@ while (any(@board) eq one(1..9) ) {
             [ 1, 4, 7 ], [ 2, 5, 8 ],
             [ 0, 4, 8 ], [ 2, 4, 6 ]
         ) -> @c {
-            if @board[@c] ~~ (<X X X> | <O O O>) {
+            if @board[@c] eq (<X X X>||<O O O>) {
                 print_board @board;
                 say "*** %player{$player} Wins!\n";
                 exit;
