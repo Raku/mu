@@ -365,6 +365,8 @@ my $core = Stash::->new( _file => $file, _line => __LINE__,
     '&sleep' => NAME::->new( name => '&sleep', file => $file, line => __LINE__ ),
 
     # Temporary hack
+
+    '&INFERRED-TYPE-TEST' => NAME::->new( name => '&INFERRED-TYPE-TEST', file => $file, line => __LINE__ ),
     '$LexicalPrelude' => NAME::->new( name => '$LexicalPrelude', file => $file, line => __LINE__ ),
     '$OUT' => NAME::->new( name => '$OUT', file => $file, line => __LINE__ ),
     EXTERNAL => NAME::->new( name => 'DEBUG', file => $file, line => __LINE__),
