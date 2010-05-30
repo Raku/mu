@@ -76,6 +76,7 @@ sub MAIN {
         "via-C"    => 'Mildew::Backend::C::M0ld',
         optC       => 'Mildew::Backend::OptC',
         perlesque  => 'Mildew::Backend::Perlesque',
+        gtk        => 'Mildew::Backend::Gtk',
         desugar    => sub {$_[0]->pretty."\n" },
         simplified => sub {$_[0]->simplified->pretty."\n" },
         m0ld       => sub {$_[0]->m0ld('$main')},
