@@ -25,11 +25,19 @@ class Mildew::Frontend::M0ld {
             }
             my $stmt = $stmt_label->[1];
             unless (@seqs) {
-                push(@seqs,AST::Seq->new(stmts=>[]));
+                push(@seqs,AST::Seq->new(stmts=>[])) if $stmt;
             }
-            if ($stmt->{goto}) {
+            if (!defined $stmt) {
+            } elsif ($stmt->{goto}) {
                 push(@{$seqs[-1]->stmts},AST::Goto->new(block=>$seqs{$stmt->{goto}}));
-            } else {
+            } elsif ($stmt->{cond}) {
+                push(@{$seqs[-1]->stmts},AST::Branch->new(
+                    cond=>$stmt->{cond},
+                    then=>$seqs{$stmt->{then}},
+                    else=>$seqs{$stmt->{else}}
+                ));
+            } elsif ($stmt) {
+                use Data::Dumper;
                 push(@{$seqs[-1]->stmts},$stmt);
             }
         }
@@ -57,7 +65,7 @@ class Mildew::Frontend::M0ld {
     
     <rule: decl>
     my <register>
-    (?{ my $reg = substr($MATCH{register}->name,1);push(@{$REGS},$reg);$MATCH = [] })
+    (?{ my $reg = substr($MATCH{register}->name,1);push(@{$REGS},$reg);$MATCH = undef })
     
     <rule: call>
     <invocant=value> \.  <identifier=value>
@@ -97,10 +105,12 @@ class Mildew::Frontend::M0ld {
     noop
     
     <rule: br>
-    if <value> <branch> else <branch>
+    if <value> <then=branch> else <else=branch>
+    (?{$MATCH = {cond=>$MATCH{value},then=>$MATCH{then},else=>$MATCH{else}}})
     
     <rule: branch>
     \{ goto <label> ;? \}
+    (?{$MATCH = $MATCH{label}})
     
     <token: label>
     \w+

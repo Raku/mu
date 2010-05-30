@@ -34,12 +34,24 @@ is($ast->stmts->[0]->id,'foo');
 is($ast->stmts->[1]->id,'bar');
 isa_ok($ast->stmts->[1]->stmts->[0],'AST::Assign');
 }
+
 {
 my $ast = $frontend->parse('goto foo;foo: my $foo = 1;goto foo;');
 is($ast->stmts->[1]->id,'foo');
 isa_ok($ast->stmts->[1]->stmts->[0],'AST::Assign');
 isa_ok($ast->stmts->[1]->stmts->[1],'AST::Goto');
 is($ast->stmts->[1]->stmts->[1]->block,$ast->stmts->[1]);
+}
+
+{
+my $ast = $frontend->parse('
+my $cond = 1;
+my $foo;
+if $cond { goto true } else { goto false };
+false: $foo = 1;
+true:  $foo = 0;
+');
+isa_ok($ast->stmts->[0]->stmts->[1],'AST::Branch','conditional branch');
 }
 
 done_testing;
