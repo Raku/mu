@@ -10,22 +10,45 @@ class Mildew::Frontend::M0ld {
     sub stmts_to_block {
         my ($stmts) = @_;
         my @stmts;
-        for my $stmt (@{$stmts}) {
-            if (ref $stmt eq 'ARRAY') {
-                push(@stmts,@{$stmt});
-            } else {
-                push(@stmts,$stmt);
+
+        my %seqs;
+        for my $stmt_label (@{$stmts}) {
+            for my $label (@{$stmt_label->[0]}) {
+                $seqs{$label} = AST::Seq->new(stmts=>[],id=>$label);
             }
         }
-        AST::Block->new(stmts=>\@stmts,regs=>$REGS);
+        my @seqs = ();
+        for my $stmt_label (@{$stmts}) {
+            my $labels = $stmt_label->[0];
+            for my $label (@{$stmt_label->[0]}) {
+                push(@seqs,$seqs{$label});
+            }
+            my $stmt = $stmt_label->[1];
+            unless (@seqs) {
+                push(@seqs,AST::Seq->new(stmts=>[]));
+            }
+            if ($stmt->{goto}) {
+                push(@{$seqs[-1]->stmts},AST::Goto->new(block=>$seqs{$stmt->{goto}}));
+            } else {
+                push(@{$seqs[-1]->stmts},$stmt);
+            }
+        }
+        AST::Block->new(stmts=>\@seqs,regs=>$REGS);
     }
 
+
+    method parse($source) {
+        # working around a bug in Regexp::Grammars by creating a new parser every time
     my $parser = qr/
     ^<top>$
     <rule: top>
-    (?: <[stmt]> ; )*
-    (?{ $MATCH = stmts_to_block($MATCH{stmt}) })
+    (?: <[stmt_with_labels]> ; )*
+    (?{ $MATCH = stmts_to_block($MATCH{stmt_with_labels}) })
     
+    <token: stmt_with_labels>
+    (<[label]> <.ws>? \: <.ws>?)* <stmt>
+    (?{ $MATCH = [$MATCH{label},$MATCH{stmt}] })
+
     <token: ws>
     (?> (?: \s+ | \#[^\n]* )*)
     
@@ -60,6 +83,7 @@ class Mildew::Frontend::M0ld {
     
     <token: goto>
     goto \s+ <label>
+    (?{$MATCH = {goto=>$MATCH{label}}})
     
     <token: argument>
     (?: <MATCH=named_argument> | <MATCH=value> )
@@ -107,8 +131,6 @@ class Mildew::Frontend::M0ld {
     \}
     (?{$MATCH = stmts_to_block($MATCH{stmt});})
     /x;
-
-    method parse($source) {
         unless ($source =~ $parser) {
             die "Can't parse m0ld code";
         }
