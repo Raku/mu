@@ -4,10 +4,10 @@ use utf8;
 class VAST::package_declarator__S_module {
     use AST::Helpers;
     method emit_m0ld {
-        my $name  = $self->{package_def}{def_module_name}[0]{longname}{name}{identifier}{TEXT};
+        my $name  = $self->{package_def}{longname}[0]{name}{identifier}{TEXT};
         my $id_type_sub = AST::unique_id;
     
-        my $init = $self->{package_def}{block}->emit_m0ld;
+        my $init = $self->{package_def}{blockoid}->emit_m0ld;
     
         my $mold = AST::Block->new(regs => $init->regs,stmts => [
             let(call(new=>FETCH(lookup("Package"))),sub {
