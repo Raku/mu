@@ -28,7 +28,7 @@ find({wanted => \&pods_wanted}, $input_dir);
 
 sub pods_wanted 
 {
-    push(@docs, $name) if $name=~/^.*\.pod\z/s;
+    push(@docs, $name) if $name =~ /^.*\.pod\z/s;
 }
 my $outputdirname = File::Spec->rel2abs($output_dir);
 

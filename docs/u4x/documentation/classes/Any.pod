@@ -30,13 +30,13 @@ you probably mean
 
 or, using the C<.=> meta-operator,
 
- $string.=subst(/foo/, 'bar');
+ $string .= subst(/foo/, 'bar');
 
 If you plan to use submatches in your C<$replacement>, remember
 to surround them with closure braces:
 
- $string.=subst(/ (\d+) '+' (\d+) /,   $0 + $1   );  # WRONG
- $string.=subst(/ (\d+) '+' (\d+) /, { $0 + $1 } );  # RIGHT
+ $string .= subst( / (\d+) '+' (\d+) /,   $0 + $1   );  # WRONG
+ $string .= subst( / (\d+) '+' (\d+) /, { $0 + $1 } );  # RIGHT
 
 =head3 length
 
