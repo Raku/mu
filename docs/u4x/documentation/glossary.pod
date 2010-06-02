@@ -127,6 +127,6 @@ generally accessible with the same name as a class.
     }
     
     # $x now holds a type object returned from the
-    # anonymous class defintion
+    # anonymous class definition
 
 # vim: ft=perl6 tw=70
