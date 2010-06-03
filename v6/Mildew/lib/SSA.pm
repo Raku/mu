@@ -44,7 +44,7 @@ sub transform_stmt {
     }
 
     if ($value->isa('AST::Call')) {
-        AST::Call->new(identifier=>$value->identifier,capture=>transform_stmt($callbacks,$value->capture));
+        AST::Call->new(identifier=>transform_stmt($callbacks,$value->identifier),capture=>transform_stmt($callbacks,$value->capture));
     } elsif ($value->isa('AST::Capture')) {
         AST::Capture->new(
             ($value->invocant ? (invocant => transform_stmt($callbacks,$value->invocant)) : ()),
@@ -204,6 +204,7 @@ sub doms {
                 );
                 $regs{$block}{$name} = $reg;
                 $stmt = AST::Assign->new(lvalue=>$reg,rvalue=>$stmt->rvalue);
+
             }
         }
     }
@@ -258,10 +259,17 @@ sub doms {
 }
 sub set_reg_orgins {
     my ($blocks) = @_;
+
     for my $block (@{$blocks}) {
         for my $stmt (@{$block->stmts}) {
             if ($stmt->isa('AST::Assign')) {
-                $stmt->lvalue->type_info(TypeInfo::FromAssignment->new(orgin=>$stmt));
+                    $stmt->lvalue->type_info(TypeInfo::FromAssignment->new(orgin=>$stmt));
+            }
+        }
+    }
+    for my $block (@{$blocks}) {
+        for my $stmt (@{$block->stmts}) {
+            if ($stmt->isa('AST::Assign')) {
                 if ($stmt->rvalue->isa('AST::Call')) {
                     my $capture = $stmt->rvalue->capture;
                     for my $reg ($capture->invocant,@{$capture->named},@{$capture->positional}) {
