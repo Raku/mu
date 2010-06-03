@@ -3,23 +3,22 @@
 
 
 
-my $interpreter;
-my $prelude = ?SMOP__S1P__LexicalPrelude;
+my $scope = ?SMOP__S1P__LexicalPrelude;
 my $void;
-my $out_scalar = $prelude."lookup"("$OUT");
+my $out_scalar = $scope."lookup"("$OUT");
 my $out = $out_scalar."FETCH"();
 
 $void = $out."print"("1..3\n");
 
-my $AdhocSignature_scalar = $prelude."lookup"("AdhocSignature");
+my $AdhocSignature_scalar = $scope."lookup"("AdhocSignature");
 my $AdhocSignature = $AdhocSignature_scalar."FETCH"();
 
-my $LexicalScope_scalar = $prelude."lookup"("LexicalScope");
+my $LexicalScope_scalar = $scope."lookup"("LexicalScope");
 my $LexicalScope = $LexicalScope_scalar."FETCH"();
 
 my $scope = $LexicalScope."new"();
 my $outer = $scope."outer"();
-my $void = $outer."STORE"($prelude);
+my $void = $outer."STORE"($scope);
 
 
 my $signature = $AdhocSignature."new"(:"ACCEPTS"(mold {
