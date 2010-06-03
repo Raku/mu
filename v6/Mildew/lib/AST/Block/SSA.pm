@@ -81,7 +81,7 @@ class AST::Block::SSA extends AST::Block {
         $i = 0;
         for my $block (@{$self->stmts}) {
             for my $stmt (@{$block->stmts}) {
-                $code .= "\n/*".$stmt->pretty."*/";
+                $code .= "\n/*".$stmt->pretty."*/\n";
                 $code .= "case $i:";
                 if ($stmt->isa('AST::Goto')) {
                     $code .= "frame->pc = " . $labels{$stmt->block->id} . ";" . "break;\n"
