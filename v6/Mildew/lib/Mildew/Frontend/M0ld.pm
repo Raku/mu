@@ -137,9 +137,9 @@ class Mildew::Frontend::M0ld {
     <rule: submold>
     (?{local $REGS = []})
     mold \{
-    (?: <[stmt]> ; )*
+    (?: <[stmt_with_labels]> ; )*
     \}
-    (?{$MATCH = stmts_to_block($MATCH{stmt});})
+    (?{$MATCH = stmts_to_block($MATCH{stmt_with_labels});})
     /x;
         unless ($source =~ $parser) {
             die "Can't parse m0ld code";

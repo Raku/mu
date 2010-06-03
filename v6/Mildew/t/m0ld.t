@@ -54,6 +54,16 @@ true:  $foo = 0;
 isa_ok($ast->stmts->[0]->stmts->[1],'AST::Branch','conditional branch');
 }
 
+{
+my $ast = $frontend->parse('
+my $subm0ld = mold {
+my $cond = 1;
+};
+');
+isa_ok($ast->stmts->[0]->stmts->[0]->rvalue,'AST::Block','submold');
+isa_ok($ast->stmts->[0]->stmts->[0]->rvalue->stmts->[0]->stmts->[0],'AST::Assign','assignment in submold');
+}
+
 done_testing;
 
 
