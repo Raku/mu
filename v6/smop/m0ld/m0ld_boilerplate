@@ -11,6 +11,7 @@
 #include <smop/s1p-oo.h>
 #include <smop/yeast.h>
 #include <smop/profile.h>
+#include <smop/dump.h>
 #include <stdio.h>
 
 void smop_p5_init(SMOP__Object* interpreter);
@@ -21,6 +22,7 @@ void smop_p5_destr(SMOP__Object* interpreter);
 
 int main(int argc, char** argv) {
   smop_s0native_init();
+  smop_dump_init();
   smop_nagc_init();
   smop_capture_init();
   smop_interpreter_init();
@@ -109,6 +111,7 @@ int main(int argc, char** argv) {
   smop_interpreter_destr();
   smop_capture_destr();
   smop_nagc_destr();
+  smop_dump_destr();
   smop_s0native_destr();
   smop_s1p_close_dlhandles();
 

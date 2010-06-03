@@ -52,6 +52,9 @@ struct SMOP__Object {
   SMOP__Object* (*WEAKREF)  (SMOP__Object* interpreter,           \
                              SMOP__ResponderInterface* self,      \
                              SMOP__Object* object);               \
+  SMOP__Object* (*DUMP)  (SMOP__Object* interpreter,           \
+                             SMOP__ResponderInterface* self,      \
+                             SMOP__Object* object);               \
   char* id;
 
 
@@ -146,5 +149,10 @@ SMOP__Object* SMOP_DISPATCH(SMOP__Object* interpreter,SMOP__Object* object,SMOP_
       ))
 #endif
 
+#define SMOP_DUMP(interpreter, object) \
+      (SMOP_RI(object)->DUMP( (SMOP__Object*)interpreter, \
+          SMOP_RI(object), \
+          (SMOP__Object*)object \
+      ))
 
 #endif

@@ -29,7 +29,7 @@ flags = '-O0 -g3 -Wall' # -DSMOP_PROFILE -DSMOP_MOLD_DEBUG  -DSMOP_LOWLEVEL_MEM_
 
 
 
-modules = ['s0native','nagc','util','capture','interpreter','mold','yeast','native','lost','s1p','p6opaque','s1p-oo','p5','mold-message','profile']
+modules = ['s0native','dump','nagc','util','capture','interpreter','mold','yeast','native','lost','s1p','p6opaque','s1p-oo','p5','mold-message','profile']
 
 LIBS = re.compile("\s-l(\S+)").findall(ldopts) + ['pthread','m','dl','rt']
 LIBPATH = re.compile("\s-L(\S+)").findall(ldopts)

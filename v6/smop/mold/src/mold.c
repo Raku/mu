@@ -7,6 +7,7 @@
 #include <smop/capture.h>
 #include <smop/nagc.h>
 #include <smop/mold.h>
+#include <smop/dump.h>
 #include <smop/mold-internals.h>
 
 SMOP__Object* SMOP__Mold;
@@ -437,6 +438,7 @@ static void smop_mold_frame_DESTROYALL(SMOP__Object* interpreter,
     if (frame->lexical) SMOP_RELEASE(interpreter,frame->lexical);
     frame->mold = NULL;
 }
+
 
 
 void smop_mold_init() {
