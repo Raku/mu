@@ -41,7 +41,7 @@ static SMOP__Object* MESSAGE(SMOP__Object* interpreter,
 }
 static void DESTROYALL(SMOP__Object* interpreter,SMOP__Object* value) {
      smop_nagc_rdlock((SMOP__NAGC__Object*)value);
-     int (*destr)(SMOP__Object* interpreter,
+     void (*destr)(SMOP__Object* interpreter,
                  SMOP__Object* frame);
      destr = ((SMOP__LOST__Frame*)value)->destr;
 
@@ -59,20 +59,20 @@ SMOP__Object* SMOP__LOST__Frame_create(SMOP__Object* interpreter,
                                        void (*destr)(SMOP__Object* interpreter,
                                                     SMOP__Object* frame)) {
   SMOP__LOST__Frame* frame = (SMOP__LOST__Frame*) smop_nagc_alloc(sizeof(SMOP__LOST__Frame));
-  frame->RI = RI;
+  frame->RI = (SMOP__ResponderInterface*) RI;
   frame->back = back;
   frame->user = user;
   frame->pc = 0;
   frame->lastr = SMOP__NATIVE__bool_false;
   frame->step = step;
   frame->destr = destr;
-  return frame;
+  return (SMOP__Object*) frame;
 }
 
 void smop_lost_init() {
   SMOP__ID__eval = SMOP__NATIVE__idconst_create("eval");
   SMOP__ID__goto = SMOP__NATIVE__idconst_create("goto");
-  RI = SMOP__NAGC__RI__create(MESSAGE,smop_nagc_reference,smop_nagc_release,smop_nagc_weakref,DESTROYALL,"lost frame");
+  RI = (SMOP__Object*) SMOP__NAGC__RI__create(MESSAGE,smop_nagc_reference,smop_nagc_release,smop_nagc_weakref,DESTROYALL,"lost frame");
 }
 
 void smop_lost_destr() {

@@ -26,6 +26,13 @@ void smop_s1p_lexical_prelude_insert(SMOP__Object* interpreter,char* name,SMOP__
 
 void smop_s1p_init(SMOP__Object* interpreter);
 void smop_s1p_destr(SMOP__Object* interpreter);
+
+void smop_s1p_lexical_init(SMOP__Object* interpreter);
+void smop_s1p_lexical_destr(SMOP__Object* interpreter);
+
+void smop_s1p_lexical_bvalue_init(SMOP__Object* interpreter);
+void smop_s1p_lexical_bvalue_destr(SMOP__Object* interpreter);
+
 void smop_s1p_lexicalscope_init(SMOP__Object* interpreter);
 void smop_s1p_lexicalscope_destr(SMOP__Object* interpreter);
 void smop_s1p_lexical_prelude_init(SMOP__Object* interpreter);

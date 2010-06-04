@@ -73,6 +73,8 @@ extern void smop_nagc_free(SMOP__NAGC__Object* obj);
 
 extern void smop_nagc_init();
 extern void smop_nagc_destr();
+extern void smop_nagc_ri_init();
+extern void smop_nagc_ri_destr();
 
 #endif
 

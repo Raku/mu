@@ -12,6 +12,7 @@
 #include <smop/yeast.h>
 #include <smop/profile.h>
 #include <smop/dump.h>
+#include <smop/nagc.h>
 #include <stdio.h>
 
 void smop_p5_init(SMOP__Object* interpreter);
