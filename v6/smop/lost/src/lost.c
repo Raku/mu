@@ -72,7 +72,7 @@ SMOP__Object* SMOP__LOST__Frame_create(SMOP__Object* interpreter,
 void smop_lost_init() {
   SMOP__ID__eval = SMOP__NATIVE__idconst_create("eval");
   SMOP__ID__goto = SMOP__NATIVE__idconst_create("goto");
-  RI = (SMOP__Object*) SMOP__NAGC__RI__create(MESSAGE,smop_nagc_reference,smop_nagc_release,smop_nagc_weakref,DESTROYALL,"lost frame");
+  RI = (SMOP__Object*)SMOP__NAGC__RI__create(MESSAGE,smop_nagc_reference,smop_nagc_release,smop_nagc_weakref,smop_nagc_dump,DESTROYALL,"lost frame");
 }
 
 void smop_lost_destr() {

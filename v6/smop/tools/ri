@@ -361,6 +361,7 @@ void $properties{prefix}_init(SMOP__Object* interpreter) {
     smop_nagc_reference,
     $release,
     smop_nagc_weakref,
+    smop_nagc_dump,
     DESTROYALL,
     "$id");
 ];

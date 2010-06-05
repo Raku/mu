@@ -32,6 +32,8 @@ SMOP__Object* smop_noop_reference(SMOP__Object* interpreter,
 SMOP__Object* smop_noop_release(SMOP__Object* interpreter,
                                   SMOP__ResponderInterface* responder,
                                   SMOP__Object* obj); 
+
+
 SMOP__Object* SMOP__NATIVE__idconst_createn(const char* value, int size);
 SMOP__Object* SMOP__NATIVE__idconst_create(const char* value);
 

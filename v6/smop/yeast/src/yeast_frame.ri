@@ -8,9 +8,24 @@
 static SMOP__Object* DUMP(SMOP__Object* interpreter,
                                 SMOP__ResponderInterface* responder,
                                 SMOP__Object* obj) {
+
+  SMOP__Yeast__Frame* frame = (SMOP__Yeast__Frame*) obj;
+  /* TODO ret,reg */
   return smop_dump_create((SMOP__Object*[]) {
+      smop_dump_attr_create("RI"),
+      smop_dump_obj_create(frame->RI),
       smop_dump_attr_create("ref_cnt"),
-      smop_dump_int_create(((SMOP__NAGC__Object*)obj)->ref_cnt),
+      smop_dump_int_create(frame->ref_cnt),
+      smop_dump_attr_create("back"),
+      smop_dump_obj_create(frame->back),
+      smop_dump_attr_create("lexical"),
+      smop_dump_obj_create(frame->lexical),
+      smop_dump_attr_create("catch"),
+      smop_dump_obj_create(frame->catch),
+      smop_dump_attr_create("control"),
+      smop_dump_obj_create(frame->control),
+      smop_dump_attr_create("yeast"),
+      smop_dump_obj_create(frame->yeast),
       NULL
   });
 }

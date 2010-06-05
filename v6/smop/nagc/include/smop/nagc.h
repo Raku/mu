@@ -27,6 +27,9 @@ SMOP__Object* SMOP__NAGC__RI__create(
   SMOP__Object* (*WEAKREF)  (SMOP__Object* interpreter,
                              SMOP__ResponderInterface* self,
                              SMOP__Object* object),
+  SMOP__Object* (*DUMP)  (SMOP__Object* interpreter,
+                             SMOP__ResponderInterface* self,
+                             SMOP__Object* object),
   void (*DESTROYALL)  (SMOP__Object* interpreter,SMOP__Object* object),
   char *id
 );
@@ -63,6 +66,9 @@ extern SMOP__Object* smop_nagc_release_nofree(SMOP__Object* interpreter,
                                        SMOP__ResponderInterface* responder,
                                        SMOP__Object* obj);
 extern SMOP__Object* smop_nagc_weakref(SMOP__Object* interpreter,
+                                       SMOP__ResponderInterface* responder,
+                                       SMOP__Object* obj); 
+extern SMOP__Object* smop_nagc_dump(SMOP__Object* interpreter,
                                        SMOP__ResponderInterface* responder,
                                        SMOP__Object* obj); 
 

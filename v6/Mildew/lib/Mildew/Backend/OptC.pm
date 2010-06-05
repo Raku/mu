@@ -14,8 +14,9 @@ class Mildew::Backend::OptC with Mildew::Backend::C {
               $call_init_funcs 
             . "SMOP__Object* yeast = " . $expr . ";\n"
             . "SMOP__Object* frame = SMOP__Yeast__Frame_create(interpreter,yeast);\n"
-            .   "smop_dump_print(interpreter,SMOP_DUMP(interpreter,frame));"
-            . "yeast_reg_set(interpreter,frame,0,SMOP_REFERENCE(interpreter,interpreter));"
+            . "printf(\"here\\n\");\n"
+            . "smop_dump_print(interpreter,frame,\"out\");\n"
+            . "yeast_reg_set(interpreter,frame,0,SMOP_REFERENCE(interpreter,interpreter));\n"
             . "yeast_reg_set(interpreter,frame,1,SMOP_REFERENCE(interpreter,SMOP__S1P__LexicalPrelude));\n";
         $boilerplate =~ s/%%BODY%%/$body/;
         $boilerplate =~ s/%%FUNCS%%/$funcs/;

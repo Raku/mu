@@ -39,6 +39,27 @@ static void DESTROYALL(SMOP__Object* interpreter,
   }
   free(yeast->constants);
 }
+
+static SMOP__Object* DUMP(SMOP__Object* interpreter,
+                                SMOP__ResponderInterface* responder,
+                                SMOP__Object* obj) {
+
+  SMOP__Yeast* yeast = (SMOP__Yeast*) obj;
+
+  /* TODO constants */
+  return smop_dump_create((SMOP__Object*[]) {
+
+      smop_dump_attr_create("RI"),
+      smop_dump_obj_create(yeast->RI),
+      smop_dump_attr_create("ref_cnt"),
+      smop_dump_int_create(yeast->ref_cnt),
+
+      smop_dump_attr_create("registers"),
+      smop_dump_int_create(yeast->registers),
+      NULL
+  });
+}
+
 static SMOP__Object* MESSAGE(SMOP__Object* interpreter,
                             SMOP__ResponderInterface* self,
                             SMOP__Object* identifier,
@@ -60,6 +81,7 @@ void smop_yeast_init() {
   RI->RI = (SMOP__ResponderInterface*) SMOP__metaRI;
   ((SMOP__NAGC__ResponderInterface*)RI)->MESSAGE = MESSAGE;
   ((SMOP__NAGC__ResponderInterface*)RI)->DESTROYALL = DESTROYALL;
+  ((SMOP__NAGC__ResponderInterface*)RI)->DUMP = DUMP;
   ((SMOP__NAGC__ResponderInterface*)RI)->REFERENCE = smop_nagc_reference;
   ((SMOP__NAGC__ResponderInterface*)RI)->RELEASE = smop_nagc_release;
   ((SMOP__NAGC__ResponderInterface*)RI)->id = "yeast";
