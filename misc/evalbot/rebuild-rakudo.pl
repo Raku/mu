@@ -2,7 +2,7 @@ use strict;
 use warnings;
 use File::Path qw(rmtree);
 use 5.010;
-use autodie;
+#use autodie;
 use Data::Dumper;
 
 my $home = glob('~') . '/';
@@ -64,7 +64,7 @@ system("git rev-parse HEAD | cut -b 1,2,3,4,5,6 > $revision_file") and warn $?;
 
 =for comment
 
-eval {
+    eval {
 	chdir glob('~/blizkost/');
     system('make', 'clean');        # may fail, nor warning here
 	system('git', 'pull')           and warn $?;

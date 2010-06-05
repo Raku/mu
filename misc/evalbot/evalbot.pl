@@ -58,7 +58,7 @@ package Evalbot;
             },
             perlesque => {
                 chdir       => '../../../perlesque/trunk/Sprixel/bin/Release',
-                cmd_line    => 'cat %i | mono Sprixel.exe %program >> %out 2>&1',
+                cmd_line    => 'cat %i | mono perlesque.exe -O=-all,cfold %program >> %out 2>&1',
             },
             perlesquel => {
                 chdir       => '../../../perlesque/trunk/Sprixel/bin/Release',
