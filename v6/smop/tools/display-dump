@@ -1,0 +1,71 @@
+#!/usr/bin/perl
+use v5.10;
+use strict;
+use warnings;
+use MooseX::Declare;
+use String::Escape qw(unbackslash);
+class DUMP::Base {
+}
+class DUMP::Str is DUMP::Base {
+    has value=>(is=>'ro');
+}
+class DUMP::Int is DUMP::Base {
+    has value=>(is=>'ro');
+}
+class DUMP::SMOP__Object is DUMP::Base {
+    has value=>(is=>'ro');
+}
+
+# returns the dump in $filename as a hashref of pointer (in hex) to arrayref of data 
+
+sub perlified {
+    my ($main,$dump) = @_;
+    my %perlified;
+    while (my ($ptr,$content) = each %{$dump}) {
+        $perlified{$ptr} = {};
+    }
+    while (my ($ptr,$content) = each %{$dump}) {
+        my @obj = @{$content};
+        while (@obj) {
+            my $key = shift @obj;
+            my $value = shift @obj;
+            my $val;
+            if ($value->isa('DUMP::SMOP__Object')) {
+                if ($value->value) {
+                    $val = $perlified{$value->value};
+                }
+            } else {
+                $val = $value->value;
+            }
+            $perlified{$ptr}{$key->value} = $val;
+        }
+    }
+    $perlified{$main};
+}
+
+sub read_dump {
+    my ($filename) = @_;
+    my %objs;
+    my $obj;
+    my $main;
+    open(my $fh,$filename);
+    while (<$fh>) {
+        if (/^dump of (.*)$/) {
+            $main = $1;
+        } elsif (/^dumping (.*?) \{(.*)$/) {
+            $obj = [];
+            $objs{$1} = $obj;
+        } elsif (/^\s*(\d+)$/) {
+            push(@$obj,DUMP::Int->new(value=>$1+0));
+        } elsif (/^\s*(0x\w+)$/) {
+            push(@$obj,DUMP::SMOP__Object->new(value=>$1));
+        } elsif (/^\s*(\(nil\))$/) {
+            push(@$obj,DUMP::SMOP__Object->new(value=>undef));
+        } elsif (/^\s*"(.*)"$/) {
+            push(@$obj,DUMP::Str->new(value=>unbackslash($1)));
+        }
+    }
+    ($main,\%objs);
+}
+use YAML::XS;
+print Dump(perlified(read_dump($ARGV[0])));

@@ -130,10 +130,11 @@ void smop_dump_print(SMOP__Object* interpreter,SMOP__Object* obj,char* file) {
 
 
   printf("dumping\n");
-  FILE* f = fopen("dump","w");
+  FILE* f = fopen(file,"w");
   if (!f) {
     perror("can't dump the object:");
   }
+  fprintf(f,"dump of %p\n",obj);
   list* visited = NULL;
   list* to_visit = list_add(NULL,obj);
 
@@ -152,7 +153,7 @@ void smop_dump_print(SMOP__Object* interpreter,SMOP__Object* obj,char* file) {
     current->next = visited;
     visited = current;
 
-    fprintf(f,"dumping %p { \n",dump);
+    fprintf(f,"dumping %p {\n",current->value);
     int i;
     for (i=0; i< dump->size;i++) {
       fprintf(f,"    ");
@@ -167,7 +168,8 @@ void smop_dump_print(SMOP__Object* interpreter,SMOP__Object* obj,char* file) {
       } else if (dump->data[i]->RI == idconst_ri) {
         int len;
         char* str = SMOP__NATIVE__idconst_fetch_with_null(dump->data[i],&len);
-        fprintf(f,"%s\n",str);
+        /* TODO escape special chars */
+        fprintf(f,"\"%s\"\n",str);
         free(str);
       } else {
         fprintf(f,"unknown %s\n",dump->data[i]->RI->id);
