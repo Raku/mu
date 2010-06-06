@@ -30,7 +30,9 @@ sub perlified {
             my $key = shift @obj;
             my $value = shift @obj;
             my $val;
-            if ($value->isa('DUMP::SMOP__Object')) {
+            if (ref $value eq 'ARRAY') {
+               $val = [map {$_->value ? $perlified{$_->value} : undef} @{$value}];
+            } elsif ($value->isa('DUMP::SMOP__Object')) {
                 if ($value->value) {
                     $val = $perlified{$value->value};
                 }
@@ -49,23 +51,30 @@ sub read_dump {
     my $obj;
     my $main;
     open(my $fh,$filename);
+    my $target; 
     while (<$fh>) {
         if (/^dump of (.*)$/) {
             $main = $1;
         } elsif (/^dumping (.*?) \{(.*)$/) {
-            $obj = [];
+            $target = $obj = [];
             $objs{$1} = $obj;
         } elsif (/^\s*(\d+)$/) {
-            push(@$obj,DUMP::Int->new(value=>$1+0));
+            push(@$target,DUMP::Int->new(value=>$1+0));
         } elsif (/^\s*(0x\w+)$/) {
-            push(@$obj,DUMP::SMOP__Object->new(value=>$1));
+            push(@$target,DUMP::SMOP__Object->new(value=>$1));
         } elsif (/^\s*(\(nil\))$/) {
-            push(@$obj,DUMP::SMOP__Object->new(value=>undef));
+            push(@$target,DUMP::SMOP__Object->new(value=>undef));
         } elsif (/^\s*"(.*)"$/) {
-            push(@$obj,DUMP::Str->new(value=>unbackslash($1)));
+            push(@$target,DUMP::Str->new(value=>unbackslash($1)));
+        } elsif (/^\s*\[$/) {
+            $target = [];
+            push(@$obj,$target);
+        } elsif (/^\s*\]$/) {
+            $target = $obj;
         }
     }
     ($main,\%objs);
 }
 use YAML::XS;
+#print Dump(read_dump($ARGV[0]));
 print Dump(perlified(read_dump($ARGV[0])));

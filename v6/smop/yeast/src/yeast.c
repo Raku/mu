@@ -46,7 +46,6 @@ static SMOP__Object* DUMP(SMOP__Object* interpreter,
 
   SMOP__Yeast* yeast = (SMOP__Yeast*) obj;
 
-  /* TODO constants */
   return smop_dump_create((SMOP__Object*[]) {
 
       smop_dump_attr_create("RI"),
@@ -56,6 +55,8 @@ static SMOP__Object* DUMP(SMOP__Object* interpreter,
 
       smop_dump_attr_create("registers"),
       smop_dump_int_create(yeast->registers),
+      smop_dump_attr_create("constants"),
+      smop_dump_obj_array_create(yeast->constants,yeast->constants_len),
       NULL
   });
 }

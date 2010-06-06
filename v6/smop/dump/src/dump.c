@@ -7,6 +7,7 @@
 SMOP__ResponderInterface* SMOP__DUMP_RI;
 SMOP__ResponderInterface* SMOP__DUMP_int_RI;
 SMOP__ResponderInterface* SMOP__DUMP_obj_RI;
+SMOP__ResponderInterface* SMOP__DUMP_obj_array_RI;
 
 
 
@@ -35,6 +36,15 @@ void smop_dump_init() {
   SMOP__DUMP_obj_RI->WEAKREF = smop_noop_weakref;
   SMOP__DUMP_obj_RI->id = "DUMP obj";
   SMOP__DUMP_obj_RI->RI = (SMOP__ResponderInterface *)SMOP__metaRI;
+
+  SMOP__DUMP_obj_array_RI = calloc(1,sizeof(SMOP__ResponderInterface));
+  SMOP__DUMP_obj_array_RI->MESSAGE = smop_placeholder_message;
+  SMOP__DUMP_obj_array_RI->REFERENCE = smop_noop_reference;
+  SMOP__DUMP_obj_array_RI->RELEASE = smop_noop_release;
+  SMOP__DUMP_obj_array_RI->WEAKREF = smop_noop_weakref;
+  SMOP__DUMP_obj_array_RI->id = "DUMP obj array";
+  SMOP__DUMP_obj_array_RI->RI = (SMOP__ResponderInterface *)SMOP__metaRI;
+
   
   /* when SMOP__metaRI is created the dump modules wasn't yet loaded */
   SMOP__metaRI->RI->DUMP = smop_ri_dump;
@@ -65,14 +75,27 @@ SMOP__Object* smop_dump_create(SMOP__Object** data) {
   }
   smop_dump* dump = (smop_dump*) malloc(sizeof(smop_dump));
   dump->size = size;
-  dump->data = (SMOP__Object**) malloc(sizeof(SMOP__Object*) * (size+1));
+  dump->data = (SMOP__Object**) malloc(sizeof(SMOP__Object*) * (size));
   dump->RI = SMOP__DUMP_RI;
   int i;
-  for (i=0;i<size+1;i++) {
+  for (i=0;i<size;i++) {
     dump->data[i] = data[i];
   }
   return (SMOP__Object*) dump;
 }
+
+SMOP__Object* smop_dump_obj_array_create(SMOP__Object** data,int size) {
+  smop_dump_obj_array* array = (smop_dump_obj_array*) malloc(sizeof(smop_dump_obj_array));
+  array->size = size;
+  array->data = (SMOP__Object**) malloc(sizeof(SMOP__Object*) * (size));
+  array->RI = SMOP__DUMP_obj_array_RI;
+  int i;
+  for (i=0;i<size;i++) {
+    array->data[i] = data[i];
+  }
+  return (SMOP__Object*) array;
+}
+
 
 SMOP__Object* smop_dump_int_create(int value) {
   smop_dump_int* obj = malloc(sizeof(smop_dump_int));
@@ -171,6 +194,17 @@ void smop_dump_print(SMOP__Object* interpreter,SMOP__Object* obj,char* file) {
         /* TODO escape special chars */
         fprintf(f,"\"%s\"\n",str);
         free(str);
+      } else if (dump->data[i]->RI == SMOP__DUMP_obj_array_RI) { 
+        smop_dump_obj_array* array = (smop_dump_obj_array*) dump->data[i];
+        fprintf(f,"[\n");
+        int i;
+        for (i=0; i< array->size;i++) {
+          fprintf(f,"%p\n",(void*)array->data[i]);
+          if (array->data[i] && !in_list(visited,array->data[i]) && !in_list(to_visit,array->data[i])) {
+            to_visit = list_add(to_visit,array->data[i]);
+          }
+        }
+        fprintf(f,"]\n");
       } else {
         fprintf(f,"unknown %s\n",dump->data[i]->RI->id);
       }

@@ -1,5 +1,5 @@
 %RI.id yeast frame
-%include <smop/yeast.h>
+%include <smop/yeast.h>,<smop/dump.h>
 %prefix smop_yeast_frame
 %struct SMOP__Yeast__Frame
 %lowlevel
@@ -26,6 +26,8 @@ static SMOP__Object* DUMP(SMOP__Object* interpreter,
       smop_dump_obj_create(frame->control),
       smop_dump_attr_create("yeast"),
       smop_dump_obj_create(frame->yeast),
+      smop_dump_attr_create("reg"),
+      smop_dump_obj_array_create(frame->reg,((SMOP__Yeast*)frame->yeast)->registers),
       NULL
   });
 }
