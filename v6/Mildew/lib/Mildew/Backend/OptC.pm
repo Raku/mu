@@ -4,16 +4,20 @@ use SSA;
 use Types;
 class Mildew::Backend::OptC with Mildew::Backend::C {
     use File::Temp qw(tempfile tmpnam);
+    use String::Escape qw(backslash quote);
     use Getopt::Long qw(GetOptionsFromArray);
     has options=>(is=>'ro');
     has trace=>(is=>'rw');
+    has dump=>(is=>'rw');
     method BUILD {
-        my $trace;
+        my ($trace,$dump);
         GetOptionsFromArray(
             ($self->options->{BACKEND} // []),
             'trace' => \$trace,
+            'dump=s' => \$dump,
         );
         $self->trace($trace);
+        $self->dump($dump);
     }
     method c_source($ast) {
         my $ssa_ast = SSA::to_ssa($ast->simplified,{
@@ -25,7 +29,6 @@ class Mildew::Backend::OptC with Mildew::Backend::C {
               $call_init_funcs 
             . "SMOP__Object* yeast = " . $expr . ";\n"
             . "SMOP__Object* frame = SMOP__Yeast__Frame_create(interpreter,yeast);\n"
-            . ($self->trace ? "smop_dump_print(interpreter,frame,\"out\");\n" : '')
             . "yeast_reg_set(interpreter,frame,0,SMOP_REFERENCE(interpreter,interpreter));\n"
             . "yeast_reg_set(interpreter,frame,1,SMOP_REFERENCE(interpreter,SMOP__S1P__LexicalPrelude));\n";
         $boilerplate =~ s/%%BODY%%/$body/;
@@ -107,7 +110,16 @@ class Mildew::Backend::OptC with Mildew::Backend::C {
         $i = 0;
         for my $subblock (@{$block->stmts}) {
             for my $stmt (@{$subblock->stmts}) {
-                $code .= "\n/*".$stmt->pretty."*/\n";
+                #$code .= "\n/*".$stmt->pretty."*/\n";
+                if ($self->trace) {
+                    $code .= "\nprintf(".quote(backslash($stmt->pretty . "\n")).");\n";
+                }
+                if ($self->dump) {
+                    my $file = quote(backslash(sprintf($self->dump,$i)));
+                    $code .= "\nprintf(\"dumping to %s\\n\",".$file.");\n";
+                    $code .= "\nsmop_dump_print(interpreter,(SMOP__Object*)frame,$file);\n"
+                }
+
                 $code .= "case $i:";
                 if ($stmt->isa('AST::Goto')) {
                     $code .= "frame->pc = " . $labels{$stmt->block->id} . ";" . "break;\n"

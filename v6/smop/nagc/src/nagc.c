@@ -128,7 +128,6 @@ void smop_nagc_free(SMOP__NAGC__Object* obj) {
 SMOP__Object* smop_nagc_dump(SMOP__Object* interpreter,
                                 SMOP__ResponderInterface* responder,
                                 SMOP__Object* obj) {
-  printf("smop_nagc_dump\n");
   return smop_dump_create((SMOP__Object*[]) {
       smop_dump_attr_create("RI"),
       smop_dump_obj_create(obj->RI),

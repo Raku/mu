@@ -152,7 +152,6 @@ static void list_destroy(list* l) {
 void smop_dump_print(SMOP__Object* interpreter,SMOP__Object* obj,char* file) {
 
 
-  printf("dumping\n");
   FILE* f = fopen(file,"w");
   if (!f) {
     perror("can't dump the object:");
@@ -165,9 +164,6 @@ void smop_dump_print(SMOP__Object* interpreter,SMOP__Object* obj,char* file) {
   while (to_visit) {
     list* current = to_visit;
     to_visit = to_visit->next;
-    printf("# %p\n",current->value);
-    printf("# %p\n",current->value->RI);
-    printf("# %s\n",current->value->RI->id);
     if (!current->value->RI->DUMP) {
       printf("no DUMP for %s\n",current->value->RI->id);
       exit(0);
@@ -210,7 +206,6 @@ void smop_dump_print(SMOP__Object* interpreter,SMOP__Object* obj,char* file) {
       }
     }
     fprintf(f,"}\n");
-    printf("#next\n");
   }
   fclose(f);
   printf("dumped\n");
