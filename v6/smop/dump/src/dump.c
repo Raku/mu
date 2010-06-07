@@ -10,6 +10,19 @@ SMOP__ResponderInterface* SMOP__DUMP_obj_RI;
 SMOP__ResponderInterface* SMOP__DUMP_obj_array_RI;
 
 
+SMOP__Object* smop_bool_dump(SMOP__Object* interpreter,
+                                SMOP__ResponderInterface* responder,
+                                SMOP__Object* obj) {
+  return smop_dump_create((SMOP__Object*[]) {
+      smop_dump_attr_create("RI"),
+      smop_dump_obj_create((SMOP__Object*)obj->RI),
+      smop_dump_attr_create("value"),
+      smop_dump_int_create(obj == SMOP__NATIVE__bool_true),
+      NULL
+  });
+    
+}
+
 
 void smop_dump_init() {
   SMOP__DUMP_RI = calloc(1,sizeof(SMOP__ResponderInterface));
@@ -48,6 +61,8 @@ void smop_dump_init() {
   
   /* when SMOP__metaRI is created the dump modules wasn't yet loaded */
   SMOP__metaRI->RI->DUMP = smop_ri_dump;
+
+  SMOP__NATIVE__bool_true->RI->DUMP = smop_bool_dump;
 }
 
 SMOP__Object* smop_ri_dump(SMOP__Object* interpreter,

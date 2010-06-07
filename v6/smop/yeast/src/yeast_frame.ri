@@ -12,10 +12,7 @@ static SMOP__Object* DUMP(SMOP__Object* interpreter,
   SMOP__Yeast__Frame* frame = (SMOP__Yeast__Frame*) obj;
   /* TODO ret,reg */
   return smop_dump_create((SMOP__Object*[]) {
-      smop_dump_attr_create("RI"),
-      smop_dump_obj_create(frame->RI),
-      smop_dump_attr_create("ref_cnt"),
-      smop_dump_int_create(frame->ref_cnt),
+      SMOP_DUMP_NAGC,
       smop_dump_attr_create("back"),
       smop_dump_obj_create(frame->back),
       smop_dump_attr_create("lexical"),

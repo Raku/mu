@@ -4,6 +4,7 @@
 #include <smop/base.h>
 #include <smop/capture.h>
 #include <smop/nagc.h>
+#include <smop/dump.h>
 #include <smop/s0native.h>
 #include <smop/util.h>
 
@@ -129,15 +130,27 @@ SMOP__Object* SMOP_interpreter_create(SMOP__Object* interpreter) {
   return (SMOP__Object*) ret;
 }
 
+static SMOP__Object* DUMP(SMOP__Object* interpreter,
+                                SMOP__ResponderInterface* responder,
+                                SMOP__Object* obj) {
+  return smop_dump_create((SMOP__Object*[]) {
+      SMOP_DUMP_NAGC,
+      smop_dump_attr_create("continuation"),
+      smop_dump_obj_create(((interpreter_struct*)obj)->continuation),
+      NULL
+  });
+}
+
 void smop_interpreter_init() {
 
-  RI = malloc(sizeof(SMOP__NAGC__ResponderInterface));
-  RI->MESSAGE = interpreter_message;
-  RI->REFERENCE = smop_nagc_reference;
-  RI->RELEASE = smop_nagc_release;
-  RI->WEAKREF = smop_nagc_weakref;
-  RI->id = "Interpreter";
-  RI->DESTROYALL = DESTROYALL;
+  RI =  SMOP__NAGC__RI__create(
+      interpreter_message,
+      smop_nagc_reference,
+      smop_nagc_release,
+      smop_nagc_weakref,
+      DUMP,
+      DESTROYALL,
+      "Interpreter");
 
   SMOP__ID__new = SMOP__NATIVE__idconst_createn("new",3);
   SMOP__ID__goto = SMOP__NATIVE__idconst_createn("goto",4);
@@ -147,6 +160,7 @@ void smop_interpreter_init() {
   SMOP__ID__FETCH = SMOP__NATIVE__idconst_create("FETCH");
 
 }
+
 
 void smop_interpreter_destr() {
   free(RI);
