@@ -27,6 +27,8 @@ role Mildew::Backend::C {
         my @MILDEW_LDOPTS = ( '-L../smop/build/lib',
                           map { s/^.+?\/lib\/lib|.so$//g; "-l".$_ } glob("../smop/build/lib/*.so") );
 
+        say $c_file;
+
         # compile the c source to the executable
         system("gcc","-g","-xc","-L../smop/build/lib",@SMOP_INCLUDE,@MILDEW_LDOPTS,$c_file,"-o",$output);
     }
