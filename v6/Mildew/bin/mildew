@@ -1,7 +1,7 @@
 #!/usr/bin/perl
 use Bread::Board;
 use File::Slurp qw(slurp);
-use Getopt::Long;
+use Getopt::Long qw(GetOptionsFromArray);
 use Encode;
 use lib 'lib';
 use utf8;
@@ -29,7 +29,26 @@ sub MAIN {
     
     # get command line options
     my ($C,$B,$F,$help,$e,$output);
-    Getopt::Long::Parser->new( config => [qw( bundling no_ignore_case pass_through require_order)], )->getoptions(
+    my @args;
+    my %args;
+    my $subsystem;
+    my $level;
+    for (@ARGV) {
+        if (/\+\+ (\+*) (\w+)/x) {
+            $level = $1;
+            $subsystem = $2;
+            $args{$subsystem} = [];
+        } elsif ($subsystem && /\+\+ \Q$level\E \/ \Q$subsystem\E/x) {
+            $level = $subsystem = undef;
+        } elsif ($subsystem) {
+            push(@{$args{$subsystem}},$_);
+        } else {
+            push(@args,$_);
+        }
+    }
+    Getopt::Long::Configure(qw( bundling no_ignore_case pass_through require_order));
+    GetOptionsFromArray(
+        \@args,
         "C=s" => \$C,
         "B=s" => \$B,
         "F=s" => \$F,
@@ -43,8 +62,8 @@ sub MAIN {
     my $source;
     if ($e) {
         $source = Encode::decode_utf8($e);
-    } elsif ($ARGV[0]) {
-        $source = Encode::decode_utf8(slurp($ARGV[0]));
+    } elsif ($args[0]) {
+        $source = Encode::decode_utf8(slurp($args[0]));
     } else {
         $source = join('', <STDIN>);
     }
@@ -100,7 +119,7 @@ sub MAIN {
                 return Mildew::Backend::DumpAST->new(format=>$backend);
             } elsif ($backend) {
                 eval("require $backend");
-                return $backend->new();
+                return $backend->new(options=>\%args);
             } elsif ($C) {
                 die "Unknown backend $C passed to -C.";
             } elsif ($B) {
