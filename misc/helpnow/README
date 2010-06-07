@@ -12,6 +12,7 @@ Perl 6 that's achievable for a newcomer.
     moritz
     diakopter
     colomon
+    masak
 
     YOUR NAME HERE
 
@@ -35,22 +36,5 @@ Perl 6 that's achievable for a newcomer.
     Others:
         come up with a (generated) index file for http://u4x.perl6.org/,
         awesomeify 
-
-=head1 SCHEDULE
-
-We don't have to keep the schedule to the day (but it would be nice). We
-plan one task per week.
-
-=over
-
-=item  2010-05-03
-    
-moritz: a website for proto
-
-=item  2010-05-10
-
-moritz: fix up S05-grammar/parse_and_parsefile.t
-
-=back
 
 # vim: spell ft=pod
