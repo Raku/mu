@@ -5,6 +5,17 @@
 <link rel="stylesheet" href="http://dev.perl.org/css/perl.css" type="text/css" />
 <meta http-equiv="content-type" content="text/html; charset=utf-8" />
 <link rev="made" href="mailto:" />
+<script language="javascript" src="http://ajax.googleapis.com/ajax/libs/jquery/1.4.2/jquery.min.js"></script>
+<script language="javascript">
+<!--
+$(document).ready(function() {
+    $('#intro-text').toggle();
+    $('#read-more').click(function() {
+        $('#intro-text').toggle();
+    });
+});
+// --></script>
+
 </head>
 
 <body style="margin-left: 0.3in">
@@ -12,7 +23,7 @@
 <table border="0" cellspacing="0" cellpadding="0" width="100%">
 <tr>
 <td align="right">
-<form method="get" action="http://www.google.com/search" style="position: absolu te; top: 5px; right: 5px; text-align: right; "><div>
+<form method="get" action="http://www.google.com/search" style="position: absolute; top: 5px; right: 5px; text-align: right; "><div>
 <input type="hidden" name="ie" value="UTF-8" />
 <input type="hidden" name="oe" value="UTF-8" />
 <input type="hidden" name="domains" value="perlcabal.org" />
@@ -27,8 +38,8 @@
 
 <h2><a name="Feather">Official Perl 6 Documentation</a></h2>
 
-<p>The Synopsis documents are to be taken as the formal 
-specification for Perl 6 implementations, while still 
+<p><b>The Synopsis documents are to be taken as the formal 
+specification for Perl 6 implementations</b>, while still 
 being reference documentation for Perl 6, like 
 <i>Programming Perl</i> is for Perl 5. Note that while 
 these documents are considered ``formal
@@ -36,8 +47,10 @@ specifications'', they are still being subjected to the
 rigors of cross-examination through implementation.
 In other words, they may change slightly or radically. 
 But the expectation is that they are ``very close'' to 
-the final shape of Perl 6. </p>
+the final shape of Perl 6.
+<a href="#" id="read-more">[Read more...]</a></p>
 
+<div id="intro-text">
 <p>However, this HTML version of Synopses is slightly
 different in that it contains code snippets from
 the Pugs test suite. In other words, We have divided the .t files in the
@@ -67,11 +80,12 @@ Exegeses were only written for some of the early sections; the later sections
 have no corresponding apocalypse/exegesis.  </p>
 
 <p>Most changes to these specifications have been discussed on the 
-<a href="http://dev.perl.org/perl6/lists/">perl6-language mailing list</a> or the #perl6 
-FreeNode channel on 
-IRC.  Additionally, Larry Wall has created an implementation of the parser 
+<a href="http://dev.perl.org/perl6/lists/">perl6-language mailing list</a> or the
+<code>#perl6</code> FreeNode channel on IRC.
+Additionally, Larry Wall has created an implementation of the parser 
 for Perl 6 (but it doesn't do any of the backend stuff), and that is usually
 regarded as authoritative.  </p>
+</div>
 
 <p><em>While the Apocalypses and Exegeses are linked here for reference, note
 that they are historical documents, whereas the Synopses are kept more 

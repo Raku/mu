@@ -257,3 +257,22 @@ P.fancyp:first-letter {
   padding: 10px 0 10px 0;
   margin-top: 10px;
 }
+
+.smartlink {
+  margin: 0 0 0 0;
+  padding: 0 0 0 0;
+  background-color: #def;
+}
+
+.snip {
+  font-family: "Courier New", Courier, Monospace;
+  font-size: 12px;
+  line-height: 0.8em;
+}
+
+.smartlink-file {
+  text-align: right;
+  margin: 0 0 0 0;
+  padding: 0 0 0 0;
+}
+

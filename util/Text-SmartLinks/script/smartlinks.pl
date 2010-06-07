@@ -8,12 +8,19 @@
 # with the aim to make it generic enought to be usefule for any
 # perl script, module or application.
 
-# Please read the Pod documentation at the end of file before reading and/or
+# Please read the Pod documentation of Text::SmartLinks before reading and/or
 # modifying the source.
+#
 # CAUTION: please make sure your changes don't break anything, because
 # breakage of this script will also break http://perlcabal.org/syn/
-# immediately. Running the tests of Text::SmartLinks and trying the script using 
-# perl smartlinks.pl --dir ../../t/ --out-dir ../../html/
+# immediately. Running the tests of Text::SmartLinks and trying the script
+# using (from the current directory):
+#
+#   perl -I ../lib smartlinks.pl \
+#       --dir ../../t \
+#       --out-dir ../../../docs/feather/ \
+#       --pod-dir ../../../docs/Perl6/Spec
+#
 # and then checking the result before committing is
 # strongly recommended. Thank you for your contribution :)
 
@@ -137,6 +144,7 @@ sub main {
 main();
 
 1;
+
 __END__
 
 =head1 NAME
@@ -152,5 +160,5 @@ implementation, getting help from many others in the Pugs team.
 
 =head1 COPYRIGHT
 
-Copyright (c) 2006 - 2009 by the Pugs Team.
+Copyright (c) 2006 - 2010 by the Pugs Team.
 
