@@ -18,6 +18,8 @@ perl util/smartlinks.pl --out-dir ~agentzh/syn/S32 --pod-dir docs/Perl6/Spec/S32
 
 # Copy the icons for smartlinks highlighting
 cp -ufp docs/feather/hilite-*.png ~agentzh/syn/
+# And the css file
+cp -ufp docs/feather/perl.css     ~agentzh/syn/
 
 perl util/podhtm.pl --url-prefix http://feather.perl6.nl/syn/ --url-postfix .html --index --charset=UTF-8 --out ~agentzh/syn/Differences.html docs/Perl6/Perl5/Differences.pod
 
