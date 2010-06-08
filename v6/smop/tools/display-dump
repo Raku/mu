@@ -32,6 +32,9 @@ sub perlified {
             my $val;
             if (ref $value eq 'ARRAY') {
                $val = [map {$_->value ? $perlified{$_->value} : undef} @{$value}];
+            } elsif (!$value) {
+                use YAML::XS;
+                die Dump($key,$value);
             } elsif ($value->isa('DUMP::SMOP__Object')) {
                 if ($value->value) {
                     $val = $perlified{$value->value};

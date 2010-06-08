@@ -8,6 +8,19 @@
 
 %{
 
+  static SMOP__Object* DUMP(SMOP__Object* interpreter,
+                                  SMOP__ResponderInterface* responder,
+                                  SMOP__Object* obj) {
+  
+    smop_s1p_lexicalscope_struct* scope = (smop_s1p_lexicalscope_struct*) obj;
+    return smop_dump_create((SMOP__Object*[]) {
+        SMOP_DUMP_NAGC,
+        smop_dump_attr_create("outer"),
+        smop_dump_obj_create(scope->outer),
+        NULL
+    });
+  }
+
   SMOP__Object* smop_shortcut_lexical_scope_exists(SMOP__Object* interpreter,SMOP__Object* invocant,SMOP__Object* key) {
     smop_lexicalscope_entry* entries = ((smop_s1p_lexicalscope_struct*)invocant)->entries;
     while (entries) {
@@ -19,6 +32,10 @@
     return SMOP__NATIVE__bool_false;
   }
   SMOP__Object* smop_shortcut_lexical_scope_lookup(SMOP__Object* interpreter,SMOP__Object* invocant,SMOP__Object* key) {
+
+      int len;
+      //fprintf(stderr,"Looking up %s.\n",SMOP__NATIVE__idconst_fetch_with_null(key, &len));
+
     smop_lexicalscope_entry* entries = ((smop_s1p_lexicalscope_struct*)invocant)->entries;
     while (entries) {
       if (entries->key == key) {
@@ -110,3 +127,7 @@
 
 %method STORE
   ___VALUE_STORE___
+
+%init {
+  ((SMOP__ResponderInterface*)RI)->DUMP = DUMP;
+%}

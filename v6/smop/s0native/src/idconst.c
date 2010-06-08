@@ -21,7 +21,7 @@ static pthread_rwlock_t constlist_lock;
  * them just to enable the stringification in the high-level.
  */
 
-static SMOP__ResponderInterface* SMOP__NATIVE__idconst_RI;
+SMOP__ResponderInterface* SMOP__NATIVE__idconst_RI;
 
 typedef struct SMOP__NATIVE__idconst_struct {
   SMOP__Object__BASE

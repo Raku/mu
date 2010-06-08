@@ -22,6 +22,21 @@ SMOP__Object* smop_bool_dump(SMOP__Object* interpreter,
   });
     
 }
+SMOP__Object* smop_idconst_dump(SMOP__Object* interpreter,
+                                SMOP__ResponderInterface* responder,
+                                SMOP__Object* obj) {
+  int len;
+  printf("dump %s\n",obj->RI->id);
+  char* str = SMOP__NATIVE__idconst_fetch_with_null(obj,&len);
+  return smop_dump_create((SMOP__Object*[]) {
+      smop_dump_attr_create("RI"),
+      smop_dump_obj_create((SMOP__Object*)obj->RI),
+      smop_dump_attr_create("content"),
+      smop_dump_str_create(str),
+      NULL
+  });
+  free(str);
+}
 
 
 void smop_dump_init() {
@@ -63,6 +78,7 @@ void smop_dump_init() {
   SMOP__metaRI->RI->DUMP = smop_ri_dump;
 
   SMOP__NATIVE__bool_true->RI->DUMP = smop_bool_dump;
+  SMOP__NATIVE__idconst_RI->DUMP = smop_idconst_dump;
 }
 
 SMOP__Object* smop_ri_dump(SMOP__Object* interpreter,
@@ -164,9 +180,13 @@ static void list_destroy(list* l) {
   }
 }
 
-void smop_dump_print(SMOP__Object* interpreter,SMOP__Object* obj,char* file) {
+static int dump_id;
+void smop_dump_print(SMOP__Object* interpreter,SMOP__Object* obj,char* file_template) {
 
-
+  char file[200]; 
+  snprintf(file,200,file_template,dump_id);
+  dump_id++;
+  printf("dumping to %s\n",file);
   FILE* f = fopen(file,"w");
   if (!f) {
     perror("can't dump the object:");
@@ -203,7 +223,21 @@ void smop_dump_print(SMOP__Object* interpreter,SMOP__Object* obj,char* file) {
         int len;
         char* str = SMOP__NATIVE__idconst_fetch_with_null(dump->data[i],&len);
         /* TODO escape special chars */
-        fprintf(f,"\"%s\"\n",str);
+        int i;
+        fputc('"',f);
+        for (i=0;i < len;i++) {
+          if (str[i] == '\n') {
+            fputc('\\',f);
+            fputc('n',f);
+          } else if (str[i] == '"') {
+            fputc('\\',f);
+            fputc('"',f);
+          } else {
+            fputc(str[i],f);
+          }
+        }
+        fputc('"',f);
+        fputc('\n',f);
         free(str);
       } else if (dump->data[i]->RI == SMOP__DUMP_obj_array_RI) { 
         smop_dump_obj_array* array = (smop_dump_obj_array*) dump->data[i];
@@ -223,6 +257,5 @@ void smop_dump_print(SMOP__Object* interpreter,SMOP__Object* obj,char* file) {
     fprintf(f,"}\n");
   }
   fclose(f);
-  printf("dumped\n");
   list_destroy(visited);
 }

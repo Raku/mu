@@ -6,6 +6,8 @@ all:
 .PHONY : test all
 test: all
 	LD_LIBRARY_PATH='build/lib' $(PROVE) 'valgrind -q --leak-check=full --show-reachable=yes ' build/t
+test-no-valgrind: all
+	LD_LIBRARY_PATH='build/lib' $(PROVE) '' build/t
 env:
 	env
 

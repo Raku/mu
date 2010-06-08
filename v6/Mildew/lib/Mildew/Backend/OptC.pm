@@ -111,16 +111,15 @@ class Mildew::Backend::OptC with Mildew::Backend::C {
         for my $subblock (@{$block->stmts}) {
             for my $stmt (@{$subblock->stmts}) {
                 #$code .= "\n/*".$stmt->pretty."*/\n";
+                $code .= "case $i:";
                 if ($self->trace) {
                     $code .= "\nprintf(".quote(backslash($stmt->pretty . "\n")).");\n";
                 }
                 if ($self->dump) {
-                    my $file = quote(backslash(sprintf($self->dump,$i)));
-                    $code .= "\nprintf(\"dumping to %s\\n\",".$file.");\n";
-                    $code .= "\nsmop_dump_print(interpreter,(SMOP__Object*)frame,$file);\n"
+                    my $file = quote(backslash($self->dump));
+                    $code .= "\nsmop_dump_print(interpreter,(SMOP__Object*)frame,$file);\n";
                 }
 
-                $code .= "case $i:";
                 if ($stmt->isa('AST::Goto')) {
                     $code .= "frame->pc = " . $labels{$stmt->block->id} . ";" . "break;\n"
                 } elsif ($stmt->isa('AST::Branch')) {
