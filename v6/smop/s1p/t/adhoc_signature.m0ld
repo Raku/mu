@@ -16,8 +16,8 @@ my $AdhocSignature = $AdhocSignature_scalar."FETCH"();
 my $LexicalScope_scalar = $scope."lookup"("LexicalScope");
 my $LexicalScope = $LexicalScope_scalar."FETCH"();
 
-my $scope = $LexicalScope."new"();
-my $outer = $scope."outer"();
+my $new_scope = $LexicalScope."new"();
+my $outer = $new_scope."outer"();
 my $void = $outer."STORE"($scope);
 
 
@@ -49,5 +49,5 @@ my $signature = $AdhocSignature."new"(:"ACCEPTS"(mold {
 }));
 
 my $void = $out."print"("ok 1 # lives after signature creation\n");
-my $ret = $signature."BIND"("ok 2 # the correct capture is passed\n",$scope);
+my $ret = $signature."BIND"("ok 2 # the correct capture is passed\n",$new_scope);
 my $void = $out."print"("ok 3 # continues after BIND\n");
