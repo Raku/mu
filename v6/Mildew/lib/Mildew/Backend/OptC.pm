@@ -6,7 +6,7 @@ class Mildew::Backend::OptC with Mildew::Backend::C {
     use File::Temp qw(tempfile tmpnam);
     use String::Escape qw(backslash quote);
     use Getopt::Long qw(GetOptionsFromArray);
-    has options=>(is=>'ro');
+    has options=>(is=>'ro',default=>sub {{}});
     has trace=>(is=>'rw');
     has dump=>(is=>'rw');
     method BUILD {
