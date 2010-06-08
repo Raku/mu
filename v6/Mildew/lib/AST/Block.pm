@@ -22,7 +22,7 @@ class AST::Block extends AST::Base {
             ($value,@side_effects) = $_->simplified;
             push (@stmts,@side_effects);
         }
-        AST::Block->new(regs=>$self->regs,stmts=>[@stmts,$value ? ($value) : ()]);
+        AST::Block::Simplified->new(regs=>$self->regs,stmts=>[@stmts,$value ? ($value) : ()]);
     }
     method took {
         my $took = 0;

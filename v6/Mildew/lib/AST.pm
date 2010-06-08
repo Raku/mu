@@ -54,4 +54,5 @@ use AST::Seq;
 use AST::Loop;
 use AST::InferredTypeTest;
 use AST::Phi;
+use AST::Block::Simplified;
 1;

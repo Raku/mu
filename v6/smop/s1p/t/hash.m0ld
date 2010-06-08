@@ -1,11 +1,10 @@
-my $interpreter;
-my $prelude = ?SMOP__S1P__LexicalPrelude;
+my $scope = ?SMOP__S1P__LexicalPrelude;
 my $void;
-my $out_scalar = $prelude."lookup"("$OUT");
+my $out_scalar = $scope."lookup"("$OUT");
 my $out = $out_scalar."FETCH"();
 my $void = $out."print"("1..1\n");
 
-my $Hash_scalar = $prelude."lookup"("Hash");
+my $Hash_scalar = $scope."lookup"("Hash");
 my $Hash = $Hash_scalar."FETCH"();
 
 my $hash = $Hash."new"();

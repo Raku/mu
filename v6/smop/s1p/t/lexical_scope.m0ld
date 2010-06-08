@@ -1,48 +1,47 @@
-my $interpreter;
-my $prelude = ?SMOP__S1P__LexicalPrelude;
+my $scope = ?SMOP__S1P__LexicalPrelude;
 my $void;
-my $out_scalar = $prelude."lookup"("$OUT");
+my $out_scalar = $scope."lookup"("$OUT");
 my $out = $out_scalar."FETCH"();
-#my $out_scalar = $prelude."lookup"("$OUT");
+#my $out_scalar = $scope."lookup"("$OUT");
 #my $out = $out_scalar."FETCH"();
 
 $void = $out."print"("1..5\n");
 
-my $LexicalScope_scalar = $prelude."lookup"("LexicalScope");
+my $LexicalScope_scalar = $scope."lookup"("LexicalScope");
 my $LexicalScope = $LexicalScope_scalar."FETCH"();
 
-my $scope = $LexicalScope."new"();
-my $outer = $scope."outer"();
-my $void = $outer."STORE"($prelude);
+my $new_scope = $LexicalScope."new"();
+my $outer = $new_scope."outer"();
+my $void = $outer."STORE"($scope);
 
 
-my $out2_scalar = $prelude."lookup"("$OUT");
+my $out2_scalar = $scope."lookup"("$OUT");
 my $out2 = $out2_scalar."FETCH"();
 
 my $void = $out2."print"("ok 1\n");
 
-my $var = $scope."postcircumfix:{ }"("$foo");
+my $var = $new_scope."postcircumfix:{ }"("$foo");
 
 my $void = $var."STORE"("ok 2\n");
 my $ok2 = $var."FETCH"();
 my $void = $out."print"($ok2);
 
-my $var2 = $scope."lookup"("$foo");
+my $var2 = $new_scope."lookup"("$foo");
 my $void = $var2."STORE"("ok 3\n");
 my $ok3 = $var2."FETCH"();
 my $void = $out."print"($ok3);
 
-my $true = $scope."exists"("$foo");
+my $true = $new_scope."exists"("$foo");
 if $true {goto ok4} else {goto not_ok4};
 not_ok4: my $void = $out."print"("not ok 4\n");
 goto end_if;
 ok4: my $void = $out."print"("ok 4\n");
 end_if: noop;
 
-my $false = $scope."exists"("$OUT");
+my $false = $new_scope."exists"("$OUT");
 if $false {goto not_ok5} else {goto ok5};
 not_ok5: my $void = $out."print"("not ok 5\n");
-goto end_if;
+goto end_if2;
 ok5: my $void = $out."print"("ok 5\n");
-end_if: noop;
+end_if2: noop;
 

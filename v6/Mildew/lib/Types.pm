@@ -280,7 +280,7 @@ class Type::Scalar extends Type {
             $self->stores->[0];
         } else {
             use Data::Dumper;
-            cluck "wrong number of stores: ",(refaddr $self),Dumper($self->stores);
+            #cluck "wrong number of stores: ",(refaddr $self),Dumper($self->stores);
             Type::Unknown->new();
         }
     }

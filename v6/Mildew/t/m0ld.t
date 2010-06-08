@@ -63,6 +63,18 @@ my $cond = 1;
 isa_ok($ast->stmts->[0]->stmts->[0]->rvalue,'AST::Block','submold');
 isa_ok($ast->stmts->[0]->stmts->[0]->rvalue->stmts->[0]->stmts->[0],'AST::Assign','assignment in submold');
 }
+{
+my $ast = $frontend->parse('
+    noop;
+    noop;
+');
+
+is_deeply($ast->stmts,[],'noops');
+}
+
+throws_ok {
+my $ast = $frontend->parse('foo: noop;foo: noop;');
+} qr/label foo/, 'Label duplication is caught';
 
 done_testing;
 

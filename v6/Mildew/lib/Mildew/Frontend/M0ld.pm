@@ -14,6 +14,9 @@ class Mildew::Frontend::M0ld {
         my %seqs;
         for my $stmt_label (@{$stmts}) {
             for my $label (@{$stmt_label->[0]}) {
+                if ($seqs{$label}) {
+                    die "Duplicate label $label.\n";
+                }
                 $seqs{$label} = AST::Seq->new(stmts=>[],id=>$label);
             }
         }
@@ -41,7 +44,7 @@ class Mildew::Frontend::M0ld {
                 push(@{$seqs[-1]->stmts},$stmt);
             }
         }
-        AST::Block->new(stmts=>\@seqs,regs=>$REGS);
+        AST::Block::Simplified->new(stmts=>\@seqs,regs=>$REGS);
     }
 
 
@@ -61,7 +64,7 @@ class Mildew::Frontend::M0ld {
     (?> (?: \s+ | \#[^\n]* )*)
     
     <token: stmt>
-    (?: <MATCH=goto>|<MATCH=br>|<MATCH=assign>|<MATCH=decl>)
+    (?: <MATCH=goto>|<MATCH=br>|<MATCH=assign>|<MATCH=decl>|<MATCH=noop>)
     
     <rule: decl>
     my <register>
@@ -103,6 +106,7 @@ class Mildew::Frontend::M0ld {
     
     <token: noop>
     noop
+    (?{$MATCH = undef})
     
     <rule: br>
     if <value> <then=branch> else <else=branch>
