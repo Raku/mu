@@ -5,24 +5,28 @@
 
 # virtual mem: 1 GB
 ulimit -v $(( 1 * 10 ** 6 ))
-# cup-time: 10 min
+# cpu-time: 10 min
 ulimit -t $(( 10 * 60 ))
 
-cd  ~agentzh/svn-pugs
+ROOT_DIR=/home/agentzh
+DEST_DIR=$ROOT_DIR/syn
+SVN_DIR=$ROOT_DIR/svn-pugs
+POD_DIR="$SVN_DIR/docs/Perl6/Spec"
+
+cd $SVN_DIR
 svn up
 
-POD_DIR="/home/agentzh/svn-pugs/docs/Perl6/Spec"
-
-perl util/smartlinks.pl --out-dir ~agentzh/syn --dir t --css /syn/perl.css --line-anchor --pod-dir=$POD_DIR
-perl util/smartlinks.pl --out-dir ~agentzh/syn/S32 --pod-dir docs/Perl6/Spec/S32-setting-library --dir t --css /syn/perl.css --line-anchor  --pod-dir=$POD_DIR/S32-setting-library
+perl util/smartlinks.pl --out-dir $DEST_DIR --dir t --css /syn/perl.css --line-anchor --pod-dir=$POD_DIR
+perl util/smartlinks.pl --out-dir $DEST_DIR/S32 --pod-dir docs/Perl6/Spec/S32-setting-library --dir t --css /syn/perl.css --line-anchor  --pod-dir=$POD_DIR/S32-setting-library
 
 # Copy the icons for smartlinks highlighting
-cp -ufp docs/feather/hilite-*.png ~agentzh/syn/
+cp -ufp docs/feather/hilite-*.png $DEST_DIR/
 # And the css file
-cp -ufp docs/feather/perl.css     ~agentzh/syn/
+cp -ufp docs/feather/perl.css     $DEST_DIR/
 
-perl util/podhtm.pl --url-prefix http://feather.perl6.nl/syn/ --url-postfix .html --index --charset=UTF-8 --out ~agentzh/syn/Differences.html docs/Perl6/Perl5/Differences.pod
+perl util/podhtm.pl --url-prefix http://feather.perl6.nl/syn/ --url-postfix .html --index --charset=UTF-8 --out $DEST_DIR/Differences.html docs/Perl6/Perl5/Differences.pod
 
-cd ~agentzh/syn/zh-cn
+# Probably outdated, builds the Chinese version of Syn 1
+cd $DEST_DIR/zh-cn
 make
 
