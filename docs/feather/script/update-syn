@@ -16,6 +16,9 @@ POD_DIR="/home/agentzh/svn-pugs/docs/Perl6/Spec"
 perl util/smartlinks.pl --out-dir ~agentzh/syn --dir t --css /syn/perl.css --line-anchor --pod-dir=$POD_DIR
 perl util/smartlinks.pl --out-dir ~agentzh/syn/S32 --pod-dir docs/Perl6/Spec/S32-setting-library --dir t --css /syn/perl.css --line-anchor  --pod-dir=$POD_DIR/S32-setting-library
 
+# Copy the icons for smartlinks highlighting
+cp -ufp docs/feather/hilite-*.png ~agentzh/syn/
+
 perl util/podhtm.pl --url-prefix http://feather.perl6.nl/syn/ --url-postfix .html --index --charset=UTF-8 --out ~agentzh/syn/Differences.html docs/Perl6/Perl5/Differences.pod
 
 cd ~agentzh/syn/zh-cn
