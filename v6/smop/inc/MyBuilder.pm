@@ -15,6 +15,7 @@ use ExtUtils::Mkbootstrap;
 
 use File::Spec::Functions qw.catdir catfile.;
 use File::Path qw.mkpath.;
+use TAP::Harness;
 use v5.10;
 
 sub ACTION_install {
@@ -220,10 +221,12 @@ sub ACTION_create_tests {
 
     print STDERR "\n** Creating test binaries\n";
 
+    mkdir('builddir/t');
     for my $module (qw(s0native)) {
         for my $test (@{$self->rscan_dir("builddir/$module/t" ,       qr/\.o$/)}) {
             my $exe_file = $test;
             $exe_file =~ s/\.o$/$EXEEXT/;
+            $exe_file =~ s{builddir/\Q$module}{builddir};
             say $exe_file;
             if (!$self->up_to_date([$test], $exe_file)) {
                 $CCL->($cbuilder,
@@ -283,7 +286,10 @@ sub ACTION_test {
     if ($^O =~ /(freebsd|solaris|linux)/i) {
         $ENV{LD_LIBRARY_PATH} = $path;
     }
-    system('builddir/s0native/t/const_identifier');
+    my $harness = TAP::Harness->new({ exec=>[] });
+    $harness->runtests(glob('builddir/t/*'));
+#    $harness->runtests( @{ $self->rscan_dir("builddir//src",qr/\.o$/)}
+#    system('builddir/s0native/t/const_identifier');
 
 #    $self->SUPER::ACTION_test
 }
