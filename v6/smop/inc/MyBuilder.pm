@@ -15,6 +15,7 @@ use ExtUtils::Mkbootstrap;
 
 use File::Spec::Functions qw.catdir catfile.;
 use File::Path qw.mkpath.;
+use v5.10;
 
 sub ACTION_install {
     my $self = shift;
@@ -45,10 +46,10 @@ sub ACTION_code {
 #
 #
 #    $self->dispatch("create_manpages");
-#    $self->dispatch("create_objects");
-#    $self->dispatch("create_library");
+    $self->dispatch("create_objects");
+    $self->dispatch("create_library");
 #    $self->dispatch("create_binaries");
-#    $self->dispatch("create_tests");
+    $self->dispatch("create_tests");
 #
 #    $self->dispatch("compile_xscode");
 
@@ -131,24 +132,30 @@ sub ACTION_create_manpages {
 }
 
 sub ACTION_create_objects {
-#    my $self = shift;
-#    my $cbuilder = $self->cbuilder;
+    my $self = shift;
+    my $cbuilder = $self->cbuilder;
 #
-#    print STDERR "\n** Compiling C files\n";
+    print STDERR "\n** Compiling C files\n";
 #    my $c_progs = $self->rscan_dir('btparse/progs', qr/\.c$/);
 #    my $c_src   = $self->rscan_dir('btparse/src',   qr/\.c$/);
 #    my $c_tests = $self->rscan_dir('btparse/tests', qr/\.c$/);
 #    my $c_xs    = $self->rscan_dir('xscode/',       qr/\.c$/);
 #
-#    my @c_files = #(@$c_progs, @$c_src, @$c_tests, @$c_xs);
-#    for my $file (@c_files) {
-#        my $object = $file;
-#        $object =~ s/\.c/.o/;
-#        next if $self->up_to_date($file, $object);
-#        $cbuilder->compile(object_file  => $object,
-#                           source       => $file,
-#                           include_dirs => ["btparse/src"]);
-#    }
+    my @c_files = @{$self->rscan_dir('s0native',       qr/\.c$/)};
+    #(@$c_progs, @$c_src, @$c_tests, @$c_xs);
+    mkdir('builddir');
+    mkdir('builddir/s0native');
+    mkdir('builddir/s0native/src');
+    mkdir('builddir/s0native/t');
+    for my $file (@c_files) {
+        my $object = $file;
+        $object =~ s/\.c/.o/;
+        $object =~ s/^/builddir\//;
+        next if $self->up_to_date($file, $object);
+        $cbuilder->compile(object_file  => $object,
+                           source       => $file,
+                           include_dirs => ["base/include","s0native/include"]);
+    }
 }
 
 
@@ -203,109 +210,60 @@ sub ACTION_create_binaries {
 }
 
 sub ACTION_create_tests {
-#    my $self = shift;
-#    my $cbuilder = $self->cbuilder;
+    my $self = shift;
+    my $cbuilder = $self->cbuilder;
+
+    my $EXEEXT = $Config::AutoConf::EXEEXT;
+
+    my ($LD,$CCL) = Config::AutoConf::Linker::detect_library_link_commands($cbuilder);
+    die "Can't get a suitable way to compile a C library\n" if (!$LD || !$CCL);
+
+    print STDERR "\n** Creating test binaries\n";
+
+    for my $module (qw(s0native)) {
+        for my $test (@{$self->rscan_dir("builddir/$module/t" ,       qr/\.o$/)}) {
+            my $exe_file = $test;
+            $exe_file =~ s/\.o$/$EXEEXT/;
+            say $exe_file;
+            if (!$self->up_to_date([$test], $exe_file)) {
+                $CCL->($cbuilder,
+                    exe_file => $exe_file,
+                    extra_linker_flags => '-Lbuild/lib -lsmop-s0native',
+                    objects => [$test]);
+            }
+        }
+    }
 #
-#    my $EXEEXT = $Config::AutoConf::EXEEXT;
-#
-#    my ($LD,$CCL) = Config::AutoConf::Linker::detect_library_link_commands($cbuilder);
-#    die "Can't get a suitable way to compile a C library\n" if (!$LD || !$CCL);
-#
-#    print STDERR "\n** Creating test binaries\n";
-#
-#    my $exe_file = catfile("btparse","tests","simple_test$EXEEXT");
-#    my $objects  = [ map{catfile("btparse","tests","$_.o")} (qw.simple_test testlib.) ];
-#
-#    if (!$self->up_to_date($objects, $exe_file)) {
-#        $CCL->($cbuilder,
-#               exe_file => $exe_file,
-#               extra_linker_flags => '-Lbtparse/src -lbtparse ',
-#               objects => $objects);
-#    }
-#
-#    $exe_file = catfile("btparse","tests","read_test$EXEEXT");
-#    $objects  = [ map{catfile("btparse","tests","$_.o")}(qw.read_test testlib.) ];
-#    if (!$self->up_to_date($objects, $exe_file)) {
-#        $CCL->($cbuilder,
-#               exe_file => $exe_file,
-#               extra_linker_flags => '-Lbtparse/src -lbtparse ',
-#               objects => $objects);
-#    }
-#
-#    $exe_file = catfile("btparse","tests","postprocess_test$EXEEXT");
-#    $objects  = [ map{catfile("btparse","tests","$_.o")}(qw.postprocess_test.) ];
-#    if (!$self->up_to_date($objects, $exe_file)) {
-#        $CCL->($cbuilder,
-#               exe_file => $exe_file,
-#               extra_linker_flags => '-Lbtparse/src -lbtparse ',
-#               objects => $objects);
-#    }
-#
-#    $exe_file = catfile("btparse","tests","tex_test$EXEEXT");
-#    $objects  = [ map{catfile("btparse","tests","$_.o")}(qw.tex_test.) ];
-#    if (!$self->up_to_date($objects, $exe_file)) {
-#        $CCL->($cbuilder,
-#               exe_file => $exe_file,
-#               extra_linker_flags => '-Lbtparse/src -lbtparse ',
-#               objects => $objects);
-#    }
-#
-#    $exe_file = catfile("btparse","tests","macro_test$EXEEXT");
-#    $objects  = [ map{catfile("btparse","tests","$_.o")}(qw.macro_test.) ];
-#    if (!$self->up_to_date($objects, $exe_file)) {
-#        $CCL->($cbuilder,
-#               exe_file => $exe_file,
-#               extra_linker_flags => '-Lbtparse/src -lbtparse ',
-#               objects => $objects);
-#    }
-#
-#    $exe_file = catfile("btparse","tests","name_test$EXEEXT");
-#    $objects  = [ map{catfile("btparse","tests","$_.o")}(qw.name_test.) ];
-#    if (!$self->up_to_date($objects, $exe_file)) {
-#        $CCL->($cbuilder,
-#               exe_file => $exe_file,
-#               extra_linker_flags => '-Lbtparse/src -lbtparse ',
-#               objects => $objects);
-#    }
-#
-#    $exe_file = catfile("btparse","tests","purify_test$EXEEXT");
-#    $objects  = [ map{catfile("btparse","tests","$_.o")}(qw.purify_test.) ];
-#    if (!$self->up_to_date($objects, $exe_file)) {
-#        $CCL->($cbuilder,
-#               exe_file => $exe_file,
-#               extra_linker_flags => '-Lbtparse/src -lbtparse ',
-#               objects => $objects);
-#    }
+#    my $objects  = [ catfile("build","s0native","t","const_indentifier.o") ];
 }
 
 sub ACTION_create_library {
-#    my $self = shift;
-#    my $cbuilder = $self->cbuilder;
-#
-#    my $LIBEXT = $Config::AutoConf::LIBEXT;
+    my $self = shift;
+    my $cbuilder = $self->cbuilder;
+    my ($LD,$CCL) = Config::AutoConf::Linker::detect_library_link_commands($cbuilder);
+    die "Can't get a suitable way to compile a C library\n" if (!$LD || !$CCL);
+    my $LIBEXT = $Config::AutoConf::LIBEXT;
+
 #    print STDERR "\n** Creating libbtparse$LIBEXT\n";
+
+    mkdir('builddir/lib');
+    for my $module (qw(s0native)) {
+        my @objects = @{$self->rscan_dir("builddir/$module/src",qr/\.o$/)};
+        # FIXME libpath
+        my $libpath = $self->notes('lib_path');
+        my $libfile = "builddir/lib/libsmop-$module$LIBEXT";
+        if (!$self->up_to_date(\@objects, $libfile)) {
+            $LD->($cbuilder,
+                module_name => 'smop-' . $module,
+                ($^O =~ /darwin/)?(extra_linker_flags => "-install_name $libpath"):(),
+                objects => \@objects,
+                lib_file => $libfile);
+        }
+    }
+
 #
-#    my @modules = qw:init input bibtex err scan error
-#                     lex_auxiliary parse_auxiliary bibtex_ast sym
-#                     util postprocess macros traversal modify
-#                     names tex_tree string_util format_name:;
-#
-#    my @objects = map { "btparse/src/$_.o" } @modules;
-#
-#    my ($LD,$CCL) = Config::AutoConf::Linker::detect_library_link_commands($cbuilder);
-#    die "Can't get a suitable way to compile a C library\n" if (!$LD || !$CCL);
-#
-#    my $libpath = $self->notes('lib_path');
 #    $libpath = catfile($libpath, "libbtparse$LIBEXT");
-#    my $libfile = "btparse/src/libbtparse$LIBEXT";
 #
-#    if (!$self->up_to_date(\@objects, $libfile)) {
-#        $LD->($cbuilder,
-#              module_name => 'btparse',
-#              ($^O =~ /darwin/)?(extra_linker_flags => "-install_name $libpath"):(),
-#              objects => \@objects,
-#              lib_file => $libfile);
-#    }
 #
 #    my $libdir = catdir($self->blib, 'usrlib');
 #    mkpath( $libdir, 0, 0777 ) unless -d $libdir;
@@ -318,14 +276,16 @@ sub ACTION_create_library {
 sub ACTION_test {
     my $self = shift;
 
+    my $path = catdir('builddir','lib');
     if ($^O =~ /darwin/i) {
-        $ENV{DYLD_LIBRARY_PATH} = catdir($self->blib,"usrlib");
+        $ENV{DYLD_LIBRARY_PATH} = $path;
     }
     if ($^O =~ /(freebsd|solaris|linux)/i) {
-        $ENV{LD_LIBRARY_PATH} = catdir($self->blib,"usrlib");
+        $ENV{LD_LIBRARY_PATH} = $path;
     }
+    system('builddir/s0native/t/const_identifier');
 
-    $self->SUPER::ACTION_test
+#    $self->SUPER::ACTION_test
 }
 
 
@@ -342,6 +302,4 @@ sub _interpolate {
     close TO;
     close FROM;
 }
-
-
 1;

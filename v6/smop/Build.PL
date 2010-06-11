@@ -21,6 +21,7 @@ my $builder = MyBuilder->new
 #                      'ExtUtils::CBuilder' => '0.27',
 #                      'Module::Build'      => '0.3603',
                      },
+   test_files=>"builddir/s0native/t/*",
    add_to_cleanup => [
 #                      'Text-BibTeX-*',
 ## NOT SURE YET        'btparse/src/bt_config.h',

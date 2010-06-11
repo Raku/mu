@@ -8,12 +8,16 @@
 #include <stdlib.h>
 #include <string.h>
 #include <assert.h>
+#ifdef SMOP_LOCKING
 #include <pthread.h>
+#endif
 #include <stdio.h>
 
 static SMOP__Object** constlist;
 static int constlist_size;
+#ifdef SMOP_LOCKING
 static pthread_rwlock_t constlist_lock;
+#endif
 
 
 /* The constant identifiers are not subject to garbage collection,
@@ -88,16 +92,23 @@ SMOP__Object* SMOP__NATIVE__idconst_create(const char* value) {
 SMOP__Object* SMOP__NATIVE__idconst_createn(const char* value, int size) {
   SMOP__Object* candidate = SMOP__NATIVE__idconst_createn_nolist(value,size);
 
+#ifdef SMOP_LOCKING
   assert(pthread_rwlock_rdlock(&constlist_lock) == 0);
+#endif
   SMOP__Object** ret = bsearch(&candidate, constlist, constlist_size, sizeof(SMOP__Object*), cmp_idconst);
+#ifdef SMOP_LOCKING
   assert(pthread_rwlock_unlock(&constlist_lock) == 0);
+#endif
+
 
   if (ret) {
     SMOP__NATIVE__idconst_free(candidate);
     return *ret;
   } else {
 
+#ifdef SMOP_LOCKING
     assert(pthread_rwlock_wrlock(&constlist_lock) == 0);
+#endif
 
     constlist_size++;
 
@@ -108,7 +119,9 @@ SMOP__Object* SMOP__NATIVE__idconst_createn(const char* value, int size) {
 
     qsort(constlist, constlist_size, sizeof(SMOP__Object*), cmp_idconst);
 
+#ifdef SMOP_LOCKING
     assert(pthread_rwlock_unlock(&constlist_lock) == 0);
+#endif
 
     return candidate;
   }
@@ -130,7 +143,9 @@ void smop_idconst_init() {
 
   qsort(constlist, constlist_size, sizeof(SMOP__Object*), cmp_idconst);
 
+#ifdef SMOP_LOCKING
   assert(pthread_rwlock_init(&constlist_lock, NULL) == 0);
+#endif
   
 }
 
@@ -148,7 +163,9 @@ void smop_idconst_destr() {
   free(SMOP__NATIVE__idconst_RI);
 
   free(constlist); constlist_size = 0;
+#ifdef SMOP_LOCKING
   pthread_rwlock_destroy(&constlist_lock);
+#endif
 
 }
 
