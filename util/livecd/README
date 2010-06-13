@@ -1,5 +1,0 @@
-mklivecd.pl creates a very minimalistic Pugs Live CD.
-
-Run
-  $ mklivecd.pl --help
-to get more information.
