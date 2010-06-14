@@ -64,6 +64,17 @@ package Evalbot;
                 chdir       => '../../../perlesque/trunk/Sprixel/bin/Release',
                 cmd_line    => '/usr/bin/time -p mono asmbly_1.exe >> %out 2>&1',
             },
+            vivpsq => {
+                chdir       =>'../../src/perl6/snap',
+                cmd_line    => $^X . ' viv --psq %program >>%out 2>&1',
+                revision    => sub { get_revision_from_file('/home/p6eval/pugs/src/perl6/snap/revision')},
+            },
+            vpr => {
+                chdir       =>'../../src/perl6/snap',
+                cmd_line    => $^X . ' viv --psq %program >>%out.f 2>&1 ; cd /home/p6eval/perlesque/trunk/Sprixel/bin/Release ; ' .
+                    $^X . 'cat %i | mono -O=-all,cfold perlesque.exe %out.f >> %out 2>&1',
+                revision    => sub { get_revision_from_file('/home/p6eval/pugs/src/perl6/snap/revision')},
+            },
             mildew  => {
                 chdir       => '../../v6/re-mildew',
                 cmd_line    => 'cat %i | perl mildew %program >> %out 2>&1',
