@@ -85,8 +85,8 @@
     my $capture;
     my $exception = $capture."positional"(1);
     my $this_routine = $capture."positional"(2);
-    my $ritest_exc = ¢SMOP__capture."new"($exception, ¢RI);
-    my $ritest = ¢SMOP__S1P__ritest."postcircumfix:( )"($ritest_exc);
+    my $ritest_exc = ?SMOP__capture."new"($exception, ?RI);
+    my $ritest = ?SMOP__S1P__ritest."postcircumfix:( )"($ritest_exc);
     my $ritest_t = $ritest."true"();
     if $ritest_t { goto catch } else { goto rethrow };
     catch:
@@ -118,7 +118,7 @@
      my $has_ctrl = $ctrl."true"();
      if $has_ctrl { goto handle } else { goto redo_bt_up };
     handle:
-     my $capture = ¢SMOP__capture."new"($invocant);
+     my $capture = ?SMOP__capture."new"($invocant);
      my $outer = $back."back"();
      my $result = $ctrl."postcircumfix:( )"($capture, :"cc"($outer));
     fail:

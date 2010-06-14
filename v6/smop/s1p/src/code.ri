@@ -118,7 +118,7 @@ SMOP__Object* SMOP__S1P__Code_create() {
 
   my $void;
 
-  my $lexical_proto = ¢SMOP__S1P__LexicalScope;
+  my $lexical_proto = ?SMOP__S1P__LexicalScope;
   my $lexical = $lexical_proto."new"();
   my $lexical_outer_container = $lexical."outer"();
   $void = $lexical_outer_container."STORE"($outer);

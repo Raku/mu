@@ -4,7 +4,7 @@ my $r11;
 my $r12; # we have to store even unused return values somewhere
 
 # constants
-my $r4 = ¢SMOP__S1P__RootNamespace;
+my $r4 = ?SMOP__S1P__RootNamespace;
 my $r5 = "postcircumfix:{ }";
 my $r6 = "$*OUT";
 my $r7 = "FETCH";

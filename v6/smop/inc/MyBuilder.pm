@@ -14,9 +14,14 @@ use ExtUtils::ParseXS;
 use ExtUtils::Mkbootstrap;
 
 use File::Spec::Functions qw.catdir catfile.;
-use File::Path qw.mkpath.;
+use File::Path qw(make_path);
 use TAP::Harness;
+
+use ExtUtils::Embed qw(ldopts ccopts);
+
 use v5.10;
+
+my @MODULES = qw(s0native dump nagc util capture interpreter mold yeast native lost s1p p6opaque s1p-oo p5 mold-message profile);
 
 sub ACTION_install {
     my $self = shift;
@@ -137,25 +142,71 @@ sub ACTION_create_objects {
     my $cbuilder = $self->cbuilder;
 #
     print STDERR "\n** Compiling C files\n";
+
+
 #    my $c_progs = $self->rscan_dir('btparse/progs', qr/\.c$/);
 #    my $c_src   = $self->rscan_dir('btparse/src',   qr/\.c$/);
 #    my $c_tests = $self->rscan_dir('btparse/tests', qr/\.c$/);
 #    my $c_xs    = $self->rscan_dir('xscode/',       qr/\.c$/);
 #
-    my @c_files = @{$self->rscan_dir('s0native',       qr/\.c$/)};
-    #(@$c_progs, @$c_src, @$c_tests, @$c_xs);
-    mkdir('builddir');
-    mkdir('builddir/s0native');
-    mkdir('builddir/s0native/src');
-    mkdir('builddir/s0native/t');
-    for my $file (@c_files) {
-        my $object = $file;
-        $object =~ s/\.c/.o/;
-        $object =~ s/^/builddir\//;
-        next if $self->up_to_date($file, $object);
-        $cbuilder->compile(object_file  => $object,
-                           source       => $file,
-                           include_dirs => ["base/include","s0native/include"]);
+    my @INCLUDE = (catdir("base","include"),catdir("util","include"));
+    for my $module (@MODULES) {
+
+        make_path(catdir("builddir",$module,"src"),catdir("builddir",$module,"t"));
+
+        # copy headers so that they can be used when compiling generated files 
+        for my $header (@{$self->rscan_dir(catdir($module,"src"),qr/\.h$/)}) {
+            my $dest = $header;
+            $dest =~ s/^/builddir\//;
+            $self->copy_if_modified( from => $header, to => $dest);
+
+        }
+
+        push(@INCLUDE,"$module/include");
+
+        my @c_files = @{$self->rscan_dir(catdir($module,"src"),qr/\.c$/)};
+        for my $file (@c_files) {
+            my $object = $file;
+            $object =~ s/\.c/.o/;
+            $object =~ s/^/builddir\//;
+            next if $self->up_to_date($file, $object);
+            $cbuilder->compile(object_file  => $object,
+                source       => $file,
+                extra_compiler_flags => ccopts,
+                include_dirs => [@INCLUDE])
+        }
+
+        my @ri_files = @{$self->rscan_dir(catdir($module,"src"),qr/\.ri$/)};
+        for my $file (@ri_files) {
+            say "RI file $file";
+
+            my $object = $file;
+            $object =~ s/\.ri/.o/;
+            $object =~ s/^/builddir\//;
+
+            my $c_file = $file;
+            $c_file =~ s/\.ri/.c/;
+            $c_file =~ s/^/builddir\//;
+
+            system("perl -I../../src/perl6 tools/ri . ./m0ld_exe < $file > $c_file");
+            $cbuilder->compile(object_file  => $object,
+                source       => $c_file,
+                extra_compiler_flags => ccopts,
+                include_dirs => [@INCLUDE]);
+        }
+    }
+    for my $module (@MODULES) {
+        my @c_files = @{$self->rscan_dir(catdir($module,"t"),       qr/\.c$/)};
+        for my $file (@c_files) {
+            my $object = $file;
+            $object =~ s/\.c/.o/;
+            $object =~ s/^/builddir\//;
+            next if $self->up_to_date($file, $object);
+            $cbuilder->compile(object_file  => $object,
+                source       => $file,
+                extra_compiler_flags => ccopts,
+                include_dirs => [@INCLUDE]);
+        }
     }
 }
 
@@ -222,7 +273,11 @@ sub ACTION_create_tests {
     print STDERR "\n** Creating test binaries\n";
 
     mkdir('builddir/t');
-    for my $module (qw(s0native)) {
+    my $LIBS = ldopts . '-lrt -L'.catdir('builddir','lib');
+    for my $module (@MODULES) {
+        $LIBS .= ' -lsmop-' . $module;
+    }
+    for my $module (@MODULES) {
         for my $test (@{$self->rscan_dir("builddir/$module/t" ,       qr/\.o$/)}) {
             my $exe_file = $test;
             $exe_file =~ s/\.o$/$EXEEXT/;
@@ -231,7 +286,7 @@ sub ACTION_create_tests {
             if (!$self->up_to_date([$test], $exe_file)) {
                 $CCL->($cbuilder,
                     exe_file => $exe_file,
-                    extra_linker_flags => '-Lbuild/lib -lsmop-s0native',
+                    extra_linker_flags => $LIBS,
                     objects => [$test]);
             }
         }
@@ -250,7 +305,7 @@ sub ACTION_create_library {
 #    print STDERR "\n** Creating libbtparse$LIBEXT\n";
 
     mkdir('builddir/lib');
-    for my $module (qw(s0native)) {
+    for my $module (@MODULES) {
         my @objects = @{$self->rscan_dir("builddir/$module/src",qr/\.o$/)};
         # FIXME libpath
         my $libpath = $self->notes('lib_path');
@@ -279,6 +334,7 @@ sub ACTION_create_library {
 sub ACTION_test {
     my $self = shift;
 
+    $self->dispatch("code");
     my $path = catdir('builddir','lib');
     if ($^O =~ /darwin/i) {
         $ENV{DYLD_LIBRARY_PATH} = $path;

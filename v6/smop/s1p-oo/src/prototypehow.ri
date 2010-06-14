@@ -111,7 +111,7 @@
     my $invocant;
 
     my $void;
-    my $result = ¢SMOP__NATIVE__bool_false;
+    my $result = ?SMOP__NATIVE__bool_false;
 
     my $how_c = $invocant."^!how"();
     my $how = $how_c."FETCH"();
@@ -145,7 +145,7 @@
     my $capture;
 
     my $void;
-    my $result = ¢SMOP__NATIVE__bool_false;
+    my $result = ?SMOP__NATIVE__bool_false;
 
     my $invocant = $capture."positional"(1);
     my $name = $capture."positional"(2);
