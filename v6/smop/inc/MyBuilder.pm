@@ -19,6 +19,8 @@ use TAP::Harness;
 
 use ExtUtils::Embed qw(ldopts ccopts);
 
+my $ldopts = ldopts . '-lrt';
+
 use v5.10;
 
 my @MODULES = qw(s0native dump nagc util capture interpreter mold yeast native lost s1p p6opaque s1p-oo p5 mold-message profile);
@@ -273,7 +275,7 @@ sub ACTION_create_tests {
     print STDERR "\n** Creating test binaries\n";
 
     mkdir('builddir/t');
-    my $LIBS = ldopts . '-lrt -L'.catdir('builddir','lib');
+    my $LIBS = $ldopts .' -L'.catdir('builddir','lib');
     for my $module (@MODULES) {
         $LIBS .= ' -lsmop-' . $module;
     }
@@ -304,6 +306,7 @@ sub ACTION_create_library {
 
 #    print STDERR "\n** Creating libbtparse$LIBEXT\n";
 
+    my %extra_libs = (profile=>["-lrt"],p5=>[split(' ',ldopts)]);
     mkdir('builddir/lib');
     for my $module (@MODULES) {
         my @objects = @{$self->rscan_dir("builddir/$module/src",qr/\.o$/)};
@@ -314,8 +317,9 @@ sub ACTION_create_library {
             $LD->($cbuilder,
                 module_name => 'smop-' . $module,
                 ($^O =~ /darwin/)?(extra_linker_flags => "-install_name $libpath"):(),
-                objects => \@objects,
-                lib_file => $libfile);
+                objects => [@{$extra_libs{$module}//[]},@objects],
+                lib_file => $libfile
+            );
         }
     }
 
