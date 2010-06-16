@@ -34,7 +34,7 @@
     ret = exc;
 
 %method throw
-  SMOP__Object* frame = SMOP__Mold__Frame_create(interpreter,SMOP_REFERENCE(interpreter,throw_mold));
+  SMOP__Object* frame = SMOP__Yeast__Frame_create(interpreter,SMOP_REFERENCE(interpreter,throw_mold));
   SMOP__Object* continuation = SMOP_DISPATCH(interpreter, SMOP_RI(interpreter),
                                                SMOP__ID__continuation,
                                                SMOP__NATIVE__capture_create(interpreter,
@@ -42,16 +42,16 @@
                                                                              SMOP_REFERENCE(interpreter,interpreter),
                                                                              NULL },
                                                                             (SMOP__Object*[]){ NULL }));
-  mold_back_set(interpreter,frame,continuation);
-  mold_reg_set(interpreter,frame,0,SMOP_REFERENCE(interpreter,interpreter));
-  mold_reg_set(interpreter,frame,1,SMOP_REFERENCE(interpreter,invocant));
+  smop_back_set(interpreter,frame,continuation);
+  yeast_reg_set(interpreter,frame,0,SMOP_REFERENCE(interpreter,interpreter));
+  yeast_reg_set(interpreter,frame,1,SMOP_REFERENCE(interpreter,invocant));
   SMOP_DISPATCH(interpreter, SMOP_RI(interpreter),
               SMOP__ID__goto,
               SMOP__NATIVE__capture_create(interpreter,
                 (SMOP__Object*[]){ SMOP_REFERENCE(interpreter,interpreter), SMOP_REFERENCE(interpreter,frame), NULL}, (SMOP__Object*[]){ NULL }));
 
 %method handle_return
-  SMOP__Object* frame = SMOP__Mold__Frame_create(interpreter,SMOP_REFERENCE(interpreter,handle_return_mold));
+  SMOP__Object* frame = SMOP__Yeast__Frame_create(interpreter,SMOP_REFERENCE(interpreter,handle_return_mold));
   SMOP__Object* continuation = SMOP_DISPATCH(interpreter, SMOP_RI(interpreter),
                                                SMOP__ID__continuation,
                                                SMOP__NATIVE__capture_create(interpreter,
@@ -59,9 +59,9 @@
                                                                              SMOP_REFERENCE(interpreter,interpreter),
                                                                              NULL },
                                                                             (SMOP__Object*[]){ NULL }));
-  mold_back_set(interpreter,frame,continuation);
-  mold_reg_set(interpreter,frame,0,SMOP_REFERENCE(interpreter,interpreter));
-  mold_reg_set(interpreter,frame,1,SMOP_REFERENCE(interpreter,capture));
+  yeast_back_set(interpreter,frame,continuation);
+  yeast_reg_set(interpreter,frame,0,SMOP_REFERENCE(interpreter,interpreter));
+  yeast_reg_set(interpreter,frame,1,SMOP_REFERENCE(interpreter,capture));
   SMOP_DISPATCH(interpreter, SMOP_RI(interpreter),
               SMOP__ID__goto,
               SMOP__NATIVE__capture_create(interpreter,
@@ -80,7 +80,7 @@
     fprintf(stderr, "Uncaught return control exception.\n");
     abort();
 
-%mold handle_return_mold
+%yeast handle_return_mold
     my $interpreter;
     my $capture;
     my $exception = $capture."positional"(1);
@@ -104,7 +104,7 @@
     rethrow:
      $void = $exception."throw"();
 
-%mold throw_mold
+%yeast throw_mold
     my $interpreter;
     my $invocant;
     my $stack = $interpreter."continuation"();

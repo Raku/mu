@@ -1,11 +1,10 @@
 %prefix smop_s1p_signatures
 %include <smop/s1p.h>
-%mold
 %idconst goto
 %idconst continuation
 %idconst loop
 
-%mold signatures_mold
+%yeast signatures_mold
 my $scope = ?SMOP__S1P__LexicalPrelude;
 
 my $AdhocSignature_scalar = $scope."lookup"("AdhocSignature");
@@ -87,10 +86,10 @@ my $void = $method_sig_cont."BIND"($method_sig);
       (SMOP__Object*[]) {SMOP_REFERENCE(interpreter,interpreter),NULL},
       (SMOP__Object*[]) {NULL}));
 
-  SMOP__Object* frame = SMOP__Mold__Frame_create(interpreter,SMOP_REFERENCE(interpreter,signatures_mold));
+  SMOP__Object* frame = SMOP__Yeast__Frame_create(interpreter,SMOP_REFERENCE(interpreter,signatures_mold));
 
-  mold_reg_set(interpreter,frame,0,SMOP_REFERENCE(interpreter,interpreter));
-  mold_reg_set(interpreter,frame,2,continuation);
+  yeast_reg_set(interpreter,frame,0,SMOP_REFERENCE(interpreter,interpreter));
+  yeast_reg_set(interpreter,frame,2,continuation);
 
   SMOP_DISPATCH(interpreter, SMOP_RI(interpreter),
               SMOP__ID__goto,

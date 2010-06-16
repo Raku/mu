@@ -57,7 +57,7 @@ SMOP__Object* SMOP__S1P__Code_create() {
     SMOP__Object* signature = code->signature;
     smop_nagc_unlock((SMOP__NAGC__Object*)invocant);
 
-    SMOP__Object* frame = SMOP__Mold__Frame_create(interpreter,SMOP_REFERENCE(interpreter,smop_s1p_code_mold));
+    SMOP__Object* frame = SMOP__Yeast__Frame_create(interpreter,SMOP_REFERENCE(interpreter,smop_s1p_code_mold));
 
     SMOP__Object* back = SMOP_DISPATCH(interpreter,SMOP_RI(interpreter),SMOP__ID__continuation,
       SMOP__NATIVE__capture_create(interpreter,
@@ -65,13 +65,13 @@ SMOP__Object* SMOP__S1P__Code_create() {
         (SMOP__Object*[]) {NULL}
     ));
 
-    mold_reg_set(interpreter,frame,0,SMOP_REFERENCE(interpreter,interpreter));
-    mold_reg_set(interpreter,frame,1,SMOP_REFERENCE(interpreter,capture));
-    mold_reg_set(interpreter,frame,2,back);
-    mold_reg_set(interpreter,frame,3,SMOP_REFERENCE(interpreter,invocant));
-    mold_reg_set(interpreter,frame,4,SMOP_REFERENCE(interpreter,outer));
-    mold_reg_set(interpreter,frame,5,SMOP_REFERENCE(interpreter,signature));
-    mold_reg_set(interpreter,frame,6,SMOP_REFERENCE(interpreter,mold));
+    yeast_reg_set(interpreter,frame,0,SMOP_REFERENCE(interpreter,interpreter));
+    yeast_reg_set(interpreter,frame,1,SMOP_REFERENCE(interpreter,capture));
+    yeast_reg_set(interpreter,frame,2,back);
+    yeast_reg_set(interpreter,frame,3,SMOP_REFERENCE(interpreter,invocant));
+    yeast_reg_set(interpreter,frame,4,SMOP_REFERENCE(interpreter,outer));
+    yeast_reg_set(interpreter,frame,5,SMOP_REFERENCE(interpreter,signature));
+    yeast_reg_set(interpreter,frame,6,SMOP_REFERENCE(interpreter,mold));
 
     SMOP_DISPATCH(interpreter,SMOP_RI(interpreter),SMOP__ID__goto,
       SMOP__NATIVE__capture_create(interpreter,
@@ -107,7 +107,7 @@ SMOP__Object* SMOP__S1P__Code_create() {
 %method STORE
     ___VALUE_STORE___;
 
-%mold smop_s1p_code_mold
+%yeast smop_s1p_code_mold
   my $interpreter;
   my $capture;
   my $back;

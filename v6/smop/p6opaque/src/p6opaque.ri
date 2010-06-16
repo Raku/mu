@@ -111,12 +111,12 @@ static SMOP__Object* p6opaque_message_DISPATCH(SMOP__Object* interpreter,
       (SMOP__Object*[]) {SMOP_REFERENCE(interpreter,interpreter),NULL},
       (SMOP__Object*[]) {NULL}));
 
-  SMOP__Object* frame = SMOP__Mold__Frame_create(interpreter,SMOP_REFERENCE(interpreter,dispatch_mold));
-  mold_reg_set(interpreter,frame,0,SMOP_REFERENCE(interpreter,interpreter));
-  mold_reg_set(interpreter,frame,2,SMOP_REFERENCE(interpreter,self));
-  mold_reg_set(interpreter,frame,3,SMOP_REFERENCE(interpreter,identifier));
-  mold_reg_set(interpreter,frame,4,SMOP_REFERENCE(interpreter,capture));
-  mold_reg_set(interpreter,frame,5,continuation);
+  SMOP__Object* frame = SMOP__Yeast__Frame_create(interpreter,SMOP_REFERENCE(interpreter,dispatch_mold));
+  yeast_reg_set(interpreter,frame,0,SMOP_REFERENCE(interpreter,interpreter));
+  yeast_reg_set(interpreter,frame,2,SMOP_REFERENCE(interpreter,self));
+  yeast_reg_set(interpreter,frame,3,SMOP_REFERENCE(interpreter,identifier));
+  yeast_reg_set(interpreter,frame,4,SMOP_REFERENCE(interpreter,capture));
+  yeast_reg_set(interpreter,frame,5,continuation);
 
   SMOP_DISPATCH(interpreter, SMOP_RI(interpreter), SMOP__ID__goto,SMOP__NATIVE__capture_create(interpreter,(SMOP__Object*[]) {SMOP_REFERENCE(interpreter,interpreter), frame, NULL}, (SMOP__Object*[]) {NULL}));
 
@@ -168,7 +168,7 @@ static SMOP__Object* p6opaque_message_DISPATCH(SMOP__Object* interpreter,
   } else
 %}
 
-%mold dispatch_mold
+%yeast dispatch_mold
   my $interpreter;
   my $invocant;
   my $responder;
@@ -185,7 +185,7 @@ static SMOP__Object* p6opaque_message_DISPATCH(SMOP__Object* interpreter,
   my $void = $back."setr"($result);
   $void = $interpreter."goto"($back);
 
-%mold destroyall_mold
+%yeast destroyall_mold
   my $interpreter;
   my $invocant;
   my $responder;

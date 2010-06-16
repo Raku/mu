@@ -17,15 +17,15 @@
     SMOP__NATIVE__capture_create(interpreter,
       (SMOP__Object*[]) {SMOP_REFERENCE(interpreter,interpreter),NULL},
       (SMOP__Object*[]) {NULL}));
-  SMOP__Object* frame = SMOP__Mold__Frame_create(interpreter,
+  SMOP__Object* frame = SMOP__Yeast__Frame_create(interpreter,
                                                  SMOP_REFERENCE(interpreter,
                                                                 smop_pureprototypehow_dispatch_mold));
-  mold_reg_set(interpreter,frame,0,SMOP_REFERENCE(interpreter,interpreter));
-  mold_reg_set(interpreter,frame,1,actualresponder);
-  mold_reg_set(interpreter,frame,2,actualidentifier);
-  mold_reg_set(interpreter,frame,3,actualcapture);
-  mold_reg_set(interpreter,frame,4,actualinvocant);
-  mold_back_set(interpreter,frame,continuation);
+  yeast_reg_set(interpreter,frame,0,SMOP_REFERENCE(interpreter,interpreter));
+  yeast_reg_set(interpreter,frame,1,actualresponder);
+  yeast_reg_set(interpreter,frame,2,actualidentifier);
+  yeast_reg_set(interpreter,frame,3,actualcapture);
+  yeast_reg_set(interpreter,frame,4,actualinvocant);
+  smop_back_set(interpreter,frame,continuation);
 
   SMOP_DISPATCH(interpreter, SMOP_RI(interpreter), SMOP__ID__goto,SMOP__NATIVE__capture_create(interpreter,(SMOP__Object*[]) {SMOP_REFERENCE(interpreter,interpreter), frame, NULL}, (SMOP__Object*[]) {NULL}));
 
@@ -35,12 +35,12 @@
     SMOP__NATIVE__capture_create(interpreter,
       (SMOP__Object*[]) {SMOP_REFERENCE(interpreter,interpreter),NULL},
       (SMOP__Object*[]) {NULL}));
-  SMOP__Object* frame = SMOP__Mold__Frame_create(interpreter,
+  SMOP__Object* frame = SMOP__Yeast__Frame_create(interpreter,
                                                  SMOP_REFERENCE(interpreter,
                                                                 smop_pureprototypehow_add_method_mold));
-  mold_reg_set(interpreter,frame,0,SMOP_REFERENCE(interpreter,interpreter));
-  mold_reg_set(interpreter,frame,1,SMOP_REFERENCE(interpreter,capture));
-  mold_back_set(interpreter,frame,continuation);
+  yeast_reg_set(interpreter,frame,0,SMOP_REFERENCE(interpreter,interpreter));
+  yeast_reg_set(interpreter,frame,1,SMOP_REFERENCE(interpreter,capture));
+  smop_back_set(interpreter,frame,continuation);
 
   SMOP_DISPATCH(interpreter, SMOP_RI(interpreter), SMOP__ID__goto,SMOP__NATIVE__capture_create(interpreter,(SMOP__Object*[]) {SMOP_REFERENCE(interpreter,interpreter), frame, NULL}, (SMOP__Object*[]) {NULL}));
 
@@ -52,12 +52,12 @@
       (SMOP__Object*[]) {SMOP_REFERENCE(interpreter,interpreter),NULL},
       (SMOP__Object*[]) {NULL}));
 
-  SMOP__Object* frame = SMOP__Mold__Frame_create(interpreter,
+  SMOP__Object* frame = SMOP__Yeast__Frame_create(interpreter,
                                                  SMOP_REFERENCE(interpreter,
                                                                 smop_pureprototypehow_add_attribute_mold));
-  mold_reg_set(interpreter,frame,0,SMOP_REFERENCE(interpreter,interpreter));
-  mold_reg_set(interpreter,frame,1,SMOP_REFERENCE(interpreter,capture));
-  mold_back_set(interpreter,frame,continuation);
+  yeast_reg_set(interpreter,frame,0,SMOP_REFERENCE(interpreter,interpreter));
+  yeast_reg_set(interpreter,frame,1,SMOP_REFERENCE(interpreter,capture));
+  smop_back_set(interpreter,frame,continuation);
 
   SMOP_DISPATCH(interpreter, SMOP_RI(interpreter), SMOP__ID__goto,SMOP__NATIVE__capture_create(interpreter,(SMOP__Object*[]) {SMOP_REFERENCE(interpreter,interpreter), frame, NULL}, (SMOP__Object*[]) {NULL}));
 
@@ -103,7 +103,7 @@
 
     }
 
-%mold smop_pureprototypehow_dispatch_mold
+%yeast smop_pureprototypehow_dispatch_mold
     my $interpreter;
     my $responder;
     my $identifier;
@@ -140,7 +140,7 @@
     $void = $back."setr"($result);
     $void = $interpreter."goto"($back);
 
-%mold smop_pureprototypehow_add_method_mold
+%yeast smop_pureprototypehow_add_method_mold
     my $interpreter;
     my $capture;
 
@@ -159,7 +159,7 @@
     my $back = $continuation."back"();
     $void = $interpreter."goto"($back);
 
-%mold smop_pureprototypehow_add_attribute_mold
+%yeast smop_pureprototypehow_add_attribute_mold
     my $interpreter;
     my $capture;
 

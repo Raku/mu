@@ -35,10 +35,10 @@
         (SMOP__Object*[]) {SMOP_REFERENCE(interpreter,interpreter),NULL},
         (SMOP__Object*[]) {NULL}));
 
-    SMOP__Object* frame = SMOP__Mold__Frame_create(interpreter,SMOP_REFERENCE(interpreter,bind_mold));
-    mold_reg_set(interpreter,frame,0,SMOP_REFERENCE(interpreter,interpreter));
-    mold_reg_set(interpreter,frame,1,SMOP_REFERENCE(interpreter,capture));
-    mold_reg_set(interpreter,frame,2,continuation);
+    SMOP__Object* frame = SMOP__Yeast__Frame_create(interpreter,SMOP_REFERENCE(interpreter,bind_mold));
+    yeast_reg_set(interpreter,frame,0,SMOP_REFERENCE(interpreter,interpreter));
+    yeast_reg_set(interpreter,frame,1,SMOP_REFERENCE(interpreter,capture));
+    yeast_reg_set(interpreter,frame,2,continuation);
     SMOP_DISPATCH(interpreter, SMOP_RI(interpreter),
                 SMOP__ID__goto,
       SMOP__NATIVE__capture_create(interpreter,
@@ -55,10 +55,10 @@
         (SMOP__Object*[]) {SMOP_REFERENCE(interpreter,interpreter),NULL},
         (SMOP__Object*[]) {NULL}));
 
-    SMOP__Object* frame = SMOP__Mold__Frame_create(interpreter,SMOP_REFERENCE(interpreter,fetch_mold));
-    mold_reg_set(interpreter,frame,0,SMOP_REFERENCE(interpreter,interpreter));
-    mold_reg_set(interpreter,frame,1,SMOP_REFERENCE(interpreter,capture));
-    mold_reg_set(interpreter,frame,2,continuation);
+    SMOP__Object* frame = SMOP__Yeast__Frame_create(interpreter,SMOP_REFERENCE(interpreter,fetch_mold));
+    yeast_reg_set(interpreter,frame,0,SMOP_REFERENCE(interpreter,interpreter));
+    yeast_reg_set(interpreter,frame,1,SMOP_REFERENCE(interpreter,capture));
+    yeast_reg_set(interpreter,frame,2,continuation);
     SMOP_DISPATCH(interpreter, SMOP_RI(interpreter),
                 SMOP__ID__goto,
       SMOP__NATIVE__capture_create(interpreter,
@@ -73,10 +73,10 @@
         (SMOP__Object*[]) {SMOP_REFERENCE(interpreter,interpreter),NULL},
         (SMOP__Object*[]) {NULL}));
 
-    SMOP__Object* frame = SMOP__Mold__Frame_create(interpreter,SMOP_REFERENCE(interpreter,store_mold));
-    mold_reg_set(interpreter,frame,0,SMOP_REFERENCE(interpreter,interpreter));
-    mold_reg_set(interpreter,frame,1,SMOP_REFERENCE(interpreter,capture));
-    mold_reg_set(interpreter,frame,2,continuation);
+    SMOP__Object* frame = SMOP__Yeast__Frame_create(interpreter,SMOP_REFERENCE(interpreter,store_mold));
+    yeast_reg_set(interpreter,frame,0,SMOP_REFERENCE(interpreter,interpreter));
+    yeast_reg_set(interpreter,frame,1,SMOP_REFERENCE(interpreter,capture));
+    yeast_reg_set(interpreter,frame,2,continuation);
     SMOP_DISPATCH(interpreter, SMOP_RI(interpreter),
                 SMOP__ID__goto,
       SMOP__NATIVE__capture_create(interpreter,
@@ -90,7 +90,7 @@
    char* s = SMOP__NATIVE__idconst_fetch(key,&identifier_size);
    printf("BValue.DEBUG key='%.*s'\n",identifier_size,s); 
 
-%mold bind_mold
+%yeast bind_mold
     my $interpreter;
     my $capture;
     my $back;
@@ -101,7 +101,7 @@
     my $void = $owner."bind_key"($key, $val);
     $void = $interpreter."goto"($back);
 
-%mold store_mold
+%yeast store_mold
     my $interpreter;
     my $capture;
     my $back;
@@ -115,7 +115,7 @@
     my $void = $container."STORE"($val);
     my $void = $interpreter."goto"($back);
 
-%mold fetch_mold
+%yeast fetch_mold
     my $interpreter;
     my $capture;
     my $back;

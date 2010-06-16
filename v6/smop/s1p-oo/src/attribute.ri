@@ -38,20 +38,20 @@
 
 
 %method create_container
-  SMOP__Object* frame = SMOP__Mold__Frame_create(interpreter,SMOP_REFERENCE(interpreter,mold_create_container));
+  SMOP__Object* frame = SMOP__Yeast__Frame_create(interpreter,SMOP_REFERENCE(interpreter,mold_create_container));
 
   SMOP__Object* continuation = SMOP_DISPATCH(interpreter, SMOP_RI(interpreter),
     SMOP__ID__continuation,
     SMOP__NATIVE__capture_create(interpreter,
       (SMOP__Object*[]) {SMOP_REFERENCE(interpreter,interpreter),NULL},
       (SMOP__Object*[]) {NULL}));
-  mold_reg_set(interpreter,frame,0,SMOP_REFERENCE(interpreter,capture));
-  mold_reg_set(interpreter,frame,1,continuation);
-  mold_reg_set(interpreter,frame,2,SMOP_REFERENCE(interpreter,interpreter));
+  yeast_reg_set(interpreter,frame,0,SMOP_REFERENCE(interpreter,capture));
+  yeast_reg_set(interpreter,frame,1,continuation);
+  yeast_reg_set(interpreter,frame,2,SMOP_REFERENCE(interpreter,interpreter));
   SMOP_DISPATCH(interpreter, SMOP_RI(interpreter), SMOP__ID__goto,SMOP__NATIVE__capture_create(interpreter,(SMOP__Object*[]) {SMOP_REFERENCE(interpreter,interpreter), frame, NULL}, (SMOP__Object*[]) {NULL}));
 
 
-%mold mold_create_container
+%yeast mold_create_container
     my $capture;
     my $back;
     my $interpreter;

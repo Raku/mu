@@ -66,7 +66,7 @@
 
     SMOP__Object* coro = SMOP__P5__Coro_create(interpreter,SMOP_REFERENCE(interpreter,invocant),coro_sv);
 
-    SMOP__Object* frame = SMOP__Mold__Frame_create(interpreter,SMOP_REFERENCE(interpreter,mold_run_coro));
+    SMOP__Object* frame = SMOP__Yeast__Frame_create(interpreter,SMOP_REFERENCE(interpreter,mold_run_coro));
 
     SMOP__Object* continuation = SMOP_DISPATCH(interpreter, SMOP_RI(interpreter),
       SMOP__ID__continuation,
@@ -74,9 +74,9 @@
         (SMOP__Object*[]) {SMOP_REFERENCE(interpreter,interpreter),NULL},
         (SMOP__Object*[]) {NULL}));
     free(str);
-    mold_reg_set(interpreter,frame,0,SMOP_REFERENCE(interpreter,interpreter));
-    mold_reg_set(interpreter,frame,1,coro);
-    mold_reg_set(interpreter,frame,2,continuation);
+    yeast_reg_set(interpreter,frame,0,SMOP_REFERENCE(interpreter,interpreter));
+    yeast_reg_set(interpreter,frame,1,coro);
+    yeast_reg_set(interpreter,frame,2,continuation);
 
     SMOP_DISPATCH(interpreter, SMOP_RI(interpreter), SMOP__ID__goto,SMOP__NATIVE__capture_create(interpreter,(SMOP__Object*[]) {SMOP_REFERENCE(interpreter,interpreter), frame, NULL}, (SMOP__Object*[]) {NULL}));
 
@@ -115,7 +115,7 @@
   eval_pv("use SMOP",TRUE);
   ((smop_p5interpreter_struct*)ret)->interpreter = my_perl;
 
-%mold mold_run_coro
+%yeast mold_run_coro
   my $interpreter;
   my $coro;
   my $back;
