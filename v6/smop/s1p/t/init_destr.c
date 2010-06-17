@@ -19,7 +19,7 @@ int main(int argc, char** argv) {
   smop_nagc_init();
   smop_capture_init();
   smop_interpreter_init();
-  smop_mold_init();
+  smop_yeast_init();
 
   SMOP__Object* interpreter = SMOP_interpreter_create(SMOP__EmptyInterpreter);
 

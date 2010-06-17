@@ -237,10 +237,11 @@ sub doms {
                     my ($reg) = @_;
                     if ($regs{$block}{$reg->name}) {
                         $regs{$block}{$reg->name};
-                    } elsif ($reg->name =~ /^¢/) {
+                    } elsif ($reg->name =~ /^¢|^\?/) {
                         my $new_reg = AST::Reg->new(real_name=>$reg->name,name=>$reg->name);
                         $new_reg->type_info(TypeInfo::External->new());
                         $new_reg;
+                    # FIXME
                     } elsif ($reg->name =~ /_\d+$/) {
                         $reg;
                     } else {

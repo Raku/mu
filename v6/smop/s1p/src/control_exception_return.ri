@@ -59,7 +59,7 @@
                                                                              SMOP_REFERENCE(interpreter,interpreter),
                                                                              NULL },
                                                                             (SMOP__Object*[]){ NULL }));
-  yeast_back_set(interpreter,frame,continuation);
+  smop_back_set(interpreter,frame,continuation);
   yeast_reg_set(interpreter,frame,0,SMOP_REFERENCE(interpreter,interpreter));
   yeast_reg_set(interpreter,frame,1,SMOP_REFERENCE(interpreter,capture));
   SMOP_DISPATCH(interpreter, SMOP_RI(interpreter),

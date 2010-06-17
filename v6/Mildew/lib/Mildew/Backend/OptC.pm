@@ -35,6 +35,13 @@ class Mildew::Backend::OptC with Mildew::Backend::C {
         $boilerplate =~ s/%%FUNCS%%/$funcs/;
         $boilerplate;
     }
+
+    method yeast($ast) {
+        my $ssa_ast = SSA::to_ssa($ast->simplified,{
+            '$scope' => Type::Scope->new(outer=> $Mildew::LexicalPreludeType)
+        });
+        $self->emit_block($ssa_ast); 
+    }
     method emit_block($block) {
         state $unique_func_id = 0;
 
@@ -65,9 +72,9 @@ class Mildew::Backend::OptC with Mildew::Backend::C {
 
         my $value = sub {
             if ($_[0]->isa('AST::Reg')) {
-                if ($_[0]->name =~ /^¢/) {
+                if ($_[0]->name =~ /^¢|^\?/) {
                     my $n = $_[0]->name;
-                    $n =~ s/^¢//;
+                    $n =~ s/^¢|^\?//;
                     return $n;
                 }
                 unless (defined $regs{$_[0]->real_name}) {
@@ -147,10 +154,10 @@ class Mildew::Backend::OptC with Mildew::Backend::C {
                         $code .= ';';
                     } elsif ($stmt->rvalue->isa('AST::InferredTypeTest')) {
                         my $type = $stmt->rvalue->value->type_info->type;
-                        $code .= Emit::Yeast::assign($value->($stmt->lvalue),$value->(AST::IntegerConstant->new(value=>eval($stmt->rvalue->test) ? 1 : 0)));
+                        $code .= Emit::Yeast::assign($value->($stmt->lvalue),"SMOP_REFERENCE(interpreter,".$value->(AST::IntegerConstant->new(value=>eval($stmt->rvalue->test) ? 1 : 0).")"));
                         die if $@;
                     } else {
-                        $code .= Emit::Yeast::assign($value->($stmt->lvalue),$value->($stmt->rvalue));
+                        $code .= Emit::Yeast::assign($value->($stmt->lvalue),"SMOP_REFERENCE(interpreter,".$value->($stmt->rvalue).")");
                     }
                 } else {
                     $code .= "/*".ref($stmt)."*/\n";

@@ -8,6 +8,9 @@ use IO::Handle;
 use IPC::Open2;
 use Symbol;
 use List::MoreUtils qw(uniq);
+use lib '../Mildew/lib';
+use Mildew::Frontend::M0ld;
+use Mildew::Backend::OptC;
 require 'mangle.pl';
 
 
@@ -351,8 +354,14 @@ print $destroyall;
 
 my $release = $properties{'nagc.nofree'} ? 'smop_nagc_release_nofree' : 'smop_nagc_release';
 
-while (my ($name,$mold) = each %yeast) {
-    print preprocess_yeast_funcs($mold);
+my %yeasts_processed;
+my $frontend = Mildew::Frontend::M0ld->new();
+my $backend = Mildew::Backend::OptC->new();
+while (my ($name,$m0ld) = each %yeast) {
+    $yeasts_processed{$name} = [$backend->yeast($frontend->parse($m0ld))];
+}
+while (my ($name,$yeast) = each %yeasts_processed) {
+    print $yeast->[0];
 }
 
 print qq[
@@ -383,8 +392,9 @@ while (my ($name,$mold) = each %mold) {
     print "  $name = ",preprocess_m0ld($mold),";\n";
 }
 
-while (my ($name,$mold) = each %yeast) {
-    print "  $name = ",preprocess_yeast_create($mold),";\n";
+while (my ($name,$yeast) = each %yeasts_processed) {
+    print "  ",$yeast->[2],"\n";
+    print "  $name = ",$yeast->[1],";\n";
 }
 
 print $raw{'init_post_mold'} || '';

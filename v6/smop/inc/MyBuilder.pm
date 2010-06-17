@@ -190,11 +190,15 @@ sub ACTION_create_objects {
             $c_file =~ s/\.ri/.c/;
             $c_file =~ s/^/builddir\//;
 
-            system("perl -I../../src/perl6 tools/ri . ./m0ld_exe < $file > $c_file");
-            $cbuilder->compile(object_file  => $object,
-                source       => $c_file,
-                extra_compiler_flags => ccopts,
-                include_dirs => [@INCLUDE]);
+            if (!$self->up_to_date($file, $c_file)) {
+                system("perl -I../../src/perl6 tools/ri . ./m0ld_exe < $file > $c_file");
+            }
+            if (!$self->up_to_date($c_file, $object)) {
+                $cbuilder->compile(object_file  => $object,
+                    source       => $c_file,
+                    extra_compiler_flags => ccopts,
+                    include_dirs => [@INCLUDE]);
+            }
         }
     }
     for my $module (@MODULES) {
