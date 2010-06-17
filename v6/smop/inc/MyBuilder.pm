@@ -25,6 +25,8 @@ use v5.10;
 
 my @MODULES = qw(s0native dump nagc util capture interpreter mold yeast native lost s1p p6opaque s1p-oo p5 mold-message profile);
 
+my $BUILDDIR = 'build';
+
 sub ACTION_install {
     my $self = shift;
     $self->SUPER::ACTION_install;
@@ -154,12 +156,12 @@ sub ACTION_create_objects {
     my @INCLUDE = (catdir("base","include"),catdir("util","include"));
     for my $module (@MODULES) {
 
-        make_path(catdir("builddir",$module,"src"),catdir("builddir",$module,"t"));
+        make_path(catdir($BUILDDIR,$module,"src"),catdir($BUILDDIR,$module,"t"));
 
         # copy headers so that they can be used when compiling generated files 
         for my $header (@{$self->rscan_dir(catdir($module,"src"),qr/\.h$/)}) {
             my $dest = $header;
-            $dest =~ s/^/builddir\//;
+            $dest =~ s/^/$BUILDDIR\//;
             $self->copy_if_modified( from => $header, to => $dest);
 
         }
@@ -170,7 +172,7 @@ sub ACTION_create_objects {
         for my $file (@c_files) {
             my $object = $file;
             $object =~ s/\.c/.o/;
-            $object =~ s/^/builddir\//;
+            $object =~ s/^/$BUILDDIR\//;
             next if $self->up_to_date($file, $object);
             $cbuilder->compile(object_file  => $object,
                 source       => $file,
@@ -184,11 +186,11 @@ sub ACTION_create_objects {
 
             my $object = $file;
             $object =~ s/\.ri/.o/;
-            $object =~ s/^/builddir\//;
+            $object =~ s/^/$BUILDDIR\//;
 
             my $c_file = $file;
             $c_file =~ s/\.ri/.c/;
-            $c_file =~ s/^/builddir\//;
+            $c_file =~ s/^/$BUILDDIR\//;
 
             if (!$self->up_to_date($file, $c_file)) {
                 system("perl -I../../src/perl6 tools/ri . ./m0ld_exe < $file > $c_file");
@@ -206,7 +208,7 @@ sub ACTION_create_objects {
         for my $file (@c_files) {
             my $object = $file;
             $object =~ s/\.c/.o/;
-            $object =~ s/^/builddir\//;
+            $object =~ s/^/$BUILDDIR\//;
             next if $self->up_to_date($file, $object);
             $cbuilder->compile(object_file  => $object,
                 source       => $file,
@@ -278,16 +280,16 @@ sub ACTION_create_tests {
 
     print STDERR "\n** Creating test binaries\n";
 
-    mkdir('builddir/t');
-    my $LIBS = $ldopts .' -L'.catdir('builddir','lib');
+    mkdir(catdir($BUILDDIR,'t'));
+    my $LIBS = $ldopts .' -L'.catdir($BUILDDIR,'lib');
     for my $module (@MODULES) {
         $LIBS .= ' -lsmop-' . $module;
     }
     for my $module (@MODULES) {
-        for my $test (@{$self->rscan_dir("builddir/$module/t" ,       qr/\.o$/)}) {
+        for my $test (@{$self->rscan_dir("$BUILDDIR/$module/t" ,       qr/\.o$/)}) {
             my $exe_file = $test;
             $exe_file =~ s/\.o$/$EXEEXT/;
-            $exe_file =~ s{builddir/\Q$module}{builddir};
+            $exe_file =~ s{$BUILDDIR/\Q$module}{$BUILDDIR};
             say $exe_file;
             if (!$self->up_to_date([$test], $exe_file)) {
                 $CCL->($cbuilder,
@@ -311,12 +313,12 @@ sub ACTION_create_library {
 #    print STDERR "\n** Creating libbtparse$LIBEXT\n";
 
     my %extra_libs = (profile=>["-lrt"],p5=>[split(' ',ldopts)]);
-    mkdir('builddir/lib');
+    mkdir(catdir($BUILDDIR,'lib'));
     for my $module (@MODULES) {
-        my @objects = @{$self->rscan_dir("builddir/$module/src",qr/\.o$/)};
+        my @objects = @{$self->rscan_dir("$BUILDDIR/$module/src",qr/\.o$/)};
         # FIXME libpath
         my $libpath = $self->notes('lib_path');
-        my $libfile = "builddir/lib/libsmop-$module$LIBEXT";
+        my $libfile = "$BUILDDIR/lib/libsmop-$module$LIBEXT";
         if (!$self->up_to_date(\@objects, $libfile)) {
             $LD->($cbuilder,
                 module_name => 'smop-' . $module,
@@ -343,7 +345,7 @@ sub ACTION_test {
     my $self = shift;
 
     $self->dispatch("code");
-    my $path = catdir('builddir','lib');
+    my $path = catdir($BUILDDIR,'lib');
     if ($^O =~ /darwin/i) {
         $ENV{DYLD_LIBRARY_PATH} = $path;
     }
@@ -351,9 +353,7 @@ sub ACTION_test {
         $ENV{LD_LIBRARY_PATH} = $path;
     }
     my $harness = TAP::Harness->new({ exec=>[] });
-    $harness->runtests(glob('builddir/t/*'));
-#    $harness->runtests( @{ $self->rscan_dir("builddir//src",qr/\.o$/)}
-#    system('builddir/s0native/t/const_identifier');
+    $harness->runtests(glob("$BUILDDIR/t/*"));
 
 #    $self->SUPER::ACTION_test
 }
