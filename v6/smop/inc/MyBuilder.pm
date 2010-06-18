@@ -360,7 +360,7 @@ sub ACTION_test {
             [$file];
         }
     }});
-    $harness->runtests(glob("$BUILDDIR/t/*"),glob("*/t/*.m0ld"));
+    die 'Some tests passed' unless $harness->runtests(glob("$BUILDDIR/t/*"),glob("*/t/*.m0ld"))->all_passed;
 }
 
 
