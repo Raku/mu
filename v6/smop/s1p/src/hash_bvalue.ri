@@ -9,12 +9,23 @@
 %{
     SMOP__Object* SMOP__S1P__Hash_BValue_create(SMOP__Object* interpreter, SMOP__Object* owner, SMOP__Object* key) {
         smop_s1p_hash_bvalue_struct* bvalue = (smop_s1p_hash_bvalue_struct*) smop_nagc_alloc(sizeof(smop_s1p_hash_bvalue_struct));
-//        printf("key = %d owner = %d\n",((SMOP__NAGC__Object*)key)->ref_cnt,((SMOP__NAGC__Object*)owner)->ref_cnt);
         bvalue->RI = (SMOP__ResponderInterface*)RI;
         bvalue->key = key;
         bvalue->owner = owner;
         return (SMOP__Object*) bvalue;
     }
+static SMOP__Object* DUMP(SMOP__Object* interpreter,
+                                SMOP__ResponderInterface* responder,
+                                SMOP__Object* obj) {
+
+  smop_s1p_hash_bvalue_struct* bvalue = (smop_s1p_hash_bvalue_struct*) obj;
+  return smop_dump_create((SMOP__Object*[]) {
+      SMOP_DUMP_NAGC,
+      smop_dump_attr_create("key"),smop_dump_obj_create(bvalue->key),
+      smop_dump_attr_create("owner"),smop_dump_obj_create(bvalue->owner),
+      NULL
+  });
+}
 %}
 
 %DESTROYALL {
@@ -84,11 +95,6 @@
        (SMOP__Object*[]) {NULL})
     );
 
-%method DEBUG
-   int identifier_size;
-   SMOP__Object* key = ((smop_s1p_hash_bvalue_struct*)invocant)->key;
-   char* s = SMOP__NATIVE__idconst_fetch(key,&identifier_size);
-   printf("BValue.DEBUG key='%.*s'\n",identifier_size,s); 
 
 %yeast bind_mold
     my $interpreter;
@@ -126,3 +132,6 @@
     my $res = $container."FETCH"();
     my $void = $back."setr"($res);
     $void = $interpreter."goto"($back);
+%init {
+  ((SMOP__ResponderInterface*)RI)->DUMP = DUMP;
+%}

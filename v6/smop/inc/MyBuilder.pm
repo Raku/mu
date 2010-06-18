@@ -355,7 +355,9 @@ sub ACTION_test {
     my $harness = TAP::Harness->new({ exec=>[] });
     $harness->runtests(glob("$BUILDDIR/t/*"));
 
-#    $self->SUPER::ACTION_test
+    my $m0ld_harness = TAP::Harness->new({exec=>["perl","-I../Mildew/lib","../Mildew/bin/mildew","-F","m0ld"] });
+    $m0ld_harness->runtests(glob("*/t/*.m0ld"));
+
 }
 
 

@@ -1,4 +1,5 @@
-my $scope = ?SMOP__S1P__LexicalPrelude;
+my $interpreter;
+my $scope;
 my $void;
 my $out_scalar = $scope."lookup"("$OUT");
 my $out = $out_scalar."FETCH"();

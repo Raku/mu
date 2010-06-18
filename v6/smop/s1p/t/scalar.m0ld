@@ -1,7 +1,5 @@
-
-
-
-my $scope = ?SMOP__S1P__LexicalPrelude;
+my $interpreter;
+my $scope;
 my $out_scalar = $scope."postcircumfix:{ }"("$OUT");
 my $out = $out_scalar."FETCH"();
 
