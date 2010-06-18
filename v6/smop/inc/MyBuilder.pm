@@ -352,12 +352,15 @@ sub ACTION_test {
     if ($^O =~ /(freebsd|solaris|linux)/i) {
         $ENV{LD_LIBRARY_PATH} = $path;
     }
-    my $harness = TAP::Harness->new({ exec=>[] });
-    $harness->runtests(glob("$BUILDDIR/t/*"));
-
-    my $m0ld_harness = TAP::Harness->new({exec=>["perl","-I../Mildew/lib","../Mildew/bin/mildew","-F","m0ld"] });
-    $m0ld_harness->runtests(glob("*/t/*.m0ld"));
-
+    my $harness = TAP::Harness->new({ exec=>sub {
+        my ($harness,$file) = @_;
+        if ($file =~ /\.m0ld$/) {
+            ["perl","-I../Mildew/lib","../Mildew/bin/mildew","-F","m0ld",$file];
+        } else {
+            [$file];
+        }
+    }});
+    $harness->runtests(glob("$BUILDDIR/t/*"),glob("*/t/*.m0ld"));
 }
 
 
