@@ -6,6 +6,14 @@ use Test::Exception;
 use v5.10;
 use Mildew::Frontend::M0ld;
 my $frontend = Mildew::Frontend::M0ld->new;
+
+{
+    my $ast1 = $frontend->parse('my $foo;my $bar;');
+    my $ast2 = $frontend->parse('my $foo;my $bar;my $baz;');
+    is_deeply($ast1->regs,['foo','bar']);
+    is_deeply($ast2->regs,['foo','bar','baz']);
+}
+
 {
 my $ast = $frontend->parse('my $foo = 123;');
 isa_ok($ast,'AST::Block');
@@ -63,6 +71,7 @@ my $cond = 1;
 isa_ok($ast->stmts->[0]->stmts->[0]->rvalue,'AST::Block','submold');
 isa_ok($ast->stmts->[0]->stmts->[0]->rvalue->stmts->[0]->stmts->[0],'AST::Assign','assignment in submold');
 }
+
 {
 my $ast = $frontend->parse('
     noop;
@@ -75,6 +84,7 @@ is_deeply($ast->stmts,[],'noops');
 throws_ok {
 my $ast = $frontend->parse('foo: noop;foo: noop;');
 } qr/label foo/, 'Label duplication is caught';
+
 
 done_testing;
 

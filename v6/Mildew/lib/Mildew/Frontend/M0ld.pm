@@ -53,6 +53,7 @@ class Mildew::Frontend::M0ld {
     my $parser = qr/
     ^<top>$
     <rule: top>
+    (?{ local $REGS=[] })
     (?: <[stmt_with_labels]> ; )*
     (?{ $MATCH = stmts_to_block($MATCH{stmt_with_labels}) })
     
