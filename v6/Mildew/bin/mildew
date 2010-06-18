@@ -72,9 +72,9 @@ sub MAIN {
         die "You can't specify both -C and -B.\n";
     } elsif (!$C and !$B) {
         if ($output) {
-            $C = 'via-C';
+            $C = 'optC';
         } else {
-            $B = 'via-C';
+            $B = 'optC';
         }
     }
     
