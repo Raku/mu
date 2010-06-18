@@ -137,7 +137,7 @@ set_hll_global [\'IO\'], \'Socket\', $P0
             },
             std  => {
                 chdir       => '../../src/perl6/snap',
-                cmd_line    => $^X . ' tryfile %program >>%out 2>&1',
+                cmd_line    => '/opt/perl-5.12.1/bin/perl tryfile %program >>%out 2>&1',
                 revision    => sub { get_revision_from_file('/home/p6eval/pugs/src/perl6/snap/revision')},
             },
             sprixel  => {
