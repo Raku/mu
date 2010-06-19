@@ -163,10 +163,10 @@ set_hll_global [\'IO\'], \'Socket\', $P0
 
     sub said {
         my $self = shift;
-        my $e = shift;
-        my $message = $e->{body};
-        my $address = $e->{address} // '';
-        return if $e->{who} =~ m/^dalek.?$/;
+        my $info = shift;
+        my $message = $info->{body};
+        my $address = $info->{address} // '';
+        return if $info->{who} =~ m/^dalek.?$/;
         $message =~ s/␤/\n/g;
 
         if ($message =~ m/^p6eval:/) {
@@ -176,7 +176,7 @@ set_hll_global [\'IO\'], \'Socket\', $P0
             my $e = $impls{$eval_name};
             return "Please use /msg $self->{nick} $str" 
                 if($eval_name eq 'highlight');
-            warn "$e->{channel} <$e->{who}> $eval_name: $str\n";
+            warn "$info->{channel} <$info->{who}> $eval_name: $str\n";
             my $result = EvalbotExecuter::run($str, $e, $eval_name);
             my $revision = '';
             if (reftype($e) eq 'HASH' && $e->{revision}){
@@ -186,7 +186,7 @@ set_hll_global [\'IO\'], \'Socket\', $P0
         } elsif ( $message =~ m/\Aperl6:\s+(.+)\z/s ){
             my $str = $1;
             return "Program empty" unless length $str;
-            warn "$e->{channel} <$e->{who}> Perl6: $str\n";
+            warn "$info->{channel} <$info->{who}> Perl6: $str\n";
             my %results;
             for my $eval_name qw(elf pugs rakudo){
                 my $e = $impls{$eval_name};
