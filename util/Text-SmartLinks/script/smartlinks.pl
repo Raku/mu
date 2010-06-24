@@ -127,7 +127,13 @@ sub main {
     my @pod_files = sort File::Find::Rule->file()->name('*.pod', '*.pm')->relative->in($pod_dir);
     $sl->{docs} = \@pod_files;
     for my $pod_file (@pod_files) {
-        $sl->process_pod_file($pod_dir, $pod_file, 1);
+        my $success = eval {
+            $sl->process_pod_file($pod_dir, $pod_file, 1);
+            1;
+        }
+        unless ($success) {
+            warn "Error while parsing '$pod_file': $@\n";
+        }
     }
 
     $sl->report_broken_links;
