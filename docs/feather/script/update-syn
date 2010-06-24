@@ -8,7 +8,7 @@ ulimit -v $(( 1 * 10 ** 6 ))
 # cpu-time: 10 min
 ulimit -t $(( 10 * 60 ))
 
-ROOT_DIR=/home/agentzh
+ROOT_DIR=/home/pugscode
 DEST_DIR=$ROOT_DIR/syn
 SVN_DIR=$ROOT_DIR/svn-pugs
 POD_DIR="$SVN_DIR/docs/Perl6/Spec"
