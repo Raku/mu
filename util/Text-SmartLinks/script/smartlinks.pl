@@ -130,7 +130,7 @@ sub main {
         my $success = eval {
             $sl->process_pod_file($pod_dir, $pod_file, 1);
             1;
-        }
+        };
         unless ($success) {
             warn "Error while parsing '$pod_file': $@\n";
         }
