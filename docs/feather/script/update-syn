@@ -16,7 +16,7 @@ POD_DIR="$SVN_DIR/docs/Perl6/Spec"
 cd $SVN_DIR
 svn up
 
-perl util/smartlinks.pl --out-dir $DEST_DIR --dir t --css /syn/perl.css --line-anchor --pod-dir=$POD_DIR
+perl util/smartlinks.pl --out-dir $DEST_DIR --dir $ROOT_DIR/svn-pugs/t --css /syn/perl.css --line-anchor --pod-dir=$POD_DIR
 perl util/smartlinks.pl --out-dir $DEST_DIR/S32 --pod-dir docs/Perl6/Spec/S32-setting-library --dir t --css /syn/perl.css --line-anchor  --pod-dir=$POD_DIR/S32-setting-library
 
 # Copy the icons for smartlinks highlighting
