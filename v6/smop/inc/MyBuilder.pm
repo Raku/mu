@@ -19,6 +19,8 @@ use TAP::Harness;
 
 use ExtUtils::Embed qw(ldopts ccopts);
 
+use SMOP::RI::Writer;
+
 my $ldopts = ldopts . '-lrt';
 
 use v5.10;
@@ -193,7 +195,7 @@ sub ACTION_create_objects {
             $c_file =~ s/^/$BUILDDIR\//;
 
             if (!$self->up_to_date($file, $c_file)) {
-                system("perl -I../../src/perl6 tools/ri . ./m0ld_exe < $file > $c_file");
+                SMOP::RI::Writer::process_ri($file,$c_file);
             }
             if (!$self->up_to_date($c_file, $object)) {
                 $cbuilder->compile(object_file  => $object,
