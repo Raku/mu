@@ -19,7 +19,7 @@ system qq($^X -I $FindBin::Bin/Text-SmartLinks/lib $FindBin::Bin/Text-SmartLinks
 
 sub get_pugs_rev {
     my $stdout = `$^X $FindBin::Bin/version_h.pl`;
-    my ($pugs_rev) = ($stdout =~ /Current version is (\d+)/);
+    my ($pugs_rev) = ($stdout =~ /^(\d+)/);
     if (!$pugs_rev) {
         die "Can't determine  version of the pugs repository via 'svn info'";
 #        # if we don't have access to others' svk info
