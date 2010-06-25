@@ -5,14 +5,6 @@ role Mildew::Backend::C {
     use AST::Helpers;
     use File::Temp qw(tempfile tmpnam);
 
-    method c_source($ast) {
-        my $body = "SMOP__Object* mold = " . $self->m0ld_to_c($self->ast_to_m0ld($ast)) . ";\n" . 
-        "SMOP__Object* frame = SMOP__Mold__Frame_create(interpreter,mold);";
-        my $boilerplate = $self->get_boilerplate;
-        $boilerplate =~ s/%%BODY%%/$body/;
-        $boilerplate =~ s/%%FUNCS%%//;
-        $boilerplate;
-    }
 
     requires 'c_source';
 
@@ -35,9 +27,8 @@ role Mildew::Backend::C {
 
 
     method get_boilerplate {
-        open(my $boilerplate,"../smop/m0ld/m0ld_boilerplate") || die "can't open internal file\n";
-        local $/;
-        return scalar <$boilerplate>;
+        require SMOP::Boilerplate;
+        return $SMOP::Boilerplate::BOILERPLATE;
     }
 
     method run($ast) {
