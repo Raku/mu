@@ -33,6 +33,8 @@ Perl 6 that's achievable for a newcomer.
 
     Write documentation/examples for $function/$feature
 
+    Implement $*ARGFILES (see S02 for description).
+
     Others:
         come up with a (generated) index file for http://u4x.perl6.org/,
         awesomeify 
