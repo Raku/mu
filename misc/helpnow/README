@@ -35,8 +35,8 @@ Perl 6 that's achievable for a newcomer.
 
     Implement $*ARGFILES (see S02 for description).
 
+    Implement Match.new that accepts the Match.perl output
+
     Others:
-        come up with a (generated) index file for http://u4x.perl6.org/,
-        awesomeify 
 
 # vim: spell ft=pod
