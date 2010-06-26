@@ -10,14 +10,18 @@ class Mildew::Backend::OptC with Mildew::Backend::C {
     has trace=>(is=>'rw');
     has dump=>(is=>'rw');
     method BUILD {
-        my ($trace,$dump);
+        my ($trace,$dump,$cflags,$ld_library_path);
         GetOptionsFromArray(
             ($self->options->{BACKEND} // []),
             'trace' => \$trace,
             'dump=s' => \$dump,
+            'cflags=s' => \$cflags,
+            'ld-library-path=s' => \$ld_library_path
         );
         $self->trace($trace);
         $self->dump($dump);
+        $self->cflags([split(',',$cflags)]) if $cflags;
+        $self->ld_library_path([split(',',$ld_library_path)]) if $ld_library_path;
     }
     method c_source($ast) {
         my $ssa_ast = SSA::to_ssa($ast->simplified,{

@@ -5,6 +5,15 @@ role Mildew::Backend::C {
     use AST::Helpers;
     use File::Temp qw(tempfile tmpnam);
 
+    has cflags=>(lazy_build=>1,is=>'rw');
+    has ld_library_path=>(lazy_build=>1,is=>'rw');
+
+    method _build_cflags {
+        die "discovering cflags"
+    }
+    method _ld_library_path {
+        die "discovering LD_LIBRARY_PATH"
+    }
 
     requires 'c_source';
 
@@ -14,15 +23,10 @@ role Mildew::Backend::C {
         binmode($c_fh,":utf8");
         print $c_fh $self->c_source($self->add_prelude_load($ast));
 
-
-        my @SMOP_INCLUDE = map {"-I".$_} glob("../smop/*/include");
-        my @MILDEW_LDOPTS = ( '-L../smop/build/lib',
-                          map { s/^.+?\/lib\/lib|.so$//g; "-l".$_ } glob("../smop/build/lib/*.so") );
-
         say $c_file;
 
         # compile the c source to the executable
-        system("gcc","-g","-xc","-L../smop/build/lib",@SMOP_INCLUDE,@MILDEW_LDOPTS,$c_file,"-o",$output);
+        system("gcc","-g","-xc",@{$self->cflags},$c_file,"-o",$output);
     }
 
 
@@ -35,8 +39,10 @@ role Mildew::Backend::C {
         my $tmp_executable = tmpnam;
         $self->compile($ast,$tmp_executable);
 
-        local $ENV{LD_LIBRARY_PATH} = '../mildew-old/CORE:../smop/build/lib';
-        local $ENV{PERL5LIB} = "../smop/SMOP/blib/lib/:../smop/SMOP/blib/arch:" . ($ENV{PERL5LIB} || '');
+        local $ENV{LD_LIBRARY_PATH} = join(':',@{$self->ld_library_path});
+
+        #'../mildew-old/CORE:../smop/build/lib';
+        # local $ENV{PERL5LIB} = "../smop/SMOP/blib/lib/:../smop/SMOP/blib/arch:" . ($ENV{PERL5LIB} || '');
 
         # TODO valgrind and gdb options
         exec($tmp_executable);

@@ -134,6 +134,21 @@ sub ACTION_create_objects {
 
 
 
+sub smop_lib_flags {
+    my @LIBS;
+    push(@LIBS,split(' ',$ldopts),' -L'.catdir($BUILDDIR,'lib'));
+    for my $module (@MODULES) {
+        push(@LIBS,' -lsmop-' . $module);
+    }
+    return @LIBS;
+}
+sub smop_include_flags {
+    my @INCLUDE = (catdir("base","include"),catdir("util","include"));
+    for my $module (@MODULES) {
+        push(@INCLUDE,"$module/include");
+    }
+    return map {"-I$_"} @INCLUDE;
+}
 sub ACTION_create_tests {
     my $self = shift;
     my $cbuilder = $self->cbuilder;
@@ -217,17 +232,20 @@ sub ACTION_test {
     if ($^O =~ /(freebsd|solaris|linux)/i) {
         $ENV{LD_LIBRARY_PATH} = $path;
     }
+
+    my $cflags = join(',',smop_include_flags(),smop_lib_flags());
     my $harness = TAP::Harness->new({ exec=>sub {
         my ($harness,$file) = @_;
         if ($file =~ /\.m0ld$/) {
-            ["perl","-I../Mildew/lib","../Mildew/bin/mildew","-F","m0ld",$file];
+            [];
+            ["mildew","-F","m0ld",'++BACKEND',$cflags,'++/BACKEND',$file];
         } else {
             [$file];
         }
     }});
     die "Some tests failed.\n" unless $harness->runtests(
         glob("$BUILDDIR/t/*"),
-        #glob("*/t/*.m0ld")
+        glob("*/t/*.m0ld")
     )->all_passed;
 }
 
