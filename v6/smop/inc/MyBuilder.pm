@@ -136,9 +136,9 @@ sub ACTION_create_objects {
 
 sub smop_lib_flags {
     my @LIBS;
-    push(@LIBS,split(' ',$ldopts),' -L'.catdir($BUILDDIR,'lib'));
+    push(@LIBS,'-L'.catdir($BUILDDIR,'lib'));
     for my $module (@MODULES) {
-        push(@LIBS,' -lsmop-' . $module);
+        push(@LIBS,'-lsmop-' . $module);
     }
     return @LIBS;
 }
@@ -238,7 +238,7 @@ sub ACTION_test {
         my ($harness,$file) = @_;
         if ($file =~ /\.m0ld$/) {
             [];
-            ["mildew","-F","m0ld",'++BACKEND',$cflags,'++/BACKEND',$file];
+            ["mildew","-F","m0ld",'++BACKEND','--cflags',$cflags,'--ld-library-path','build/lib','++/BACKEND',$file];
         } else {
             [$file];
         }
