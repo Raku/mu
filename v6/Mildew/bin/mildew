@@ -46,7 +46,7 @@ sub MAIN {
             push(@args,$_);
         }
     }
-    Getopt::Long::Configure(qw( no_ignore_case pass_through require_order));
+    Getopt::Long::Configure(qw(bundling no_ignore_case pass_through require_order));
     GetOptionsFromArray(
         \@args,
         "C=s" => \$C,
