@@ -50,6 +50,7 @@ class Mildew::Frontend::STD {
     method parse($source) {
         VIV::SET_OPT('match'=>1,'pos'=>1);
         $ENV{'STD5PREFIX'} = '../../src/perl6/';
+        $::ORIG = $source;
         my $m = STD->parse($source, actions=>'Actions');
         if ($self->debug) {
             require YAML::XS;
