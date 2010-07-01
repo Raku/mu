@@ -1,5 +1,6 @@
 use v5.10;
 use MooseX::Declare;
+use SMOP;
 role Mildew::Backend::C {
     use AST;
     use AST::Helpers;
@@ -9,10 +10,10 @@ role Mildew::Backend::C {
     has ld_library_path=>(lazy_build=>1,is=>'rw');
 
     method _build_cflags {
-        die "discovering cflags"
+        [SMOP::lib_flags(),SMOP::include_flags()];
     }
-    method _ld_library_path {
-        die "discovering LD_LIBRARY_PATH"
+    method _build_ld_library_path {
+        ['../mildew-old/CORE',SMOP::ld_library_path()];
     }
 
     requires 'c_source';
@@ -23,7 +24,6 @@ role Mildew::Backend::C {
         binmode($c_fh,":utf8");
         print $c_fh $self->c_source($self->add_prelude_load($ast));
 
-        say $c_file;
 
         # compile the c source to the executable
         system("gcc","-g","-xc",@{$self->cflags},$c_file,"-o",$output);

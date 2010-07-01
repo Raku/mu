@@ -32,7 +32,7 @@ my $BUILDDIR = 'build';
 
 sub new {
     my ($self,@args) = @_;
-    $self->SUPER::new(@args,'share_dir'=>"build/lib");
+    $self->SUPER::new(@args,'share_dir'=>[catdir('build','lib'),map {catdir($_,'include')} ('base','util',@MODULES)]);
 }
 
 sub ACTION_install {
