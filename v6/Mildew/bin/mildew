@@ -1,4 +1,5 @@
 #!/usr/bin/perl
+package Mildew::script;
 use Bread::Board;
 use File::Slurp qw(slurp);
 use Getopt::Long qw(GetOptionsFromArray);
@@ -110,7 +111,10 @@ sub MAIN {
         ssa => sub {require SSA;SSA::to_ssa($_[0]->simplified,{})->pretty."\n"},
     );
     my $c = container 'Mildew' => as {
-        service 'frontend'  => (class => $frontends{$F});
+        (service 'options' => (block=>sub {\%args})),
+        service 'frontend'  => (class => $frontends{$F},
+            dependencies=>{options=>depends_on('options')}
+        );
         (service 'backend'  => (block => sub {
             my $s = shift;
             my $backend = $backends{$B // $C};
@@ -119,13 +123,13 @@ sub MAIN {
                 return Mildew::Backend::DumpAST->new(format=>$backend);
             } elsif ($backend) {
                 eval("require $backend");
-                return $backend->new(options=>\%args);
+                return $backend->new(options=>$s->param('options'));
             } elsif ($C) {
                 die "Unknown backend $C passed to -C.";
             } elsif ($B) {
                 die "Unknown backend $B passed to -B.";
             }
-        })),
+        },dependencies=>{options=>depends_on('options')})),
         service 'compiler' => (class => 'Mildew::Compiler',dependencies=>{backend=>depends_on('backend'),frontend=>depends_on('frontend')});
     };
     
