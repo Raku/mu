@@ -1,8 +1,10 @@
 
-(require 'asdf)
+#-clisp (require 'asdf)
+#+clisp (load #p"lib-cl-misc/asdf.lisp")
 #+sbcl  (pushnew #p"lib-cl/for-sbcl/systems/"  asdf:*central-registry*)
-#+clisp (pushnew #p"lib-cl/for-clisp/systems/" asdf:*central-registry*)
 #+ccl   (pushnew #p"lib-cl/for-ccl/systems/"   asdf:*central-registry*)
+#+ecl   (pushnew #p"lib-cl/for-ecl/systems/"   asdf:*central-registry*)
+#+clisp (pushnew #p"lib-cl/for-clisp/systems/" asdf:*central-registry*)
 (asdf:operate 'asdf:compile-op :trivial-gray-streams)
 (asdf:operate 'asdf:compile-op :flexi-streams)
 (asdf:operate 'asdf:compile-op :cl-ppcre)

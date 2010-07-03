@@ -2,9 +2,10 @@
 ELF=../../elf/elf_h
 ELFDIR=../../elf/elf_h_src
 TMP=deleteme
-SBCL=sbcl --dynamic-space-size 1800
+SBCL=sbcl --dynamic-space-size 2500
 CLISP=clisp
 CCL=ccl
+ECL=ecl
 
 elfcl.lisp:: have_parser_cache
 	${ELF} -I ${ELFDIR} EmitSBCL.pm -x -o elfcl.lisp Elf_SBCL.pm
@@ -32,6 +33,9 @@ clean:
 	-rm -rf lib-cl/for-*
 	-rm -rf deleteme/
 
+reallyclean: clean
+	-rm -rf lib-cl/tar
+
 get-libraries:
 	-mkdir lib-cl
 	-mkdir lib-cl/tar
@@ -42,17 +46,25 @@ get-libraries:
 	(cd lib-cl/tar; wget http://weitz.de/files/cl-unicode.tar.gz)
 	(cd lib-cl/tar; wget http://weitz.de/files/cl-ppcre.tar.gz)
 
+setup-ccl:
+	_IMPL_=ccl make _libraries_for_IMPL_
+	${CCL} --no-init -l ./lib-cl_compile.lisp --eval '(quit)'
+
 setup-sbcl:
 	_IMPL_=sbcl make _libraries_for_IMPL_
 	${SBCL} --noinform --load ./lib-cl_compile.lisp --eval '(quit)'
 
+setup-ecl:
+	_IMPL_=ecl make _libraries_for_IMPL_
+	${ECL} -norc -load ./lib-cl_compile.lisp -eval '(quit)'
+
+setup-xcl:
+	_IMPL_=xcl make _libraries_for_IMPL_
+	${XCL} -norc ./lib-cl_compile.lisp
+
 setup-clisp:
 	_IMPL_=clisp make _libraries_for_IMPL_
 	${CLISP} -norc ./lib-cl_compile.lisp
-
-setup-ccl:
-	_IMPL_=ccl make _libraries_for_IMPL_
-	${CCL} --no-init -l ./lib-cl_compile.lisp --eval '(quit)'
 
 _libraries_for_IMPL_:
 	-mkdir lib-cl/for-${_IMPL_}
