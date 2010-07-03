@@ -2,27 +2,30 @@ A ruby transliteration of an old src/perl6/STD.pm
 
 INSTALL
 
-The release of ruby 1.9.0 (dated late December '07) is recommended.
-It will not work with ruby 1.8.  ruby svn HEAD is also not the right thing.
-There used to be iffy support for 1.8, but adding utf handling broke it.
-
-Ruby 1.9.1 has now been released, but has not yet been tested.
-
-http://www.ruby-lang.org/en/news/2007/12/25/ruby-1-9-0-released/
-$ ruby --version
-ruby 1.9.0 (2007-12-25 revision 14709) [...]
-
-Debian:
- ruby1.9 libreadline-ruby1.9
- But readline is now not required for most users.
-
-Non-debian:
- After installing ruby 1.9, you may have to create a ruby1.9 alias:
- # ln -s ruby ruby1.9
-
+(1) Obtain ruby version 1.9 or later.
+(2) Make it available in your PATH as "ruby1.9",
+    or edit the #! line of STD_red_run.
 
 Quick test:
   ./STD_red_run -e 42
+
+Checking ruby version:
+ $ ruby1.9 --version
+ ruby 1.9.0 (2007-12-25 revision 14709) [...]
+ $ ruby --version
+
+Debian/Ubuntu install:
+ As of June 2010,
+ $ sudo apt-get ruby1.9
+ For direct interactive use (not needed for elf), also
+ $ sudo apt-get libreadline-ruby1.9
+
+Fedora install:
+ As of June 2010,
+ Several years after debian got 1.9, fedora still doesn't have it.
+ You'll have to build it yourself.
+ After installing ruby 1.9 somewhere, create a ruby1.9 alias:
+ # ln -s ruby ruby1.9
 
 
 ======================================================================
