@@ -2,9 +2,13 @@
 RUN_TESTS=../../elfish/run-tests/run-tests
 CWD=$(shell pwd)
 
-test: bootstrap regression_test
+test:: bootstrap_test
+	# test no longer runs regression_test.
+
+bootstrap_test:: bootstrap
 
 regression_test:: check_baseline_version have_parser_cache
+	# <pugs>/t should be at the revision given in run-tests.result . 
 	${RUN_TESTS} ${CWD}/../elf_h > test_result
 	diff run-tests.result test_result
 
