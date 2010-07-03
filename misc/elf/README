@@ -11,7 +11,7 @@ It uses perl from your path.  5.10 is recommended, but 5.8 works too.
 
 P6 scripts:
   $ cat say3
-  #!/usr/bin/env ./elf_h
+  #!/usr/bin/env elf_h
   say 3;
   $ ./say3
   3
@@ -20,6 +20,9 @@ INSTALL
 
 First, get <pugs>/misc/STD_red working.  See its README.
 STD_red requires ruby 1.9.
+
+CPAN modules required:
+ autobox Class::MultiMethods
 
 The elf executable is generic perl 5.
 It can be called from any directory.  It can be renamed.
