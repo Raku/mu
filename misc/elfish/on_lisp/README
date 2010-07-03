@@ -5,13 +5,21 @@ QUICKSTART
 
 First, get <pugs>/misc/STD_red working.  See its README.
 
+Install sbcl and/or ccl as desired.
+
+Debian: apt-get sbcl
+But as of June 2010, the debian sbcl is old and buggy.
+(sbcl --version of 1.0.29.11.debian wont work).
+
 $ make get-libraries
 
+For ccl:
 $ make setup-ccl
 $ make elfcl-ccl 
 $ ./elfcl-ccl -e 'say 3'
 $ make check-ccl
 
+For sbcl:  (note: sbcl is verbose)
 $ make setup-sbcl
 $ make elfcl-sbcl
 $ ./elfcl-sbcl -e 'say 3'

@@ -1,10 +1,11 @@
 elfparse - getting STD.pm running on elf.
+Aka: the unfinished elf front-end (rx engine and STD.pm parser) bootstrap.
 
 QUICKSTART
 
 First, get <pugs>/misc/STD_red working.  See its README.
 
-$ sudo cpan -i autobox Class::Multimethods Sub::Name  Regexp::Common
+$ sudo cpan -i YAML::Syck autobox Class::Multimethods Sub::Name  Regexp::Common
 $ sudo cpan -i Moose Term::ANSIColor  #...others...?
 $ make elfblue
 $ ./elfblue -v -s -e 'say 3'

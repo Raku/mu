@@ -1,0 +1,16 @@
+This is a directory for elf related projects.
+See <pugs>/misc/elf/ .
+
+MAIN
+ run-tests/    Regression testing utility for elf.
+ elfparse/     Unfinished elf front-end (rx engine and STD.pm parser) bootstrap.
+ on_lisp/      The elf lisp backend.
+
+OTHER
+ showcode/     A "one night hack" GUI showing elf p6 parse trees.
+ gimme_elf/    An abandoned attempt to create a version of elf as
+               a single standalone perl 5 file.
+ elfX_smop/    An old elf fork to develop a smop backend.
+ doc_p6types/  Prototypes for the p6 prelude being unavailable,
+               this script faked one from <pugs>/docs/p6types.
+ on_poly/      An old project stub.
