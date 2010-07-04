@@ -1,4 +1,4 @@
-package SSA;
+package Mildew::SSA;
 use Scalar::Util qw(refaddr);
 use Set::Object ();
 use List::MoreUtils qw(uniq);
@@ -251,7 +251,7 @@ sub doms {
                 },
                 'AST::Block' => sub {
                     my ($block) = @_;
-                    SSA::to_ssa($block);
+                    Mildew::SSA::to_ssa($block);
                 }
             },$stmt);
         };

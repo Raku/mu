@@ -108,7 +108,7 @@ sub MAIN {
             use Data::Dumper::Concise;
             Dumper($_[0]);
         },
-        ssa => sub {require SSA;SSA::to_ssa($_[0]->simplified,{})->pretty."\n"},
+        ssa => sub {require Mildew::SSA;Mildew::SSA::to_ssa($_[0]->simplified,{})->pretty."\n"},
     );
     my $c = container 'Mildew' => as {
         (service 'options' => (block=>sub {\%args})),

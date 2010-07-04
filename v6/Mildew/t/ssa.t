@@ -1,10 +1,10 @@
 use strict;
 use warnings;
 use AST;
-use SSA;
+use Mildew::SSA;
 use Test::More;
 my $empty_block = AST::Block->new(regs=>['interpreter','scope'],stmts=>[]);
-my $simplified = SSA::to_ssa($empty_block->simplified,{});
+my $simplified = Mildew::SSA::to_ssa($empty_block->simplified,{});
 is_deeply($simplified->stmts,[]);
 is_deeply($simplified->regs,['interpreter','scope']);
 done_testing;

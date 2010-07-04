@@ -1,11 +1,11 @@
 use v5.10;
 use MooseX::Declare;
-use SSA;
+use Mildew::SSA;
 use Types;
 class Mildew::Backend::Perlesque with Mildew::Backend {
     use File::Temp qw(tempfile tmpnam);
     method perlesque_source($ast) {
-        my $ssa_ast = SSA::to_ssa($ast->simplified,{
+        my $ssa_ast = Mildew::SSA::to_ssa($ast->simplified,{
             '$scope' => Type::Scope->new(outer=> $Mildew::LexicalPreludeType)
         });
 

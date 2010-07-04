@@ -1,6 +1,6 @@
 use v5.10;
 use MooseX::Declare;
-use SSA;
+use Mildew::SSA;
 use Types;
 class Mildew::Backend::OptC with Mildew::Backend::C {
     use File::Temp qw(tempfile tmpnam);
@@ -24,7 +24,7 @@ class Mildew::Backend::OptC with Mildew::Backend::C {
         $self->ld_library_path([split(',',$ld_library_path)]) if $ld_library_path;
     }
     method c_source($ast) {
-        my $ssa_ast = SSA::to_ssa($ast->simplified,{
+        my $ssa_ast = Mildew::SSA::to_ssa($ast->simplified,{
             '$scope' => Type::Scope->new(outer=> $Mildew::LexicalPreludeType)
         });
         my ($funcs,$expr,$call_init_funcs) = $self->emit_block($ssa_ast); 
@@ -41,7 +41,7 @@ class Mildew::Backend::OptC with Mildew::Backend::C {
     }
 
     method yeast($ast) {
-        my $ssa_ast = SSA::to_ssa($ast->simplified,{
+        my $ssa_ast = Mildew::SSA::to_ssa($ast->simplified,{
             '$scope' => Type::Scope->new(outer=> $Mildew::LexicalPreludeType)
         });
         $self->emit_block($ssa_ast); 
