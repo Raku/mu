@@ -5,7 +5,7 @@
 use strict;
 use warnings;
 
-my $output = `svn info 2>&1; echo \$?`;
+my $output = `svn info 2>&1`;
 my $revision;
 if ($output =~ /^Revision: (\d+)$/m) {
     $revision = $1;
