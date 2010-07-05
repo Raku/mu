@@ -6,7 +6,7 @@ QUICKSTART
 First, get <pugs>/misc/STD_red working.  See its README.
 
 $ sudo cpan -i YAML::Syck autobox Class::Multimethods Sub::Name  Regexp::Common
-$ sudo cpan -i Moose Term::ANSIColor  #...others...?
+$ sudo cpan -i Moose Term::ANSIColor YAML::Syck Class::Inspector  #...others...?
 $ make elfblue
 $ ./elfblue -v -s -e 'say 3'
 $ make check

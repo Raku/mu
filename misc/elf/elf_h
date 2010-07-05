@@ -38,9 +38,9 @@ if(!defined(&autobox::universal::type)) {
 {package UNIVERSAL; sub WHAT {CORE::ref($_[0]) || autobox::universal::type($_[0]) } }
 
 { package Any;
-  sub can { UNIVERSAL::can($_[0],$_[1]) }
-  sub isa { UNIVERSAL::isa($_[0],$_[1]) }
-  sub does { UNIVERSAL::isa($_[0],$_[1]) }
+  sub can { UNIVERSAL::can( (CORE::ref($_[0])||autobox::universal::type($_[0])) ,$_[1]) }
+  sub isa { UNIVERSAL::isa( (CORE::ref($_[0])||autobox::universal::type($_[0])) ,$_[1]) }
+  sub does { UNIVERSAL::isa( (CORE::ref($_[0])||autobox::universal::type($_[0])) ,$_[1]) }
   sub object_id {
     my $o = $_[0];
     if(ref($o)) {
@@ -2973,7 +2973,7 @@ my $construct_post = sub {my($m);if($Call::Api){my $__api__=$Call::Api;$Call::Ap
 ($m)=@_;
 }
 (do{if(($m->match_hash()->postcircumfix__123_32_125("args"))->Bool) {
-(do{irbuild_ir($m->match_hash()->postcircumfix__123_32_125("args"))->postcircumfix__91_32_93(0)})
+(do{irbuild_ir($m->match_hash()->postcircumfix__123_32_125("args")->postcircumfix__91_32_93(0))})
 }else {
 (do{(do{my $__tmp__=(irbuild_ir($m->match_hash()->postcircumfix__123_32_125("dotty")));if($__tmp__->Bool){no warnings "void";$__tmp__}else{$__tmp__=(irbuild_ir($m->match_hash()->postcircumfix__123_32_125("postop")));no warnings "void";$__tmp__}})})
 }})};
@@ -2981,7 +2981,7 @@ my $construct_pre = sub {my($m);if($Call::Api){my $__api__=$Call::Api;$Call::Api
 ($m)=@_;
 }
 (do{if(($m->match_hash()->postcircumfix__123_32_125("args"))->Bool) {
-(do{irbuild_ir($m->match_hash()->postcircumfix__123_32_125("args"))->postcircumfix__91_32_93(0)})
+(do{irbuild_ir($m->match_hash()->postcircumfix__123_32_125("args")->postcircumfix__91_32_93(0))})
 }elsif(($m->match_hash()->postcircumfix__123_32_125("prefix"))->Bool) {
 (do{irbuild_ir($m->match_hash()->postcircumfix__123_32_125("prefix"))})
 }else {
@@ -4258,9 +4258,9 @@ if\(\!defined\(\&autobox\:\:universal\:\:type\)\)\ \{\
 \{package\ UNIVERSAL\;\ sub\ WHAT\ \{CORE\:\:ref\(\$_\[0\]\)\ \|\|\ autobox\:\:universal\:\:type\(\$_\[0\]\)\ \}\ \}\
 \
 \{\ package\ Any\;\
-\ \ sub\ can\ \{\ UNIVERSAL\:\:can\(\$_\[0\]\,\$_\[1\]\)\ \}\
-\ \ sub\ isa\ \{\ UNIVERSAL\:\:isa\(\$_\[0\]\,\$_\[1\]\)\ \}\
-\ \ sub\ does\ \{\ UNIVERSAL\:\:isa\(\$_\[0\]\,\$_\[1\]\)\ \}\
+\ \ sub\ can\ \{\ UNIVERSAL\:\:can\(\ \(CORE\:\:ref\(\$_\[0\]\)\|\|autobox\:\:universal\:\:type\(\$_\[0\]\)\)\ \,\$_\[1\]\)\ \}\
+\ \ sub\ isa\ \{\ UNIVERSAL\:\:isa\(\ \(CORE\:\:ref\(\$_\[0\]\)\|\|autobox\:\:universal\:\:type\(\$_\[0\]\)\)\ \,\$_\[1\]\)\ \}\
+\ \ sub\ does\ \{\ UNIVERSAL\:\:isa\(\ \(CORE\:\:ref\(\$_\[0\]\)\|\|autobox\:\:universal\:\:type\(\$_\[0\]\)\)\ \,\$_\[1\]\)\ \}\
 \ \ sub\ object_id\ \{\
 \ \ \ \ my\ \$o\ \=\ \$_\[0\]\;\
 \ \ \ \ if\(ref\(\$o\)\)\ \{\

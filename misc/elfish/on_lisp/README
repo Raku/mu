@@ -20,6 +20,7 @@ $ ./elfcl-ccl -e 'say 3'
 $ make check-ccl
 
 For sbcl:  (note: sbcl is verbose)
+$ sbcl --version  # 1.0.40 works; 1.0.29.11.debian doesn't.
 $ make setup-sbcl
 $ make elfcl-sbcl
 $ ./elfcl-sbcl -e 'say 3'

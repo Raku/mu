@@ -117,7 +117,7 @@ $blackboard::expect_term_base;
 
     my $construct_post = sub ($m) {
       if $m.match_hash{'args'} {
-irbuild_ir($m.match_hash{'args'})[0]
+irbuild_ir($m.match_hash{'args'}[0])
 } else {
 irbuild_ir($m.match_hash{'dotty'}) or irbuild_ir($m.match_hash{'postop'})
 };
@@ -125,7 +125,7 @@ irbuild_ir($m.match_hash{'dotty'}) or irbuild_ir($m.match_hash{'postop'})
 
     my $construct_pre = sub ($m) {
       if $m.match_hash{'args'} {
-irbuild_ir($m.match_hash{'args'})[0]
+irbuild_ir($m.match_hash{'args'}[0])
 } elsif $m.match_hash{'prefix'} {
 irbuild_ir($m.match_hash{'prefix'})
 } else {

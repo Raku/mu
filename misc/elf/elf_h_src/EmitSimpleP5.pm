@@ -71,9 +71,9 @@ if(!defined(&autobox::universal::type)) {
 {package UNIVERSAL; sub WHAT {CORE::ref($_[0]) || autobox::universal::type($_[0]) } }
 
 { package Any;
-  sub can { UNIVERSAL::can($_[0],$_[1]) }
-  sub isa { UNIVERSAL::isa($_[0],$_[1]) }
-  sub does { UNIVERSAL::isa($_[0],$_[1]) }
+  sub can { UNIVERSAL::can( (CORE::ref($_[0])||autobox::universal::type($_[0])) ,$_[1]) }
+  sub isa { UNIVERSAL::isa( (CORE::ref($_[0])||autobox::universal::type($_[0])) ,$_[1]) }
+  sub does { UNIVERSAL::isa( (CORE::ref($_[0])||autobox::universal::type($_[0])) ,$_[1]) }
   sub object_id {
     my $o = $_[0];
     if(ref($o)) {
