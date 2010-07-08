@@ -6,7 +6,7 @@ my $out = $out_scalar."FETCH"();
 #my $out_scalar = $scope."lookup"("$OUT");
 #my $out = $out_scalar."FETCH"();
 
-$void = $out."print"("1..5\n");
+$void = $out."print"("1..9\n");
 
 my $LexicalScope_scalar = $scope."lookup"("LexicalScope");
 my $LexicalScope = $LexicalScope_scalar."FETCH"();
@@ -46,3 +46,33 @@ goto end_if2;
 ok5: my $void = $out."print"("ok 5\n");
 end_if2: noop;
 
+my $var3 = $new_scope."postcircumfix:{ }"("$bar");
+my $void = $var3."STORE"("ok 6 # variables are cloned over\n");
+my $ok6 = $var3."FETCH"();
+my $void = $out."print"($ok6);
+
+my $cloned_scope = $new_scope."clone"();
+
+my $void = $out."print"("ok 7 # lives after clone\n");
+
+
+my $var3_cloned = $cloned_scope."postcircumfix:{ }"("$bar");
+
+
+my $var4_in_orginal = $new_scope."postcircumfix:{ }"("$baz");
+my $var4_in_cloned = $cloned_scope."postcircumfix:{ }"("$baz");
+
+my $var5_in_orginal = $new_scope."postcircumfix:{ }"("$baz2");
+my $var5_in_cloned = $cloned_scope."postcircumfix:{ }"("$baz2");
+
+my $void = $var4_in_cloned."STORE"("ok 8 # new variables in the cloned scope don't get overwritten by ones in the orginal\n");
+my $void = $var4_in_orginal."STORE"("not ok 8 # new variables in the cloned scope get overwritten by ones in the orginal\n");
+
+my $ok8 = $var4_in_cloned."FETCH"();
+my $void = $out."print"($ok8);
+
+my $void = $var5_in_orginal."STORE"("ok 9 # new variables in the orginal scope don't get overwritten by ones in the cloned\n");
+my $void = $var5_in_cloned."STORE"("not ok 9 # new variables in the orginal scope get overwritten by ones in the cloned\n");
+
+my $ok9 = $var5_in_orginal."FETCH"();
+my $void = $out."print"($ok9);

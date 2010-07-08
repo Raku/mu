@@ -107,6 +107,32 @@
 %method lookup(key)
   ret = smop_shortcut_lexical_scope_lookup(interpreter,invocant,key);
 
+%method clone
+
+  smop_s1p_lexicalscope_struct* copy = smop_nagc_alloc(sizeof(smop_s1p_lexicalscope_struct));
+  copy->RI = RI;
+
+  copy->outer = SMOP_REFERENCE(interpreter,((smop_s1p_lexicalscope_struct*)invocant)->outer);
+
+  smop_lexicalscope_entry* entries = ((smop_s1p_lexicalscope_struct*)invocant)->entries;
+
+  smop_lexicalscope_entry* cloned_entries = NULL;
+
+
+  while (entries) {
+    smop_lexicalscope_entry* new_entry = (smop_lexicalscope_entry*) malloc(sizeof(smop_lexicalscope_entry));
+
+    new_entry->next = cloned_entries;
+    new_entry->key = SMOP_REFERENCE(interpreter,entries->key);
+    new_entry->value = SMOP_REFERENCE(interpreter,entries->value);
+    cloned_entries = new_entry;
+
+    entries = entries->next;
+  }
+  copy->entries = cloned_entries;
+
+  ret = (SMOP__Object*) copy;
+
 %DESTROYALL {
     smop_lexicalscope_entry* entries = ((smop_s1p_lexicalscope_struct*)invocant)->entries;
     SMOP__Object* outer = ((smop_s1p_lexicalscope_struct*)invocant)->outer;
