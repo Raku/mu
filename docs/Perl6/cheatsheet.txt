@@ -1,4 +1,4 @@
-Perl 6 cheat sheet v2
+Perl 6 cheat sheet v2                                                »ö«
 
 SIGILS    MAJOR/MINOR CONTEXTS         ACCESS ARRAYS      HASHES
 $scalar   item   list       sink       whole: @array[]    %hash{}
@@ -26,7 +26,7 @@ unary + - ~ ! ? ^         EXPR if EXPR for LIST;    # list comprehension
 * / % %% div              next, last, redo            # loop controls
 + -                       proceed, succeed            # switch controls
 x xx       TYPES
-~          Bool Bit Int Rat FatRat UInt Num Complex int32, complex64 etc.
+~          Bool Bit Int Rat FatRat UInt Num Complex int32 complex64 etc.
 &          Str Cat Blob Char Byte Codepoint Grapheme Buf buf8 buf32 utf8
 | ^                               IO Mu Any Cool Junction Whatever Match
 sleep abs sin temp                              Parcel Capture Signature
@@ -39,7 +39,7 @@ sleep abs sin temp                              Parcel Capture Signature
 so not                 augment  benign parasitic       Failure Exception
 , :                  supersede  deadly parasitic        Instant Duration
 X Xop Z Zop ...                                            Date DateTime
-say die map etc   OPERATOR DOMAINS
+say die map etc.  OPERATOR DOMAINS
 and               Numeric: ==  !==(!=) + <      >     <=> <=     >=
 or xor            Stringy: eq  !eq(ne) ~ lt     gt    leg le     ge
 <== ==>             Value: eqv  !eqv     before after cmp !after !before
