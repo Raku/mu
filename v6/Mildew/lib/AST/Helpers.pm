@@ -172,8 +172,9 @@ sub XXX {
 
 sub trailing_return {
     my ($stmts,) = @_;
-    $stmts->[-1] = call(setr => call(back=>call(continuation => reg '$interpreter')),[$stmts->[-1]]) if $stmts->[-1];
-    [@{$stmts},call(goto => reg '$interpreter',[call back=>call(continuation => reg '$interpreter')])];
+    my @stmts = (@{$stmts});
+    $stmts[-1] = call(setr => call(back=>call(continuation => reg '$interpreter')),[$stmts[-1]]) if $stmts[-1];
+    [@stmts,call(goto => reg '$interpreter',[call back=>call(continuation => reg '$interpreter')])];
 }
 
 sub varname {
