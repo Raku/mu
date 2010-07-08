@@ -1,0 +1,1 @@
+cp Actions.pm CORE.setting CursorBase.pmc DEBUG.pmc LazyMap.pm NAME.pmc NULL.lex RE_ast.pmc Stash.pmc mangle.pl std uniprops 
