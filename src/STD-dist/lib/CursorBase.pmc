@@ -198,7 +198,8 @@ sub new {
 sub parse {
     my $class = shift;
     my $text = shift;
-    local $::FILE = { name => '(eval)' };
+    my %args = @_;
+    local $::FILE = { name => $args{'filename'} // '(eval)' };
     $class->initparse($text,@_);
 }
 
@@ -240,6 +241,8 @@ sub initparse {
     my $filename = $args{filename};
 
     local $::TMP_PREFIX = $tmp_prefix;
+    local $::SYML_SEARCH_PATH = $args{syml_search_path} // [$::TMP_PREFIX];
+
     local $::SETTINGNAME = $setting;
     local $::ACTIONS = $actions;
     local $::RECURSIVE_PERL = $args{recursive_perl};
@@ -283,14 +286,14 @@ sub initparse {
 sub load_lex {
     my $self = shift;
     my $setting = shift;
-    my $syml = $::TMP_PREFIX . 'syml';
-    my $file = "$syml/$setting.syml";
-    if (-e $file) {
-        bless($self->load_yaml_lex($setting),'Stash');
+    for my $prefix (@{$::SYML_SEARCH_PATH}) {
+        my $syml = $prefix . 'syml';
+        my $file = "$syml/$setting.syml";
+        if (-e $file) {
+            return bless($self->load_yaml_lex($setting,$file),'Stash');
+        }
     }
-    else {
-        bless($self->load_perl_lex($setting),'Stash');
-    }
+    bless($self->load_perl_lex($setting),'Stash');
 }
 
 sub load_perl_lex {
@@ -331,12 +334,10 @@ sub LoadFile {
 sub load_yaml_lex {
     my $self = shift;
     my $setting = shift;
+    my $file = shift;
     state %LEXS;
     return $LEXS{$setting} if $LEXS{$setting};
-    my $syml = $::TMP_PREFIX . 'syml';
-    my $file = "$syml/$setting.syml";
-    my $store = "$syml/$setting.syml.store";
-    mkdir $syml unless -d $syml;
+    my $store = $file.".store";
     if (-f $store and -M $file and -M $file > -M $store) {
         $LEXS{$setting} = retrieve($store);
     }

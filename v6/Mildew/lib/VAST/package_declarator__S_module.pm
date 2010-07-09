@@ -7,9 +7,9 @@ class VAST::package_declarator__S_module {
         my $name  = $self->{package_def}{longname}[0]{name}{identifier}{TEXT};
         my $id_type_sub = AST::unique_id;
     
-        unless ($self->{package_def}{blockoid}) {
+        if ($self->{package_def}{statementlist}) {
             #HACK we ignore my module foo because it's need for defining the setting
-            return lookupf("False");
+            return AST::Seq->new(stmts=>$self->{package_def}{statementlist}->emit_m0ld);
         }
         my $init = $self->{package_def}{blockoid}->emit_m0ld;
     

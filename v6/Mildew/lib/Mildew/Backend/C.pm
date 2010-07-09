@@ -16,7 +16,8 @@ role Mildew::Backend::C {
     }
     method _build_ld_library_path {
         require SMOP;
-        ['.',SMOP::ld_library_path()];
+        require Mildew::Setting::SMOP;
+        [Mildew::Setting::SMOP::ld_library_path(),SMOP::ld_library_path()];
     }
 
     requires 'c_source';

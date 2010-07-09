@@ -5,21 +5,26 @@ use MooseX::Declare;
     package main;
     use STD;
 }
-BEGIN {package main;do 'viv';die $@ if $@};
+BEGIN {package main;require 'viv'};
 class Mildew::Frontend::STD {
     use Getopt::Long qw(GetOptionsFromArray);
+    use Mildew::Setting::SMOP;
+    use Digest::MD4 qw(md4_hex);
     has options=>(is=>'ro',default=>sub {{}});
     has debug=>(is=>'rw',default=>0);
     has setting=>(is=>'rw',default=>'MildewCORE');
+    has tmp=>(is=>'rw',default=>'/tmp/mildew/');
     method BUILD {
-        my ($debug,$setting);
+        my ($debug,$setting,$tmp);
         GetOptionsFromArray(
             ($self->options->{FRONTEND} // []),
             'debug' => \$debug,
             'setting=s' => \$setting,
+            'tmp=s' => \$tmp,
         );
         $self->debug($debug);
         $self->setting($setting) if $setting;
+        $self->tmp($tmp.'/') if $tmp;
     }
     use Scalar::Util qw(reftype);
     sub prune {
@@ -34,7 +39,6 @@ class Mildew::Frontend::STD {
             delete $what->{BEG};
             delete $what->{END};
             delete $what->{WS};
-            delete $what->{MATCH};
             for my $key (keys %{$what}) {
                 prune($what->{$key});
             }
@@ -46,9 +50,10 @@ class Mildew::Frontend::STD {
         }
     }
     method parse($source) {
-        VIV::SET_OPT('match'=>1,'pos'=>1);
         $::ORIG = $source;
-        my $m = STD->parse($source, actions=>'Actions',tmp_prefix=>'tmp/',setting=>$self->setting);
+        mkdir($self->tmp);
+        my $m = STD->parse($source, actions=>'Actions',tmp_prefix=>$self->tmp,syml_search_path=>[$self->tmp,Mildew::Setting::SMOP::std_tmp_files_path.'/'],setting=>$self->setting,filename=>md4_hex($source));
+
         if ($self->debug) {
             require YAML::XS;
             prune($m);

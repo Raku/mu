@@ -1,0 +1,191 @@
+diff --git a/src/STD-dist/bin/viv b/src/STD-dist/bin/viv
+index e2a2e37..602782d 100755
+--- a/src/STD-dist/bin/viv
++++ b/src/STD-dist/bin/viv
+@@ -54,6 +54,7 @@ use Encode;
+ use Scalar::Util 'blessed', 'refaddr';
+ use Storable;
+ use Try::Tiny;
++BEGIN {say "in viv"}
+ 
+ our $OPT_match = 0;
+ our $OPT_log = 0;
+diff --git a/src/STD-dist/lib/CursorBase.pmc b/src/STD-dist/lib/CursorBase.pmc
+index fe3361e..9095258 100644
+--- a/src/STD-dist/lib/CursorBase.pmc
++++ b/src/STD-dist/lib/CursorBase.pmc
+@@ -198,7 +198,8 @@ sub new {
+ sub parse {
+     my $class = shift;
+     my $text = shift;
+-    local $::FILE = { name => '(eval)' };
++    my %args = @_;
++    local $::FILE = { name => $args{'filename'} // '(eval)' };
+     $class->initparse($text,@_);
+ }
+ 
+diff --git a/src/STD-dist/lib/viv b/src/STD-dist/lib/viv
+index 602782d..2d370c7 100755
+--- a/src/STD-dist/lib/viv
++++ b/src/STD-dist/lib/viv
+@@ -4261,5 +4261,6 @@ END
+ if ($0 eq __FILE__) {
+     ::MAIN(@ARGV);
+ }
++1;
+ 
+ # vim: ts=8 sw=4 noexpandtab smarttab
+diff --git a/src/perl6/viv b/src/perl6/viv
+index e2a2e37..206b598 100755
+--- a/src/perl6/viv
++++ b/src/perl6/viv
+@@ -4260,5 +4260,6 @@ END
+ if ($0 eq __FILE__) {
+     ::MAIN(@ARGV);
+ }
++1;
+ 
+ # vim: ts=8 sw=4 noexpandtab smarttab
+diff --git a/v6/Mildew-Setting/MyBuilder.pm b/v6/Mildew-Setting/MyBuilder.pm
+deleted file mode 100644
+index 829f432..0000000
+--- a/v6/Mildew-Setting/MyBuilder.pm
++++ /dev/null
+@@ -1,47 +0,0 @@
+-package MyBuilder;
+-use base 'Module::Build';
+-
+-use warnings;
+-use strict;
+-
+-use Config;
+-use Carp;
+-
+-use Config::AutoConf;
+-use Config::AutoConf::Linker;
+-
+-use ExtUtils::ParseXS;
+-use ExtUtils::Mkbootstrap;
+-
+-use File::Spec::Functions qw(catdir catfile);
+-use File::Path qw(make_path);
+-use TAP::Harness;
+-
+-use ExtUtils::Embed qw(ldopts ccopts);
+-
+-use v5.10;
+-
+-
+-my $BUILDDIR = 'build';
+-
+-
+-sub new {
+-    my ($self,@args) = @_;
+-    $self->SUPER::new(@args);
+-    # share_dir=>[...]
+-}
+-
+-
+-sub ACTION_code {
+-    my $self = shift;
+-    $self->SUPER::ACTION_code;
+-
+-    use STD;
+-    mkdir('tmp');
+-    STD->parsefile('DefinedBySMOP.setting',setting=>'NULL',tmp_prefix=>'tmp/');
+-    STD->parsefile('MildewCORE.setting',setting=>'DefinedBySMOP',tmp_prefix=>'tmp/');
+-}
+-
+-
+-
+-1;
+diff --git a/v6/Mildew/dist.ini b/v6/Mildew/dist.ini
+index 674d0e1..8bc6b92 100644
+--- a/v6/Mildew/dist.ini
++++ b/v6/Mildew/dist.ini
+@@ -21,5 +21,4 @@ Digest::MD4 = 0
+ Forest::Tree = 0.08
+ Data::Dumper::Concise = 1.200 
+ Regexp::Grammars = 1.002
+-[ModuleBuild]
+-mb_class = MyBuilder
++[MakeMaker]
+diff --git a/v6/Mildew/lib/Mildew/Backend/C.pm b/v6/Mildew/lib/Mildew/Backend/C.pm
+index 92861f0..31c9c71 100644
+--- a/v6/Mildew/lib/Mildew/Backend/C.pm
++++ b/v6/Mildew/lib/Mildew/Backend/C.pm
+@@ -16,7 +16,8 @@ role Mildew::Backend::C {
+     }
+     method _build_ld_library_path {
+         require SMOP;
+-        ['.',SMOP::ld_library_path()];
++        require Mildew::Setting::SMOP;
++        [Mildew::Setting::SMOP::ld_library_path(),SMOP::ld_library_path()];
+     }
+ 
+     requires 'c_source';
+diff --git a/v6/Mildew/lib/Mildew/Frontend/STD.pm b/v6/Mildew/lib/Mildew/Frontend/STD.pm
+index bf19132..7ffca10 100644
+--- a/v6/Mildew/lib/Mildew/Frontend/STD.pm
++++ b/v6/Mildew/lib/Mildew/Frontend/STD.pm
+@@ -5,9 +5,10 @@ use MooseX::Declare;
+     package main;
+     use STD;
+ }
+-BEGIN {package main;do 'viv';die $@ if $@};
++BEGIN {package main;require 'viv'};
+ class Mildew::Frontend::STD {
+     use Getopt::Long qw(GetOptionsFromArray);
++    use Mildew::Setting::SMOP;
+     has options=>(is=>'ro',default=>sub {{}});
+     has debug=>(is=>'rw',default=>0);
+     has setting=>(is=>'rw',default=>'MildewCORE');
+@@ -34,7 +35,6 @@ class Mildew::Frontend::STD {
+             delete $what->{BEG};
+             delete $what->{END};
+             delete $what->{WS};
+-            delete $what->{MATCH};
+             for my $key (keys %{$what}) {
+                 prune($what->{$key});
+             }
+@@ -46,9 +46,9 @@ class Mildew::Frontend::STD {
+         }
+     }
+     method parse($source) {
+-        VIV::SET_OPT('match'=>1,'pos'=>1);
+         $::ORIG = $source;
+-        my $m = STD->parse($source, actions=>'Actions',tmp_prefix=>'tmp/',setting=>$self->setting);
++        my $m = STD->parse($source, actions=>'Actions',tmp_prefix=>Mildew::Setting::SMOP::std_tmp_files_path.'/',setting=>$self->setting);
++
+         if ($self->debug) {
+             require YAML::XS;
+             prune($m);
+diff --git a/v6/Mildew/lib/VAST/longname.pm b/v6/Mildew/lib/VAST/longname.pm
+index 67a20c1..50a00e8 100644
+--- a/v6/Mildew/lib/VAST/longname.pm
++++ b/v6/Mildew/lib/VAST/longname.pm
+@@ -7,7 +7,7 @@ class VAST::longname {
+         if ($self->{colonpair}[1]) {
+            if ($self->{colonpair}[1]{signature}) {
+                # TODO handle whitespace sensibly
+-               $single_variant = ':(' . $self->{colonpair}[1]{signature}->{MATCH}->Str . ')';
++               $single_variant = ':(' . $self->{colonpair}[1]{signature}->Str . ')';
+            } else {
+                XXX;
+            } 
+diff --git a/v6/Mildew/lib/VAST/package_declarator__S_module.pm b/v6/Mildew/lib/VAST/package_declarator__S_module.pm
+index 782dfc0..4e32932 100644
+--- a/v6/Mildew/lib/VAST/package_declarator__S_module.pm
++++ b/v6/Mildew/lib/VAST/package_declarator__S_module.pm
+@@ -7,9 +7,9 @@ class VAST::package_declarator__S_module {
+         my $name  = $self->{package_def}{longname}[0]{name}{identifier}{TEXT};
+         my $id_type_sub = AST::unique_id;
+     
+-        unless ($self->{package_def}{blockoid}) {
++        if ($self->{package_def}{statementlist}) {
+             #HACK we ignore my module foo because it's need for defining the setting
+-            return lookupf("False");
++            return AST::Seq->new(stmts=>$self->{package_def}{statementlist}->emit_m0ld);
+         }
+         my $init = $self->{package_def}{blockoid}->emit_m0ld;
+     

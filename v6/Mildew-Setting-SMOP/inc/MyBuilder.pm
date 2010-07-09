@@ -27,8 +27,7 @@ my $BUILDDIR = 'build';
 
 sub new {
     my ($self,@args) = @_;
-    $self->SUPER::new(@args);
-    # share_dir=>[...]
+    $self->SUPER::new(share_dir=>['tmp','compiled'],@args);
 }
 
 
@@ -38,8 +37,16 @@ sub ACTION_code {
 
     use STD;
     mkdir('tmp');
+    mkdir('compiled');
     STD->parsefile('DefinedBySMOP.setting',setting=>'NULL',tmp_prefix=>'tmp/');
     STD->parsefile('MildewCORE.setting',setting=>'DefinedBySMOP',tmp_prefix=>'tmp/');
+
+    system('mildew','-C','Cso',
+        '++BACKEND','--no-setting','++/BACKEND',
+        '++FRONTEND','--tmp','tmp','--setting','DefinedBySMOP','++/FRONTEND',
+        '-o','compiled/MildewCORE.setting.so',
+        'MildewCORE.setting'
+    );
 }
 
 

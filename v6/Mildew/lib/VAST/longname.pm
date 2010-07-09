@@ -7,7 +7,7 @@ class VAST::longname {
         if ($self->{colonpair}[1]) {
            if ($self->{colonpair}[1]{signature}) {
                # TODO handle whitespace sensibly
-               $single_variant = ':(' . $self->{colonpair}[1]{signature}->{MATCH}->Str . ')';
+               $single_variant = ':(' . $self->{colonpair}[1]{signature}->Str . ')';
            } else {
                XXX;
            } 
