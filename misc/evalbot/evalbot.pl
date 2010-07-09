@@ -150,7 +150,7 @@ set_hll_global [\'IO\'], \'Socket\', $P0
             },
             yapsi   => {
                 chdir       => '../../../yapsi',
-                cmd_line    => '/home/p6eval/rakudo-alpha/parrot_install/bin/alpha yapsi %program >>%out 2>&1',
+                cmd_line    => 'PERL6LIB=lib /home/p6eval/rakudo-alpha/parrot_install/bin/alpha yapsi %program >>%out 2>&1',
             },
             highlight  => {
                 chdir       => '../../src/perl6/std_hilite',
