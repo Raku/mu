@@ -1,6 +1,5 @@
 use v5.10;
 use MooseX::Declare;
-use SMOP;
 role Mildew::Backend::C {
     use AST;
     use AST::Helpers;
@@ -10,9 +9,11 @@ role Mildew::Backend::C {
     has ld_library_path=>(lazy_build=>1,is=>'rw');
 
     method _build_cflags {
+        require SMOP;
         [SMOP::lib_flags(),SMOP::include_flags()];
     }
     method _build_ld_library_path {
+        require SMOP;
         ['../mildew-old/CORE',SMOP::ld_library_path()];
     }
 
