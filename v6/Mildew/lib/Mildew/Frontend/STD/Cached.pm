@@ -1,5 +1,4 @@
 use v5.10;
-use lib '../../src/perl6';
 use MooseX::Declare;
 class Mildew::Frontend::STD::Cached {
     use CHI;

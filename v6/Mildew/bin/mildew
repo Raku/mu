@@ -95,6 +95,7 @@ sub MAIN {
     my %backends = (
         "via-C"    => 'Mildew::Backend::C::M0ld',
         optC       => 'Mildew::Backend::OptC',
+        Cso       => 'Mildew::Backend::C::So',
         perlesque  => 'Mildew::Backend::Perlesque',
         gtk        => 'Mildew::Backend::Gtk',
         desugar    => sub {$_[0]->pretty."\n" },

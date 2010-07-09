@@ -13,7 +13,7 @@ use Config::AutoConf::Linker;
 use ExtUtils::ParseXS;
 use ExtUtils::Mkbootstrap;
 
-use File::Spec::Functions qw.catdir catfile.;
+use File::Spec::Functions qw(catdir catfile);
 use File::Path qw(make_path);
 use TAP::Harness;
 
@@ -237,7 +237,6 @@ sub ACTION_test {
     my $harness = TAP::Harness->new({ exec=>sub {
         my ($harness,$file) = @_;
         if ($file =~ /\.m0ld$/) {
-            [];
             ["mildew","-F","m0ld",'++BACKEND','--cflags',$cflags,'--ld-library-path','build/lib','++/BACKEND',$file];
         } else {
             [$file];

@@ -4,8 +4,12 @@ use MooseX::Declare;
 class VAST::statement_control__S_use {
     use AST::Helpers;
     method emit_m0ld {
+        use YAML::XS;
         my $module = $self->{module_name}{longname};
-        if ($self->{version}) {
+        if ($module->{name}{identifier}{TEXT} eq 'adhoc-signatures') {
+            $Mildew::adhoc_sig = 1; 
+            ();
+        } elsif ($self->{version}) {
             # use v6
         } elsif ($module
                  && $module->{colonpair}[0]

@@ -1,0 +1,27 @@
+my module DefinedBySMOP;
+my class MildewSOLoader { }
+my class AdhocSignature { }
+my class LexicalScope { }
+my class ControlExceptionReturn { }
+my class Scalar { }
+my class Hash { }
+my class Package { }
+my class Array { }
+
+my $OUT; #HACK as we don't support $*OUT yet
+my $LexicalPrelude; #HACK
+
+my module PRIMITIVES {
+  sub int_add { }
+  sub int_equal { }
+  sub int_less { }
+  sub int_substract { }
+  sub idconst_concat { }
+  sub idconst_eq { }
+  sub get_interpreter { }
+  sub storage_name { }
+  sub ritest { }
+  sub pointer_equal { }
+  sub SMOP_RI { }
+}
+YOU_ARE_HERE;

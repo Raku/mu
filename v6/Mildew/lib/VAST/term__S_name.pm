@@ -30,10 +30,10 @@ class VAST::term__S_name {
         } else {
             my $pkg;
             if ($name->{identifier}{TEXT} eq 'CALLER') {
-                $pkg = call new => reg '¢SMOP__S1P__FlattenedScope',
+                $pkg = call new => reg '?SMOP__S1P__FlattenedScope',
                 [ call lexical => (call back => (call continuation => reg '$interpreter')) ];
             } elsif ($name->{identifier}{TEXT} eq 'MY') {
-                $pkg = call new => reg '¢SMOP__S1P__FlattenedScope',
+                $pkg = call new => reg '?SMOP__S1P__FlattenedScope',
                 [ reg '$scope' ];
             } else {
                 XXX;

@@ -7,6 +7,10 @@ class VAST::package_declarator__S_module {
         my $name  = $self->{package_def}{longname}[0]{name}{identifier}{TEXT};
         my $id_type_sub = AST::unique_id;
     
+        unless ($self->{package_def}{blockoid}) {
+            #HACK we ignore my module foo because it's need for defining the setting
+            return lookupf("False");
+        }
         my $init = $self->{package_def}{blockoid}->emit_m0ld;
     
         my $mold = AST::Block->new(regs => $init->regs,stmts => [

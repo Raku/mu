@@ -2,6 +2,7 @@ use v5.10;
 use MooseX::Declare;
 class VAST::scope_declarator__S_my {
     use AST::Helpers;
+
     method emit_m0ld {
         #XXX refactor
         if (my $decl = $self->{scoped}{declarator}) {
@@ -26,8 +27,10 @@ class VAST::scope_declarator__S_my {
             }
         } elsif (my $multi = $self->{scoped}{multi_declarator}) {
 	    $multi->emit_m0ld('my');
+        } elsif ($self->{scoped}{package_declarator}) {
+            $self->{scoped}{package_declarator}->emit_m0ld;
         } else {
-            XXX('scoped declarator without a declarator');
+            XXX('scoped declarator without a recognized declarator');
         }
     }
 }

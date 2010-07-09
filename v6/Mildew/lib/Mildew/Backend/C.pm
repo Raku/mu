@@ -7,6 +7,8 @@ role Mildew::Backend::C {
 
     has cflags=>(lazy_build=>1,is=>'rw');
     has ld_library_path=>(lazy_build=>1,is=>'rw');
+    has load_setting=>(default=>1,is=>'rw');
+    has valgrind=>(default=>0,is=>'rw');
 
     method _build_cflags {
         require SMOP;
@@ -14,7 +16,7 @@ role Mildew::Backend::C {
     }
     method _build_ld_library_path {
         require SMOP;
-        ['../mildew-old/CORE',SMOP::ld_library_path()];
+        ['.',SMOP::ld_library_path()];
     }
 
     requires 'c_source';
@@ -23,7 +25,7 @@ role Mildew::Backend::C {
         die "-o is required when compiling to an executable\n" unless $output;
         my ($c_fh,$c_file) = tempfile();
         binmode($c_fh,":utf8");
-        print $c_fh $self->c_source($self->add_prelude_load($ast));
+        print $c_fh $self->c_source($self->load_setting ? $self->add_setting_load($ast) : $ast);
 
 
         # compile the c source to the executable
@@ -45,14 +47,13 @@ role Mildew::Backend::C {
         #'../mildew-old/CORE:../smop/build/lib';
         # local $ENV{PERL5LIB} = "../smop/SMOP/blib/lib/:../smop/SMOP/blib/arch:" . ($ENV{PERL5LIB} || '');
 
-        # TODO valgrind and gdb options
-        exec($tmp_executable);
+        exec(($self->valgrind ? ('valgrind') : ()),$tmp_executable);
     }
-    method add_prelude_load($ast) {
-        # load the setting
+
+    # load the setting
+    method add_setting_load($ast) {
         my $load_CORE = call(load => call(new => FETCH(lookup 'MildewSOLoader')),
-        [string 'CORE.mildew.so',FETCH(lookup('$LexicalPrelude'))]);
-        unshift @{$ast->stmts},$load_CORE;
-        $ast;
+        [string 'MildewCORE.setting.so',FETCH(lookup('$LexicalPrelude'))]);
+        AST::Block->new(stmts=>[$load_CORE,@{$ast->stmts}],regs=>$ast->regs);
     }
 }

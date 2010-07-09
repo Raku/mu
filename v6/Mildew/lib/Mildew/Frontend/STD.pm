@@ -1,9 +1,5 @@
 use v5.10;
-use lib '../../src/perl6';
 use MooseX::Declare;
-BEGIN {
-    $ENV{'PERL6LIB'} = '../../src/perl6/';
-}
 {
     # STD needs to be important from the main package
     package main;
@@ -14,14 +10,16 @@ class Mildew::Frontend::STD {
     use Getopt::Long qw(GetOptionsFromArray);
     has options=>(is=>'ro',default=>sub {{}});
     has debug=>(is=>'rw',default=>0);
+    has setting=>(is=>'rw',default=>'MildewCORE');
     method BUILD {
-        my ($trace,$dump,$cflags,$ld_library_path);
-        my $debug;
+        my ($debug,$setting);
         GetOptionsFromArray(
             ($self->options->{FRONTEND} // []),
             'debug' => \$debug,
+            'setting=s' => \$setting,
         );
         $self->debug($debug);
+        $self->setting($setting) if $setting;
     }
     use Scalar::Util qw(reftype);
     sub prune {
@@ -49,9 +47,8 @@ class Mildew::Frontend::STD {
     }
     method parse($source) {
         VIV::SET_OPT('match'=>1,'pos'=>1);
-        $ENV{'STD5PREFIX'} = '../../src/perl6/';
         $::ORIG = $source;
-        my $m = STD->parse($source, actions=>'Actions');
+        my $m = STD->parse($source, actions=>'Actions',tmp_prefix=>'tmp/',setting=>$self->setting);
         if ($self->debug) {
             require YAML::XS;
             prune($m);
