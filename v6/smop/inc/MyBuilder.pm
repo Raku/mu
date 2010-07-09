@@ -32,6 +32,9 @@ my $BUILDDIR = 'build';
 
 sub new {
     my ($self,@args) = @_;
+    for (@MODULES) {
+        mkdir(catdir($_,'include'));
+    }
     $self->SUPER::new(@args,'share_dir'=>[catdir('build','lib'),map {catdir($_,'include')} ('base','util',@MODULES)]);
 }
 
@@ -237,7 +240,7 @@ sub ACTION_test {
     my $harness = TAP::Harness->new({ exec=>sub {
         my ($harness,$file) = @_;
         if ($file =~ /\.m0ld$/) {
-            ["mildew","-F","m0ld",'++BACKEND','--cflags',$cflags,'--ld-library-path','build/lib','++/BACKEND',$file];
+            ["mildew","-F","m0ld",'++BACKEND','--no-setting','--cflags',$cflags,'--ld-library-path','build/lib','++/BACKEND',$file];
         } else {
             [$file];
         }
