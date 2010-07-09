@@ -14,4 +14,8 @@ class AST::Branch extends AST::Base {
         . $self->cond->m0ld_literal
         . " {goto " . $self->then->id . "} else {goto " . $self->else->id . "};\n";
     }
+    method simplified {
+        my ($cond,@setup) = $self->cond->simplified;
+        (AST::Branch->new(cond=>$cond,then=>$self->then,else=>$self->else,@setup));
+    }
 }
