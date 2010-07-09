@@ -100,16 +100,19 @@ package Evalbot;
                 cmd_line    => 'cat %i | PERL6LIB=lib ../p/bin/perl6 %program >> %out 2>&1',
                 revision    => sub { get_revision_from_file('~/p/rakudo-revision')},
                 filter      => \&filter_pct,
-                program_prefix => 'my $ss_SS_S_S__S_S_s = -> *@a, *%h { die "operation not permitted in safe mode" };
-    Q:PIR {
-$P0 = get_hll_namespace
-$P1 = find_lex \'$ss_SS_S_S__S_S_s\'
-$P0[\'run\']  = $P1
-$P0[\'open\'] = $P1
-$P0[\'!qx\']  = $P1
-null $P1
-#set_hll_global [\'IO\'], \'Socket\', $P0
-    };'."\n",
+                program_prefix => q<
+BEGIN { @*INC.push('lib') }; use Safe;
+Q:PIR {
+    .local pmc s
+    s = get_hll_global ['Safe'], '&forbidden'
+    $P0 = getinterp
+    $P0 = $P0['outer';'lexpad';1]
+    $P0['&run'] = s
+    $P0['&open'] = s
+    $P0['&slurp'] = s
+};
+# EVALBOT ARTIFACT
+>,
             },
             alpha => {
                 chdir       => '../../../rakudo-alpha/',
