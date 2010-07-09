@@ -100,8 +100,17 @@ package Evalbot;
                 cmd_line    => 'cat %i | PERL6LIB=lib ../p/bin/perl6 %program >> %out 2>&1',
                 revision    => sub { get_revision_from_file('~/p/rakudo-revision')},
                 filter      => \&filter_pct,
+# Rakudo loops infinitely when first using Safe.pm, and then declaring
+# another class. So don't do that, rather inline the contents of Safe.pm.
                 program_prefix => q<
-BEGIN { @*INC.push('lib') }; use Safe;
+module Safe { our sub forbidden(*@a, *%h) { die "Operation not permitted in safe mode" };
+    Q:PIR {
+        $P0 = get_hll_namespace
+        $P1 = get_hll_global ['Safe'], '&forbidden'
+        $P0['!qx']  = $P1
+        null $P1
+        set_hll_global ['IO'], 'Socket', $P0
+    }; };
 Q:PIR {
     .local pmc s
     s = get_hll_global ['Safe'], '&forbidden'
