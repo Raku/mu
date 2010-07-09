@@ -148,6 +148,10 @@ set_hll_global [\'IO\'], \'Socket\', $P0
                 cmd_line    => $^X . ' sprixel.pl %program -t >>%out 2>&1',
                 revision    => sub { get_revision_from_file('/home/p6eval/pugs/src/perl6/snap/revision')},
             },
+            yapsi   => {
+                chdir       => '../../../yapsi',
+                cmd_line    => '/home/p6eval/rakudo-alpha/parrot_install/bin/alpha yapsi %program >>%out 2>&1',
+            },
             highlight  => {
                 chdir       => '../../src/perl6/std_hilite',
                 cmd_line    => $^X . ' STD_syntax_highlight %program >>%out 2>&1',
