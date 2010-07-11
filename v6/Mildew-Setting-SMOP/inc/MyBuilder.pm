@@ -43,7 +43,11 @@ sub ACTION_code {
 
     system('mildew','-C','Cso',
         '++BACKEND','--no-setting','++/BACKEND',
-        '++FRONTEND','--tmp','tmp','--setting','DefinedBySMOP','++/FRONTEND',
+        '++FRONTEND',
+            '--tmp','tmp',
+            '--setting','DefinedBySMOP',
+            '--syml-search-path','tmp',
+        '++/FRONTEND',
         '-o','compiled/MildewCORE.setting.so',
         'MildewCORE.setting'
     );
