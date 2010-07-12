@@ -31,20 +31,32 @@ sub ACTION_code {
 
     use STD;
     mkdir('tmp');
-    mkdir('compiled');
-    STD->parsefile('DefinedBySMOP.setting',setting=>'NULL',tmp_prefix=>'tmp/');
-    STD->parsefile('MildewCORE.setting',setting=>'DefinedBySMOP',tmp_prefix=>'tmp/');
 
-    system('mildew','-C','Cso',
-        '++BACKEND','--no-setting','++/BACKEND',
-        '++FRONTEND',
-            '--tmp','tmp',
-            '--setting','DefinedBySMOP',
-            '--syml-search-path','tmp',
-        '++/FRONTEND',
-        '-o','compiled/MildewCORE.setting.so',
-        'MildewCORE.setting'
-    );
+    my $settings = ['MildewCORE.setting','DefinedBySMOP.setting'];
+    my $symls = [map {catfile('tmp','syml',$_.'.syml')} 'MildewCORE','DefinedBySMOP'];
+
+    if (!$self->up_to_date($settings,$symls)) {
+        say STDERR "Feeding settings to STD\n";
+        STD->parsefile('DefinedBySMOP.setting',setting=>'NULL',tmp_prefix=>'tmp/');
+        STD->parsefile('MildewCORE.setting',setting=>'DefinedBySMOP',tmp_prefix=>'tmp/');
+    }
+
+
+    mkdir('compiled');
+
+    if (!$self->up_to_date($settings,'compiled/MildewCORE.setting.so')) {
+        say STDERR "Building MildewCORE.setting.so\n";
+        system('mildew','-C','Cso',
+            '++BACKEND','--no-setting','++/BACKEND',
+            '++FRONTEND',
+                '--tmp','tmp',
+                '--setting','DefinedBySMOP',
+                '--syml-search-path','tmp',
+            '++/FRONTEND',
+            '-o','compiled/MildewCORE.setting.so',
+            'MildewCORE.setting'
+        );
+    }
 }
 
 
