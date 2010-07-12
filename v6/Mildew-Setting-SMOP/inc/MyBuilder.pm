@@ -7,17 +7,11 @@ use strict;
 use Config;
 use Carp;
 
-use Config::AutoConf;
-use Config::AutoConf::Linker;
-
-use ExtUtils::ParseXS;
-use ExtUtils::Mkbootstrap;
 
 use File::Spec::Functions qw(catdir catfile);
 use File::Path qw(make_path);
 use TAP::Harness;
 
-use ExtUtils::Embed qw(ldopts ccopts);
 
 use v5.10;
 
