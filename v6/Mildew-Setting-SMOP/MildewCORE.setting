@@ -134,8 +134,20 @@ my sub say(|$capture) {
     }
 }
 
+my sub print(|$capture) {
+    my $i = 0;
+    loop {
+        if &infix:<==>:(int,int)($i,$capture.elems) {
+            return;
+        } else {
+           $OUT.print($capture.positional($i.FETCH).Str);
+           $i = &infix:<+>:(int,int)($i.FETCH,1);
+        }
+    }
+}
+
 # Operators
-# TODO change binds sub definitions
+# TODO change binds to sub definitions
 
 $LexicalPrelude{'&infix:+:(int,int)'} := sub ($a,$b) {
     PRIMITIVES::int_add($a.FETCH,$b.FETCH);
