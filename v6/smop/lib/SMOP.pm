@@ -1,6 +1,7 @@
 package SMOP;
 # ABSTRACT: Simple Meta Object Programming
-my @MODULES = qw(s0native dump nagc util capture interpreter mold yeast native lost s1p p6opaque s1p-oo p5 mold-message profile);
+# p5 is disabled for now
+my @MODULES = qw(s0native dump nagc util capture interpreter mold yeast native lost s1p p6opaque s1p-oo mold-message profile);
 use File::ShareDir qw(dist_dir);
 use strict;
 use warnings;

@@ -17,8 +17,8 @@ our $BOILERPLATE = <<'END';
 #include <smop/nagc.h>
 #include <stdio.h>
 
-void smop_p5_init(SMOP__Object* interpreter);
-void smop_p5_destr(SMOP__Object* interpreter);
+/*void smop_p5_init(SMOP__Object* interpreter);
+void smop_p5_destr(SMOP__Object* interpreter);*/
 
 /* Your helper function go here */
 %%FUNCS%%
@@ -41,7 +41,7 @@ int main(int argc, char** argv) {
   smop_p6opaque_init(interpreter);
   smop_s1p_oo_init(interpreter);
 
-  smop_p5_init(interpreter);
+  //smop_p5_init(interpreter);
 
   smop_mold_message_init(interpreter);
 
@@ -79,7 +79,7 @@ int main(int argc, char** argv) {
 
 
   smop_mold_message_destr(interpreter);
-  smop_p5_destr(interpreter);
+  //smop_p5_destr(interpreter);
   smop_s1p_oo_destr(interpreter);
   smop_p6opaque_destr(interpreter);
   smop_lost_destr(interpreter);

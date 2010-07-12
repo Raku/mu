@@ -25,7 +25,8 @@ my $ldopts = ldopts . '-lrt';
 
 use v5.10;
 
-my @MODULES = qw(s0native dump nagc util capture interpreter mold yeast native lost s1p p6opaque s1p-oo p5 mold-message profile);
+# p5 is disabled for now
+my @MODULES = qw(s0native dump nagc util capture interpreter mold yeast native lost s1p p6opaque s1p-oo mold-message profile);
 
 my $BUILDDIR = 'build';
 
@@ -195,7 +196,7 @@ sub ACTION_create_library {
 
 #    print STDERR "\n** Creating libbtparse$LIBEXT\n";
 
-    my %extra_libs = (profile=>["-lrt"],p5=>[split(' ',ldopts)]);
+    my %extra_libs = (profile=>["-lrt"],p5=>[split(' ',ldopts)],native=>["-lm"],s1p=>["-ldl"]);
     mkdir(catdir($BUILDDIR,'lib'));
     for my $module (@MODULES) {
         my @objects = @{$self->rscan_dir("$BUILDDIR/$module/src",qr/\.o$/)};
