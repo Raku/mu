@@ -5,7 +5,7 @@
 		Perl 6 Cheat Sheet v2
   </TITLE>
   <META NAME="Description" CONTENT="Perl 6 Cheat Sheet v2">
-  <LINK REL="StyleSheet" HREF="perl6.css" TYPE="text/css" MEDIA="screen">
+  <LINK REL="StyleSheet" HREF="cheatsheet.css" TYPE="text/css" MEDIA="screen">
   <META HTTP-EQUIV="Content-Type" CONTENT="text/html; charset=UTF-8">
 </HEAD>
 <BODY>
@@ -30,13 +30,13 @@ $scalar
 <H2>Major/minor contexts</H2>
 <P>
 item   list    sink
- Str    flat/slice
- Num    lazy/eager/hyper
- Bool
+Str    flat/slice
+Num    lazy/eager/hyper
+Bool
 </P>
 </DIV>
 
-<DIV class="P6cheat" id="access_div">
+<DIV id="access_div">
 <H2>Access</H2>
 
 <TABLE class="access" id="access_table">
@@ -68,12 +68,12 @@ $~slang-variable
 <DIV class="P6cheat" id="composers">
 <H2>Composers</H2>
 <P>
- [ ] array
- { } block/hash
- &lt; &gt; quotewords
- (,) parcel
- :() signature
- \() capture
+[ ] array
+{ } block/hash
+&lt; &gt; quotewords
+(,) parcel
+:() signature
+\() capture
 </P>
 </DIV>
 
@@ -91,10 +91,9 @@ $~slang-variable
 <DIV class="P6cheat" id="control_syntax">
 <H2>Control syntax</H2>
 <P>
-    for LIST { }                # implicit $_ arg
-    for LIST -&gt; $a, $b { }      # explicit args
-    while/until EXPR { }
-
+for LIST { }                # implicit $_ arg
+for LIST -&gt; $a, $b { }      # explicit args
+while/until EXPR { }
 repeat while/until EXPR { } # do at least once
 loop { }   loop (a;b;c) { } # parens required!
 if EXPR { } elsif EXPR { } else { }
@@ -108,7 +107,6 @@ proceed, succeed            # switch controls
 
 
 <DIV class="P6cheat" id="operator_precedence">
-
 <H2>Operator precedence</H2>
 <P>
 .method .[] i
@@ -156,19 +154,19 @@ supersede  deadly parasitic
 <DIV class="P6cheat" id="types">
 <H2>Types</H2>
 <P>
- Bool Bit Int Rat FatRat UInt Num Complex int32, complex64 etc.
-     Str Cat Blob Char Byte Codepoint Grapheme Buf buf8 buf32 utf8
-                        IO Mu Any Cool Junction Whatever Match
-                    Parcel Capture Signature
-   Pair Range Set Bag
- KeyHash KeySet KeyBag
- Scalar Array Hash Code
- Enum Order TrigBase
-   Block Routine Sub
-        Method Regex
-   Failure Exception
-    Instant Duration
-    Date DateTime
+Bool Bit Int Rat FatRat UInt Num Complex int32, complex64 etc.
+Str Cat Blob Char Byte Codepoint Grapheme Buf buf8 buf32 utf8
+IO Mu Any Cool Junction Whatever Match
+Parcel Capture Signature
+Pair Range Set Bag
+KeyHash KeySet KeyBag
+Scalar Array Hash Code
+Enum Order TrigBase
+Block Routine Sub
+Method Regex
+Failure Exception
+Instant Duration
+Date DateTime
 </P>
 </DIV>
 
@@ -178,7 +176,7 @@ supersede  deadly parasitic
  Numeric: ==  !==(!=) + &lt;      &gt;     &lt;=&gt; &lt;=     &gt;=
  Stringy: eq  !eq(ne) ~ lt     gt    leg le     ge
          Value: eqv  !eqv     before after cmp !after !before
-                 ObjectID: ===  !===
+ObjectID: === !===
 </P>
 </DIV>
 
@@ -244,7 +242,7 @@ $*PID  process id
 <DIV class="P6cheat" id="regex_charclasses">
 <H2>Regex charclasses</H2>
 <P>
-.  == anychar, \N non \n
+ . == anychar, \N non \n
 \s == &lt;space&gt;, \S non
 \d == &lt;digit&gt;, \D non
 \w == &lt;+alpha+digit+[_]&gt;
@@ -268,13 +266,6 @@ $*PID  process id
 </DIV>
 
 </DIV> <!-- End container -->
-
-
-<HR>
-<ADDRESS>
-<!--#config timefmt="%Y-%m-%d %H:%M %Z" -->
-<!--#flastmod file="cheatsheet.shtml" --><BR>
-</ADDRESS>
 </BODY>
 </HTML>
 

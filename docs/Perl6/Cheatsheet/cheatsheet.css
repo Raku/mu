@@ -4,16 +4,20 @@ h1,h2 {
     font-family: futura, "Andale Mono", arial, helvetica, sans-serif;
 }
 
-div.P6cheat {
+div {
     display: block;
-    white-space: pre-line;
     padding: 0.5em;
 /*    border: 1px solid gray; */
     border: 1px solid white;
-    margin: 0.5em auto;
     -moz-border-radius: 0.5em;
     -webkit-border-radius: 0.5em;
     border-radius: 1em;
+}
+
+div.P6cheat {
+    margin: 0.5em auto;
+/*    white-space: pre-line; */
+    white-space: pre;
 }
 
 p,th,td {
