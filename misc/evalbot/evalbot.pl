@@ -52,10 +52,6 @@ package Evalbot;
     my $postfix = ':';
 
     our %impls = (
-            'mildew-js'  => {
-                chdir       => '../../v6/re-mildew',
-                cmd_line    => 'cat %i | perl mildew -Bjs %program >> %out 2>&1',
-            },
             perlesque => {
                 chdir       => '../../../perlesque/trunk/Sprixel/bin/Release',
                 cmd_line    => 'cat %i | mono -O=-all,cfold perlesque.exe %program >> %out 2>&1',
@@ -77,7 +73,7 @@ package Evalbot;
             },
             mildew  => {
                 chdir       => '../../v6/re-mildew',
-                cmd_line    => 'cat %i | perl mildew %program >> %out 2>&1',
+                cmd_line    => 'cat %i | /home/mildew/perl5/perlbrew/bin/perl /home/mildew/perl5/perlbrew/perls/current/bin/mildew %program >> %out 2>&1',
             },
             elf => {
                 chdir       => '../elf',
