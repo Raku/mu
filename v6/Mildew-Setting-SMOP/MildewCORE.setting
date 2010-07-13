@@ -2,6 +2,11 @@ my module MildewCORE;
 
 use adhoc-signatures;
 
+
+##HACK
+$LexicalPrelude{'&True'} := sub {::True}
+$LexicalPrelude{'&False'} := sub {::False}
+
 my knowhow int {
     method ACCEPTS($thing) {
         PRIMITIVES::ritest((|$thing),PRIMITIVES::SMOP_RI(2));
@@ -14,6 +19,8 @@ my sub return(|$capture) {
     $e.routine = CALLER::<&?ROUTINE>;
     $e.throw;
 }
+
+
 
 
 ############## Operators ##############
