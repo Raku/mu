@@ -59,6 +59,24 @@ sub ACTION_code {
     }
 }
 
+sub ACTION_test {
+    my $self = shift;
+
+    $self->dispatch("code");
+    my $harness = TAP::Harness->new({ exec=>sub {
+        my ($harness,$file) = @_;
+        warn $file;
+        if ($file =~ /^t\/p6\//) {
+            ["mildew",$file];
+        } else {
+            undef;
+        }
+    }});
+    die "Some tests failed.\n" unless $harness->runtests(
+        glob("t/p5/*")
+    )->all_passed;
+}
+
 
 
 1;
