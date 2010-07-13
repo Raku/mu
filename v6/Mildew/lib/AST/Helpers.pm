@@ -68,7 +68,8 @@ sub capturize {
 
 sub let {
     my ($value,$block) = @_;
-    AST::Let->new(value=>$value,block=>$block);
+    my $adhoc_sig = $Mildew::adhoc_sig;
+    AST::Let->new(value=>$value,block=>sub { local $Mildew::adhoc_sig = $adhoc_sig;$block->(@_)});
 }
 
 sub empty_sig {
@@ -144,6 +145,7 @@ sub code {
 
 sub move_CONTROL {
     my $statementlist = shift;
+
     my @statementlist;
     use v5.10;
     for (@{$statementlist}) {

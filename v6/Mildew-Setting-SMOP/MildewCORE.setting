@@ -224,6 +224,16 @@ my sub print(|$capture) {
     }
 }
 
+my sub not($thing) {
+    if $thing {
+        ::False;
+    } else {
+        ::True;
+    }
+}
+$LexicalPrelude{'&prefix:not'} := &not;
+$LexicalPrelude{'&prefix:!'} := &not;
+
 ############## Signatures ##############
 
 my role ReadonlyWrapper {
@@ -508,20 +518,23 @@ my role Multi {
         self.candidates = ::Array.new;
     }
     method get_outer_candidates($name,$scope) {
-       my $outer = $scope.outer;
-       loop {
-           if $outer.exists((|$name)) {
-               my $i = 0;
-               my $multi = $outer.lookup((|$name));
-               map(sub ($candidate) {self.candidates.push((|$candidate))},$multi.candidates);
-               return;
-           } else {
-               if $outer.outer {
-                   $outer = $outer.outer;
-               } else {
-                   return;
-               }
-           }
+        my $outer = $scope.outer;
+        loop {
+            if not($outer) { 
+                return
+            }
+            if $outer.exists((|$name)) {
+                my $i = 0;
+                my $multi = $outer.lookup((|$name));
+                map(sub ($candidate) {self.candidates.push((|$candidate))},$multi.candidates);
+                return;
+            } else {
+                if $outer.outer {
+                    $outer = $outer.outer;
+                } else {
+                    return;
+                }
+            }
         }
     }
 }
@@ -568,6 +581,66 @@ my sub fail {
     $e.capture = $failure;
     $e.routine = CALLER::<&?ROUTINE>;
     $e.throw;
+}
+
+############## int ##############
+no adhoc-signatures;
+
+my role int {
+    method ACCEPTS($thing) {
+        PRIMITIVES::ritest((|$thing),PRIMITIVES::SMOP_RI(2));
+    }
+}
+
+my multi infix:<==>(int $a,int $b) {
+    &infix:<==>:(int,int)($a,$b);
+}
+
+my multi infix:<!=>(int $a,int $b) {
+    if &infix:<==>:(int,int)($a,$b) {
+        False;
+    } else {
+        True;
+    }
+}
+my multi infix:<+>(int $a,int $b) {
+    &infix:<+>:(int,int)($a,$b);
+}
+my multi infix:<->(int $a,int $b) {
+    &infix:<->:(int,int)($a,$b);
+}
+my multi prefix:<->(int $a) {
+    &infix:<->:(int,int)(0,$a);
+}
+
+#HACK we don't support such fancy multi names so we bind to $LexicalPrelude
+{
+#TODO fix multi infix:<\<> {...}
+my multi less(int $a,int $b) {
+    &infix:<<<>>:(int,int)($a,$b);
+}
+my multi more(int $a,int $b) {
+    if &infix:<<<>>:(int,int)($a,$b) {
+        False;
+    } elsif &infix:<==>:(int,int)($a,$b) {
+        False;
+    } else {
+        True;
+    }
+}
+#TODO fix multi infix:<\<> {...}
+my multi less_or_equal(int $a,int $b) {
+    &infix:<<<>>:(int,int)($a,$b) || &infix:<==>:(int,int)($a,$b);
+}
+my multi more_or_equal(int $a,int $b) {
+    not(&infix:<<<>>:(int,int)($a,$b));
+}
+
+$LexicalPrelude{'&infix:<='} := &less_or_equal;
+$LexicalPrelude{'&infix:>='} := &more_or_equal;
+$LexicalPrelude{'&infix:<'} := &less;
+$LexicalPrelude{'&infix:>'} := &more;
+
 }
 
 YOU_ARE_HERE;
