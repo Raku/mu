@@ -49,8 +49,8 @@ sub mangle {
 
 sub process_ri {
     my ($ri_file,$c_file) = @_;
-    open(my $from,"<",$ri_file);
-    open(my $to,">",$c_file);
+    open(my $from,"<:encoding(UTF-8)",$ri_file);
+    open(my $to,">:encoding(UTF-8)",$c_file);
 
     my @properties = qw(RI RI.id prefix include prototype singleton nagc.nofree prefix struct lowlevel);
     my %properties;

@@ -2,10 +2,12 @@ use v5.10;
 use MooseX::Declare;
 use Mildew::SSA;
 use Types;
+use utf8;
 class Mildew::Backend::OptC with Mildew::Backend::C {
     use File::Temp qw(tempfile tmpnam);
     use String::Escape qw(backslash quote);
     use Getopt::Long qw(GetOptionsFromArray);
+    use Encode qw(encode_utf8);
     has options=>(is=>'ro',default=>sub {{}});
     has trace=>(is=>'rw');
     has dump=>(is=>'rw');
@@ -95,7 +97,7 @@ class Mildew::Backend::OptC with Mildew::Backend::C {
                 # TODO properly quote characters
                 $str =~ s/(["\\])/\\$1/g;
                 $str =~ s/\n/\\n/g;
-                $constant->('SMOP__NATIVE__idconst_createn("' . $str . '",' . length($_[0]->value) . ')');
+                $constant->('SMOP__NATIVE__idconst_createn("' . $str . '",' . length(encode_utf8($_[0]->value)) . ')');
             } elsif ($_[0]->isa('AST::IntegerConstant')) {
                 $constant->('SMOP__NATIVE__int_create(' . $_[0]->value . ')');
             } elsif ($_[0]->isa('AST::Block::SSA')) {
