@@ -1,4 +1,7 @@
 my module DefinedBySMOP;
+
+my enum Bool <False True>;
+
 my class MildewSOLoader { }
 my class AdhocSignature { }
 my class LexicalScope { }

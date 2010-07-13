@@ -53,9 +53,9 @@ $LexicalPrelude{'&infix:eq'} := sub ($a,$b) {
 }
 $LexicalPrelude{'&infix:ne'} := sub ($a,$b) {
     if PRIMITIVES::idconst_eq($a.Str,$b.Str) {
-        ::False;
+        False;
     } else {
-        ::True;
+        True;
     }
 }
 $LexicalPrelude{'&postfix:++'} := sub ($a) {
@@ -149,12 +149,12 @@ my role LowObject {
     }
     method ACCEPTS($obj) {
         my $role = self.^!does[0];
-        my $does = ::False;
+        my $does = False;
         map(sub ($r) {
             if PRIMITIVES::pointer_equal((|$role),(|$r)) {
-                $does = ::True;
+                $does = True;
             } elsif self.ACCEPTS($r) {
-                $does = ::True;
+                $does = True;
             }
         },$obj.^!does);
         $does;
@@ -234,7 +234,7 @@ my role Signature {
     method ACCEPTS(\$capture) {
         my $i = 0;
         my $named = 0;
-        my $ok = ::True;
+        my $ok = True;
         {
             map(sub ($param) {
                 if $param.ACCEPTS_param($capture,$i,$named) {
@@ -243,7 +243,7 @@ my role Signature {
                 }
             },self.params);
             CATCH {
-                $ok = ::False;
+                $ok = False;
             }
         }
 
@@ -251,10 +251,10 @@ my role Signature {
             if &infix:<==>:(int,int)($named,$capture.named_count) {
                 $ok;
             } else {
-                ::False;
+                False;
             }
         } else {
-            ::False;
+            False;
         }
     }
     method BIND(\$capture,$scope) {
@@ -326,9 +326,9 @@ my role Positional {
                 $scope{self.variable.FETCH} := self.wrap($default_value());
             }
         } else {
-            return ::False;
+            return False;
         }
-        ::True;
+        True;
     }
     method ACCEPTS_param($capture,$i is ref,$named is ref) {
         if $capture.named($.name.FETCH) {
@@ -337,14 +337,14 @@ my role Positional {
             if $.type.ACCEPTS($capture.positional($i.FETCH)) {
                 $i = &infix:<+>:(int,int)($i,1);
             } else {
-                return ::False;
+                return False;
             }
         } elsif self.default_value {
-            return ::True;
+            return True;
         } else {
-            return ::False;
+            return False;
         }
-        ::True;
+        True;
     }
     method compare($other) {
         if $other.type.ACCEPTS(self.type) {
@@ -397,7 +397,7 @@ my role NamedReadonlyParam {
         if $capture.named($.name.FETCH) {
             $named = &infix:<+>:(int,int)($named.FETCH,1);
         }
-        ::True;
+        True;
     }
 }
 my role WholeCaptureParam {
@@ -435,8 +435,132 @@ my role Exception {
 
 my role Any {
     method ACCEPTS() {
-        ::True;
+        True;
     }
+}
+
+############## Multi ##############
+
+my role Multi {
+    has $.candidates;
+    has $.sorted_candidates is rw;
+
+    my sub qsort($array) {
+        if &infix:<==>:(int,int)($array.elems,0) {
+            ::Array.new;
+        } else {
+            my $partition = $array[0].signature;
+
+            my $left  = qsort(grep sub ($elem) {&infix:<==>:(int,int)($elem.signature.compare($partition),&infix:<->:(int,int)(0,1))},$array);
+            my $equal = grep(sub ($elem) {&infix:<==>:(int,int)($elem.signature.compare($partition),0)},$array);
+            my $right = qsort(grep sub ($elem) {&infix:<==>:(int,int)($elem.signature.compare($partition),1)},$array);
+    
+            my $result = ::Array.new;
+            map(sub ($x) {$result.push($x.FETCH)},$left);
+            map(sub ($x) {$result.push($x.FETCH)},$equal);
+            map(sub ($x) {$result.push($x.FETCH)},$right);
+            $result;
+        }
+    }
+    method postcircumfix:<( )>(\$capture, :$cc) {
+        my sub ACCEPTS($candidate) {
+            $candidate.signature.ACCEPTS((|$capture));
+        }
+        if self.sorted_candidates {
+        } else {
+
+            self.sorted_candidates = qsort(self.candidates);
+        }
+
+        my $candidates = grep &ACCEPTS,self.sorted_candidates;
+
+        if &infix:<==>:(int,int)($candidates.elems,1) {
+            $candidates[0].postcircumfix:<( )>((|$capture), :cc($cc.FETCH));
+        } elsif &infix:<==>:(int,int)($candidates.elems,0) {
+            say "signature mismatch failure";
+           ::Exception.new.throw;
+           #my $e = ::SignatureMismatchFailure.new();
+           #$e.multi = self;
+           #$e.capture = $capture;
+           #$e.throw;
+#
+        } elsif &infix:<==>:(int,int)($candidates[0].signature.compare($candidates[1].signature),&infix:<->:(int,int)(0,1)) {
+            $candidates[0].postcircumfix:<( )>((|$capture), :cc($cc.FETCH));
+        } else {
+            say "ambiguous dispatch";
+            say $candidates[0].signature.compare($candidates[1].signature);
+            ::Exception.new.throw;
+            #my $e = ::AmbiguousDispatchFailure.new();
+            #$e.multi = self;
+            #$e.capture = $capture;
+            #$e.candidates = $candidates;
+            #$e.throw;
+        }
+    }
+    method BUILDALL() {
+        self.candidates = ::Array.new;
+    }
+    method get_outer_candidates($name,$scope) {
+       my $outer = $scope.outer;
+       loop {
+           if $outer.exists((|$name)) {
+               my $i = 0;
+               my $multi = $outer.lookup((|$name));
+               map(sub ($candidate) {self.candidates.push((|$candidate))},$multi.candidates);
+               return;
+           } else {
+               if $outer.outer {
+                   $outer = $outer.outer;
+               } else {
+                   return;
+               }
+           }
+        }
+    }
+}
+
+############## fail ##############
+my role Failure {
+    has $.handled;
+    has $.exception;
+    method true() {
+        $.handled = True;
+        False;
+    }
+    method defined() {
+        $.handled = True;
+        False;
+    }
+    method FETCH() {
+        self;
+    }
+    method throw() {
+        $.exception.throw;
+    }
+    # UNKNOWN_METHOD is a spec def
+    method UNKNOWN_METHOD($identifier) {
+        $.exception.throw;
+    }
+}
+my role DollarBang {
+    has @.failures;
+    method cleanup() {
+        map(sub ($failure) {
+            if ($failure.handled) {
+            } else {
+                $failure.throw;
+            }
+        },self.failures);
+    }
+}
+my sub fail {
+    my $failure = Failure.new;
+    $failure.exception = ::Exception.new;
+    $failure;
+    my $e = ::ControlExceptionReturn.new();
+    $e.capture = $failure;
+    $e.routine = CALLER::<&?ROUTINE>;
+    $e.throw;
 }
 
 YOU_ARE_HERE;
