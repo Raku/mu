@@ -19,9 +19,18 @@
 
 %method BIND(value)
     smop_lexicalscope_entry* entry = ((smop_s1p_lexical_struct*)invocant)->entry;
+    
+    SMOP__Object* real_value;
+    if (value->RI == RI) {
+      real_value = ((smop_s1p_lexical_struct*)value)->entry->value;
+      if (real_value) SMOP_REFERENCE(interpreter,real_value);
+      SMOP_RELEASE(interpreter,value);
+    } else {
+      real_value = value;
+    }
 
     if (entry->value) SMOP_RELEASE(interpreter,entry->value);
-    entry->value = value;
+    entry->value = real_value;
     ret = SMOP_REFERENCE(interpreter,invocant);
 
 %method FETCH
