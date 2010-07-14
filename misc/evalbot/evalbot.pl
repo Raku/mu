@@ -80,6 +80,11 @@ package Evalbot;
                 cmd_line    => 'cat %i| ./elf_h %program >> %out 2>&1',
                 revision    => \&get_revision,
             },
+            niecza => {
+                chdir       => '../../../niecza',
+                cmd_line    => 'cat %i| ./niecza %program >> %out 2>&1',
+#                revision    => \&get_revision,
+            },
             perlito => {
                 chdir       => '../../../Perlito',
                 cmd_line    => 'cat %i| perl mp6.pl %program >> %out 2>&1',
