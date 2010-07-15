@@ -21,7 +21,7 @@ my $BUILDDIR = 'build';
 
 sub new {
     my ($self,@args) = @_;
-    $self->SUPER::new(share_dir=>['tmp','compiled'],@args);
+    $self->SUPER::new(share_dir=>['tmp','compiled','lib6'],@args);
 }
 
 
@@ -47,14 +47,33 @@ sub ACTION_code {
     if (!$self->up_to_date($settings,'compiled/MildewCORE.setting.so')) {
         say STDERR "Building MildewCORE.setting.so\n";
         system('mildew','-C','Cso',
-            '++BACKEND','--no-setting','++/BACKEND',
+            '++BACKEND',
+                # '--trace',
+                '--no-setting',
+            '++/BACKEND',
             '++FRONTEND',
+                '--PERL6LIB','lib6',
                 '--tmp','tmp',
                 '--setting','DefinedBySMOP',
                 '--syml-search-path','tmp',
             '++/FRONTEND',
             '-o','compiled/MildewCORE.setting.so',
             'MildewCORE.setting'
+        );
+    }
+    if (!$self->up_to_date('Test.pm6','compiled/Test.mildew.so')) {
+        say STDERR "Building Test.mildew.so\n";
+        system('mildew','-C','Cso',
+            '++BACKEND',
+                # '--trace',
+            '++/BACKEND',
+            '++FRONTEND',
+                '--PERL6LIB','lib6',
+                '--tmp','tmp',
+                '--syml-search-path','tmp',
+            '++/FRONTEND',
+            '-o','compiled/Test.mildew.so',
+            'lib6/Test.pm6'
         );
     }
 }

@@ -12,4 +12,10 @@ isa_ok($integer->[0],'AST::IntegerConstant');
 trailing_return($integer);
 isa_ok($integer->[0],'AST::IntegerConstant');
 
+my $block = AST::Block->new(stmts=>[integer 45],regs=>['foo']);
+my $wrapped = wrap_in_block($block);
+isa_ok($wrapped,'AST::Block','a wrapped block');
+# TODO more tests for wrap_in_block
+
+
 done_testing;

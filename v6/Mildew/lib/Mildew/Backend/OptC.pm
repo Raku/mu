@@ -12,7 +12,7 @@ class Mildew::Backend::OptC with Mildew::Backend::C {
     has trace=>(is=>'rw');
     has dump=>(is=>'rw');
     method BUILD {
-        my ($trace,$dump,$cflags,$ld_library_path,$no_setting,$valgrind);
+        my ($trace,$dump,$cflags,$ld_library_path,$no_setting,$valgrind,$gdb);
         GetOptionsFromArray(
             ($self->options->{BACKEND} // []),
             'trace' => \$trace,
@@ -20,7 +20,8 @@ class Mildew::Backend::OptC with Mildew::Backend::C {
             'cflags=s' => \$cflags,
             'no-setting' => \$no_setting,
             'ld-library-path=s' => \$ld_library_path,
-            'valgrind' => \$valgrind
+            'valgrind' => \$valgrind,
+            'gdb' => \$gdb,
         ) || die 'incorrent options passed to Mildew::Backend::OptC';
         use YAML::XS;
         $self->trace($trace);
@@ -29,6 +30,7 @@ class Mildew::Backend::OptC with Mildew::Backend::C {
         $self->load_setting(!$no_setting) if $no_setting;
         $self->ld_library_path([split(',',$ld_library_path)]) if $ld_library_path;
         $self->valgrind($valgrind);
+        $self->gdb($gdb);
     }
     method c_source($ast) {
         my $ssa_ast = Mildew::SSA::to_ssa($ast->simplified,{

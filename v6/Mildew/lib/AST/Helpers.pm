@@ -1,6 +1,6 @@
 package AST::Helpers;
 use Exporter 'import';
-our @EXPORT = qw(string reg integer call FETCH lookup capturize let fcall name_components empty_sig routine code move_CONTROL XXX trailing_return varname lookupf curlies named_and_positional dump lookup_package YYY);
+our @EXPORT = qw(string reg integer call FETCH lookup capturize let fcall name_components empty_sig routine code move_CONTROL XXX trailing_return varname lookupf curlies named_and_positional dump lookup_package YYY wrap_in_block);
 use Carp 'confess';
 use Term::ANSIColor qw(:constants);
 use PadWalker qw(peek_my);
@@ -24,6 +24,7 @@ sub reg($) {
 sub integer($) {
     AST::IntegerConstant->new(value=>$_[0]);
 }
+
 
 sub call {
     AST::Call->new(identifier=>string($_[0]),capture=>AST::Capture->new(invocant => $_[1],positional => $_[2]//[],named => $_[3]//[]));
@@ -207,6 +208,11 @@ sub lookup_package {
         $package = call('postcircumfix:{ }'=>FETCH($package),[string($part.'::')]);
     }
     $package;
+}
+
+sub wrap_in_block {
+    my ($ast,$scope) = @_;
+    AST::Block->new(regs=>['interpreter','scope'],stmts=>trailing_return([fcall(call(new => FETCH(lookup('Code')),[],[string 'outer'=>($scope // reg '$scope'),string 'signature'=>empty_sig(),string 'mold' => $ast]))]));
 }
 
 1;

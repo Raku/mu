@@ -12,17 +12,24 @@ class Mildew::Backend::C::So extends Mildew::Backend::OptC {
         die "-o is required when compiling to an executable\n" unless $output;
         my ($c_fh,$c_file) = tempfile();
         binmode($c_fh,":utf8");
-        my $ast_with_load = $self->load_setting ? $self->add_setting_load($ast) : $ast;
         # TODO handle_YOU_ARE_HERE only on settings
-        print $c_fh $self->c_source($self->handle_YOU_ARE_HERE($ast));
+
+        print $c_fh $self->c_source(wrap_in_block(
+            $self->handle_YOU_ARE_HERE($ast),
+            $self->enclosing_scope
+        ));
 
         # compile the c source to the executable
         system("gcc","-fPIC","-g","-xc",@{$self->cflags},"-shared",$c_file,"-o",$output);
     }
     method handle_YOU_ARE_HERE($ast) {
+
         AST::Block->new(
             regs=>[@{$ast->regs},'YOU_ARE_HERE'],
-            stmts=>trailing_return([@{$ast->stmts},reg '$YOU_ARE_HERE'])
+            stmts=>trailing_return([
+                    AST::Assign->new(lvalue=>reg '$YOU_ARE_HERE',rvalue=>reg '$scope'),
+                    @{$ast->stmts},
+                    reg '$YOU_ARE_HERE'])
         );
     }
 

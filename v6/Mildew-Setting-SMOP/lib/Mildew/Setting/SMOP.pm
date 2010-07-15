@@ -7,4 +7,7 @@ sub ld_library_path {
 sub std_tmp_files_path {
    dist_dir('Mildew-Setting-SMOP'); 
 }
+sub standard_libs {
+   dist_dir('Mildew-Setting-SMOP'); 
+}
 1;
