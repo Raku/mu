@@ -110,7 +110,7 @@ module Safe { our sub forbidden(*@a, *%h) { die "Operation not permitted in safe
         $P1 = get_hll_global ['Safe'], '&forbidden'
         $P0['!qx']  = $P1
         null $P1
-        set_hll_global ['IO'], 'Socket', $P0
+        set_hll_global ['IO'], 'Socket', $P1
     }; };
 Q:PIR {
     .local pmc s
