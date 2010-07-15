@@ -2,7 +2,10 @@
 #define SMOP_NAGC_H
 
 #include <smop/base.h>
+#include <stdio.h>
+#ifdef SMOP_LOCKING
 #include <pthread.h>
+#endif
 #define SMOP__NAGC__ResponderInterface__BASE     \
   SMOP__ResponderInterface__BASE                 \
   void (*DESTROYALL) (SMOP__Object* interpreter, \
@@ -38,7 +41,6 @@ SMOP__Object* SMOP__NAGC__RI__create(
 #define SMOP__NAGC__Object__BASE      \
   SMOP__Object__BASE                  \
   int ref_cnt;                        \
-  pthread_rwlock_t* rwlock;           \
   void** weakrefs;
   
 typedef struct SMOP__NAGC__Object {

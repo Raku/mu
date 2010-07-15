@@ -1,6 +1,8 @@
 #ifndef SMOP_BASE_H
 #define SMOP_BASE_H
 
+#define SMOP_HUNT_NULLS
+
 // forward declarations
 struct SMOP__Object; typedef struct SMOP__Object SMOP__Object;
 struct SMOP__ResponderInterface; typedef struct SMOP__ResponderInterface SMOP__ResponderInterface;
@@ -79,9 +81,10 @@ struct SMOP__ResponderInterface {
  */
 #define SMOP_RI(object) ((SMOP__ResponderInterface*) ((SMOP__Object*)object)->RI)
 
-#if SMOP_PROFILE
+#ifdef SMOP_PROFILE
 SMOP__Object* SMOP_DISPATCH(SMOP__Object* interpreter,SMOP__Object* object,SMOP__Object* intifier,SMOP__Object* capture);
-#elif SMOP_HUNT_NULLS
+#else
+#ifdef SMOP_HUNT_NULLS
 #include <stdio.h>
 #include <assert.h>
 #define SMOP_DISPATCH(interpreter, object, identifier, capture) ({\
@@ -107,6 +110,7 @@ SMOP__Object* SMOP_DISPATCH(SMOP__Object* interpreter,SMOP__Object* object,SMOP_
           (SMOP__Object*)interpreter, ((SMOP__ResponderInterface*)object), \
           identifier, capture \
       ))
+#endif
 #endif
 
 #ifdef SMOP_LOWLEVEL_MEM_DEBUG

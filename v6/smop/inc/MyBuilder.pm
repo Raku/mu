@@ -94,7 +94,7 @@ sub ACTION_create_objects {
             next if $self->up_to_date($file, $object);
             $cbuilder->compile(object_file  => $object,
                 source       => $file,
-                extra_compiler_flags => ccopts,
+                extra_compiler_flags => "-g",
                 include_dirs => [@INCLUDE])
         }
 
@@ -116,7 +116,7 @@ sub ACTION_create_objects {
             if (!$self->up_to_date($c_file, $object)) {
                 $cbuilder->compile(object_file  => $object,
                     source       => $c_file,
-                    extra_compiler_flags => ccopts,
+                    extra_compiler_flags => "-g",
                     include_dirs => [@INCLUDE]);
             }
         }
@@ -130,7 +130,7 @@ sub ACTION_create_objects {
             next if $self->up_to_date($file, $object);
             $cbuilder->compile(object_file  => $object,
                 source       => $file,
-                extra_compiler_flags => ccopts,
+                extra_compiler_flags => "-g",
                 include_dirs => [@INCLUDE]);
         }
     }
