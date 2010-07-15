@@ -225,7 +225,10 @@ sub parsefile {
 
 # used internally to isolate contextuals in do_need
 sub _parse_module {
-    $_[0]->parsefile($ARGV[0], setting => "CORE");
+    #HACK
+    say "parsing module tmp=",$ENV{'STD5PREFIX'};
+    $_[0]->parsefile($ARGV[0],setting=>"MildewCORE");
+    say "parsed module";
     exit 0;
 }
 
@@ -241,7 +244,7 @@ sub initparse {
     my $filename = $args{filename};
 
     local $::TMP_PREFIX = $tmp_prefix;
-    local $::SYML_SEARCH_PATH = $args{syml_search_path} // [$::TMP_PREFIX];
+    local $::SYML_SEARCH_PATH = $args{syml_search_path} // ($ENV{SYML_SEARCH_PATH} ? [split ':',$ENV{SYML_SEARCH_PATH}] : [$::TMP_PREFIX]);
 
     local $::SETTINGNAME = $setting;
     local $::ACTIONS = $actions;
@@ -306,7 +309,6 @@ sub load_perl_lex {
     my $store = "$syml/$setting.lex.store";
     mkdir $syml unless -d $syml;
     if (-f $store and -M $file and -M $file > -M $store) {
-        # HACK we get hashes with strangely aliased keys from Storable
         $LEXS{$setting} = retrieve($store);
     }
     else {
@@ -318,7 +320,7 @@ can be used.
 EOM
         }
         $LEXS{$setting} = require $file;
-        store($LEXS{$setting}, $store);
+        #store($LEXS{$setting}, $store);
     }
     $LEXS{$setting};
 }
@@ -344,7 +346,7 @@ sub load_yaml_lex {
     else {
         # HACK YAML::XS is horribly broken see https://rt.cpan.org/Public/Bug/Display.html?id=53278
         $LEXS{$setting} = {%{LoadFile($file)}};
-        store($LEXS{$setting}, $store);
+        #store($LEXS{$setting}, $store);
     }
     # say join ' ', sort keys %{ $LEXS{$setting} };
     $LEXS{$setting};
@@ -2897,6 +2899,7 @@ sub do_need { my $self = shift;
     elsif (-f "$lib/$modfile$ext") {
         # say "$std $lib/$module$ext";
         local $ENV{STD5PREFIX} = $::TMP_PREFIX;
+        local $ENV{SYML_SEARCH_PATH} = join(':',@{$::SYML_SEARCH_PATH});
         system($::RECURSIVE_PERL // $^X, "-MSTD", "-e", "STD->_parse_module",
             "$lib/$module$ext") and die "Can't compile $lib/$module$ext";
         print STDERR "Compiled $lib/$module$ext\n";
