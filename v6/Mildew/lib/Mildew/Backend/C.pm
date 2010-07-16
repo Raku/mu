@@ -24,11 +24,17 @@ role Mildew::Backend::C {
 
     requires 'c_source';
 
+    # false doesn't support setr
+    sub wrap_in_block_without_setr {
+        my ($ast,$scope) = @_;
+        AST::Block->new(regs=>['interpreter','scope'],stmts=>[fcall(call(new => FETCH(lookup('Code')),[],[string 'outer'=>($scope // reg '$scope'),string 'signature'=>empty_sig(),string 'mold' => $ast]))]);
+    }
+
     method compile($ast,$output) {
         die "-o is required when compiling to an executable\n" unless $output;
         my ($c_fh,$c_file) = tempfile();
         binmode($c_fh,":utf8");
-        my $wrapped_ast = $self->wrap_in_block ? wrap_in_block($ast,$self->enclosing_scope) : $ast;
+        my $wrapped_ast = $self->wrap_in_block ? wrap_in_block_without_setr($ast,$self->enclosing_scope) : $ast;
         print $c_fh $self->c_source($wrapped_ast);
 
 
