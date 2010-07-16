@@ -1,7 +1,6 @@
 say "1..2";
 {
    {
-       #::OutOfItemsException.new().throw();
        ::Exception.new().throw();
    }
    CATCH {
@@ -11,4 +10,5 @@ say "1..2";
 }
 CATCH {
     say "ok 2 - Caught the rethrow";
+    $_.handled = 1;
 }
