@@ -241,7 +241,7 @@ sub ACTION_test {
     my $harness = TAP::Harness->new({ exec=>sub {
         my ($harness,$file) = @_;
         if ($file =~ /\.m0ld$/) {
-            ["mildew","-F","m0ld",'++BACKEND','--no-setting','--cflags',$cflags,'--ld-library-path','build/lib','++/BACKEND',$file];
+            ["mildew","-F","m0ld",'++BACKEND','--no-wrap-in-block','--no-setting','--cflags',$cflags,'--ld-library-path','build/lib','++/BACKEND',$file];
         } else {
             [$file];
         }
