@@ -169,10 +169,10 @@ class Mildew::Backend::OptC with Mildew::Backend::C {
                         $code .= ';';
                     } elsif ($stmt->rvalue->isa('AST::InferredTypeTest')) {
                         my $type = $stmt->rvalue->value->type_info->type;
-                        $code .= Emit::Yeast::assign($value->($stmt->lvalue),"SMOP_REFERENCE(interpreter,".$value->(AST::IntegerConstant->new(value=>eval($stmt->rvalue->test) ? 1 : 0).")"));
+                        $code .= Mildew::Emit::Yeast::assign($value->($stmt->lvalue),"SMOP_REFERENCE(interpreter,".$value->(AST::IntegerConstant->new(value=>eval($stmt->rvalue->test) ? 1 : 0).")"));
                         die if $@;
                     } else {
-                        $code .= Emit::Yeast::assign($value->($stmt->lvalue),"SMOP_REFERENCE(interpreter,".$value->($stmt->rvalue).")");
+                        $code .= Mildew::Emit::Yeast::assign($value->($stmt->lvalue),"SMOP_REFERENCE(interpreter,".$value->($stmt->rvalue).")");
                     }
                 } else {
                     $code .= "/*".ref($stmt)."*/\n";

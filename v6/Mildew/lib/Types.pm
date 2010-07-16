@@ -1,5 +1,5 @@
 use v5.10;
-use Emit::Yeast;
+use Mildew::Emit::Yeast;
 use MooseX::Declare;
 class TypeInfo {
     has type=>(is=>'rw',builder=>'infer_type',lazy=>1);
@@ -61,9 +61,9 @@ class Type {
         };
         my $capture = $stmt->rvalue->capture;
 
-        Emit::Yeast::measure($stmt->id,"frame->pc = " . ($i+1) . ";\n" 
+        Mildew::Emit::Yeast::measure($stmt->id,"frame->pc = " . ($i+1) . ";\n" 
         . "frame->ret = &" . $value->($stmt->lvalue) . ";\n" 
-        . Emit::Yeast::assign($value->($stmt->lvalue),
+        . Mildew::Emit::Yeast::assign($value->($stmt->lvalue),
             "SMOP_DISPATCH(\n" . "interpreter,\nSMOP_RI(" . $value->($capture->invocant) . "),\n"
             . $value->($stmt->rvalue->identifier)
             . ",\nSMOP__NATIVE__capture_create(interpreter," 
