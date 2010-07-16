@@ -12,7 +12,7 @@ class Mildew::Backend::OptC with Mildew::Backend::C {
     has trace=>(is=>'rw');
     has dump=>(is=>'rw');
     method BUILD {
-        my ($trace,$dump,$cflags,$ld_library_path,$no_setting,$valgrind,$gdb);
+        my ($trace,$dump,$cflags,$ld_library_path,$no_setting,$valgrind,$gdb,$no_wrap_in_block);
         GetOptionsFromArray(
             ($self->options->{BACKEND} // []),
             'trace' => \$trace,
@@ -22,6 +22,7 @@ class Mildew::Backend::OptC with Mildew::Backend::C {
             'ld-library-path=s' => \$ld_library_path,
             'valgrind' => \$valgrind,
             'gdb' => \$gdb,
+            'no-wrap-in-block' => \$no_wrap_in_block,
         ) || die 'incorrent options passed to Mildew::Backend::OptC';
         use YAML::XS;
         $self->trace($trace);
@@ -31,6 +32,7 @@ class Mildew::Backend::OptC with Mildew::Backend::C {
         $self->ld_library_path([split(',',$ld_library_path)]) if $ld_library_path;
         $self->valgrind($valgrind);
         $self->gdb($gdb);
+        $self->wrap_in_block(!$no_wrap_in_block);
     }
     method c_source($ast) {
         my $ssa_ast = Mildew::SSA::to_ssa($ast->simplified,{

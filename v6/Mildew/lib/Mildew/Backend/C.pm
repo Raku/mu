@@ -10,6 +10,7 @@ role Mildew::Backend::C {
     has load_setting=>(default=>1,is=>'rw');
     has valgrind=>(default=>0,is=>'rw');
     has gdb=>(default=>0,is=>'rw');
+    has wrap_in_block=>(default=>1,is=>'rw');
 
     method _build_cflags {
         require SMOP;
@@ -27,7 +28,8 @@ role Mildew::Backend::C {
         die "-o is required when compiling to an executable\n" unless $output;
         my ($c_fh,$c_file) = tempfile();
         binmode($c_fh,":utf8");
-        print $c_fh $self->c_source(wrap_in_block($ast,$self->enclosing_scope));
+        my $wrapped_ast = $self->wrap_in_block ? wrap_in_block($ast,$self->enclosing_scope) : $ast;
+        print $c_fh $self->c_source($wrapped_ast);
 
 
         # compile the c source to the executable
