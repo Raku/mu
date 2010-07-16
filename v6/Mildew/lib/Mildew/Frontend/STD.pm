@@ -71,6 +71,7 @@ class Mildew::Frontend::STD {
         local $ENV{'PERL6LIB'} = $self->PERL6LIB; 
         mkdir($self->tmp);
         my $m = STD->parse($source, actions=>'Actions',tmp_prefix=>$self->tmp,syml_search_path=>$self->syml_search_path,setting=>$self->setting,filename=>md4_hex($source));
+        local $ENV{'DEFAULT_SETTING_FOR_MODULES'} = 'MildewCORE';
 
 
         if ($self->debug) {
