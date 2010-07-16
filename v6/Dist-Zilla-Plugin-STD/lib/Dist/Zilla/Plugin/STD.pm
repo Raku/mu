@@ -33,9 +33,22 @@ sub gather_files {
   }
 
   # .pm files
-  for (qw(Actions DumpMatch LazyMap)) {
-    $self->renamed_file("$_.pm","lib/$_.pm")
+  for (qw(Actions LazyMap)) {
+      $self->renamed_file("$_.pm","lib/$_.pm");
   }
+
+  system('make');
+
+  # generated files
+  for (qw(STD Cursor)) {
+      $self->renamed_file("$_.pmc","lib/$_.pm");
+  }
+
+  # adhoc stuff
+  $self->renamed_file('viv','lib/viv');
+  $self->renamed_file('uniprops','data/uniprops');
+  $self->renamed_file('NULL.lex','lib/NULL.lex');
+  $self->renamed_file('mangle.pl','lib/mangle.pl');
 
 }
 
