@@ -4,11 +4,7 @@
 %struct SMOP__Yeast__Frame
 %lowlevel
 
-%{
-static SMOP__Object* DUMP(SMOP__Object* interpreter,
-                                SMOP__ResponderInterface* responder,
-                                SMOP__Object* obj) {
-
+%DUMP {
   SMOP__Yeast__Frame* frame = (SMOP__Yeast__Frame*) obj;
   /* TODO ret */
   return smop_dump_create((SMOP__Object*[]) {
@@ -27,7 +23,8 @@ static SMOP__Object* DUMP(SMOP__Object* interpreter,
       smop_dump_obj_array_create(frame->reg,((SMOP__Yeast*)frame->yeast)->registers),
       NULL
   });
-}
+%}
+%{
 SMOP__Object* SMOP__Yeast__Frame_create(SMOP__Object* interpreter,SMOP__Object* yeast_object) {
     SMOP__Yeast* yeast = (SMOP__Yeast*) yeast_object;
     SMOP__Yeast__Frame* ret = (SMOP__Yeast__Frame*) smop_nagc_alloc(sizeof(SMOP__Yeast__Frame));
@@ -158,7 +155,4 @@ void yeast_reg_set(SMOP__Object* interpreter,SMOP__Object* yeastframe, int regnu
     if (frame->catch) SMOP_RELEASE(interpreter,frame->catch);
     if (frame->lexical) SMOP_RELEASE(interpreter,frame->lexical);
     frame->yeast = NULL;
-%}
-%init {
-  ((SMOP__ResponderInterface*)RI)->DUMP = DUMP;
 %}

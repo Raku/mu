@@ -4,6 +4,7 @@
 #include <stdlib.h>
 #include <smop/s0native.h>
 #include <smop/native.h>
+#include <smop/dump.h>
 #include <stdio.h>
 
 static SMOP__Object* primitive_int_add(SMOP__Object* interpreter,SMOP__Object* ccode,SMOP__Object* capture) {
@@ -121,9 +122,20 @@ static SMOP__Object* primitive_storage_name(SMOP__Object* interpreter,SMOP__Obje
 }
 
 
+static SMOP__Object* primitive_dump_print(SMOP__Object* interpreter,SMOP__Object* ccode,SMOP__Object* capture) {
+    SMOP__Object* object = SMOP__NATIVE__capture_positional(interpreter,capture,0);
+    SMOP__Object* file_template = SMOP__NATIVE__capture_positional(interpreter,capture,1);
+    int len;
+    char *template = SMOP__NATIVE__idconst_fetch_with_null(file_template,&len);
+    smop_dump_print(interpreter,object,template);
+    SMOP_RELEASE(interpreter,object);
+    return SMOP__NATIVE__bool_false;
+}
+
 static SMOP__Object* primitive_interpreter(SMOP__Object* interpreter,SMOP__Object* ccode,SMOP__Object* capture) {
     return SMOP_REFERENCE(interpreter, interpreter);
 }
+
 
 static void insert_primitive(SMOP__Object* interpreter,SMOP__Object* package,char* name,SMOP__Object* obj) {
   SMOP_DISPATCH(interpreter,
@@ -147,4 +159,5 @@ void smop_s1p_insert_primitives(SMOP__Object* interpreter,SMOP__Object* package)
   insert_primitive(interpreter,SMOP_REFERENCE(interpreter,package),"&ritest",SMOP_REFERENCE(interpreter,SMOP__S1P__ritest));
   insert_primitive(interpreter,SMOP_REFERENCE(interpreter,package),"&pointer_equal",SMOP__S1P__CCode_create(primitive_pointer_equal));
   insert_primitive(interpreter,SMOP_REFERENCE(interpreter,package),"&SMOP_RI",SMOP__S1P__CCode_create(primitive_SMOP_RI));
+  insert_primitive(interpreter,SMOP_REFERENCE(interpreter,package),"&dump_print",SMOP__S1P__CCode_create(primitive_dump_print));
 }

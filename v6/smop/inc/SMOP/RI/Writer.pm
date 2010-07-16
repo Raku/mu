@@ -320,12 +320,21 @@ sub process_ri {
     
     my $destroyall = $raw{'DESTROYALL_ALL'} // '
     static void DESTROYALL(SMOP__Object* interpreter,
-                                  SMOP__Object* invocant) {
+                           SMOP__Object* invocant) {
         %%INDESTROYALL%%
         %%ATTRS%%
         %%FREE%%
     }
     ';
+    if ($raw{'DUMP'}) {
+        print $to '
+    static SMOP__Object* DUMP(SMOP__Object* interpreter,
+                              SMOP__ResponderInterface* responder,
+                              SMOP__Object* obj) {
+';
+        print $to $raw{'DUMP'};
+        print $to '   }';
+    }
     
     my $attrs = '';
     if (@has) {
@@ -374,6 +383,10 @@ sub process_ri {
         print $to $yeast->[0];
     }
     
+    my $DUMP = "smop_nagc_dump";
+    if ($raw{'DUMP'}) {
+        $DUMP = "DUMP";
+    }
     print $to qq[
     void $properties{prefix}_init(SMOP__Object* interpreter) {
       $RI = SMOP__NAGC__RI__create(
@@ -381,7 +394,7 @@ sub process_ri {
         smop_nagc_reference,
         $release,
         smop_nagc_weakref,
-        smop_nagc_dump,
+        $DUMP,
         DESTROYALL,
         "$id");
     ];

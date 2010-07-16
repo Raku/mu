@@ -26,5 +26,6 @@ my module PRIMITIVES {
   sub ritest { }
   sub pointer_equal { }
   sub SMOP_RI { }
+  sub dump_print($obj,$template) {}
 }
 YOU_ARE_HERE;

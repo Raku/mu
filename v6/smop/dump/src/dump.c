@@ -26,7 +26,6 @@ SMOP__Object* smop_idconst_dump(SMOP__Object* interpreter,
                                 SMOP__ResponderInterface* responder,
                                 SMOP__Object* obj) {
   int len;
-  printf("dump %s\n",obj->RI->id);
   char* str = SMOP__NATIVE__idconst_fetch_with_null(obj,&len);
   return smop_dump_create((SMOP__Object*[]) {
       smop_dump_attr_create("RI"),
@@ -199,7 +198,13 @@ void smop_dump_print(SMOP__Object* interpreter,SMOP__Object* obj,char* file_temp
   while (to_visit) {
     list* current = to_visit;
     to_visit = to_visit->next;
-    if (!current->value->RI->DUMP) {
+    if (!current->value) {
+      printf("DUMPing a null\n");
+      exit(0);
+    } else if (!current->value->RI) {
+      printf("value has no RI\n");
+      exit(0);
+    } else if (!current->value->RI->DUMP) {
       printf("no DUMP for %s\n",current->value->RI->id);
       exit(0);
     }

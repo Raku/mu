@@ -22,6 +22,17 @@ SMOP__Object* SMOP__S1P__Scalar_FETCH(SMOP__Object* object) {
 }
 %}
 
+%DUMP {
+  smop_s1p_scalar_struct* scalar = (smop_s1p_scalar_struct*) obj;
+  return smop_dump_create((SMOP__Object*[]) {
+      SMOP_DUMP_NAGC,
+      smop_dump_attr_create("cell"),
+      smop_dump_obj_create(scalar->cell),
+      NULL
+  });
+%}
+
+
 %init {
   SMOP__ID__true = SMOP__NATIVE__idconst_create("true");
 %}

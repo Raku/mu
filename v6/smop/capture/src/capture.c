@@ -27,6 +27,16 @@ static void DESTROYALL(SMOP__Object* interpreter,
   smop_util_hash_destr(interpreter,c->named);
 }
 
+static SMOP__Object* DUMP(SMOP__Object* interpreter,
+                                SMOP__ResponderInterface* responder,
+                                SMOP__Object* obj) {
+
+  return smop_dump_create((SMOP__Object*[]) {
+      SMOP_DUMP_NAGC,
+      NULL
+  });
+}
+
 SMOP__Object* SMOP__NATIVE__capture_create(SMOP__Object* interpreter,SMOP__Object** positional,SMOP__Object** named) {
   capture_struct* ret = (capture_struct*) smop_nagc_alloc(sizeof(capture_struct));
   ret->RI = (SMOP__ResponderInterface*)SMOP__capture__RI;
@@ -121,12 +131,14 @@ int SMOP__NATIVE__capture_named_count(SMOP__Object* interpreter,SMOP__Object* ca
 
 void smop_capture_init() {
   SMOP__capture__RI = malloc(sizeof(SMOP__NAGC__ResponderInterface));
+  ((SMOP__NAGC__ResponderInterface*)SMOP__capture__RI)->RI = SMOP__metaRI;
   ((SMOP__NAGC__ResponderInterface*)SMOP__capture__RI)->MESSAGE = smop_placeholder_message;
   ((SMOP__NAGC__ResponderInterface*)SMOP__capture__RI)->REFERENCE = smop_nagc_reference;
   ((SMOP__NAGC__ResponderInterface*)SMOP__capture__RI)->RELEASE = smop_nagc_release;
   ((SMOP__NAGC__ResponderInterface*)SMOP__capture__RI)->WEAKREF = smop_nagc_weakref;
   ((SMOP__NAGC__ResponderInterface*)SMOP__capture__RI)->id = "capture";
   ((SMOP__NAGC__ResponderInterface*)SMOP__capture__RI)->DESTROYALL = DESTROYALL;
+  ((SMOP__NAGC__ResponderInterface*)SMOP__capture__RI)->DUMP = DUMP;
 }
 
 void smop_capture_destr() {

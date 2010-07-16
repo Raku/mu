@@ -2,7 +2,7 @@
 %prefix smop_s1p_lexical
 %attr smop_lexicalscope_entry* entry
 %attr SMOP__Object* owner
-%RI.id lexical bvalue
+%RI.id lexical
 %{
     SMOP__Object* SMOP__S1P__Lexical_create(SMOP__Object* owner,smop_lexicalscope_entry* entry) {
         smop_s1p_lexical_struct* lexical = (smop_s1p_lexical_struct*) smop_nagc_alloc(sizeof(smop_s1p_lexical_struct));
@@ -15,6 +15,19 @@
 
 %DESTROYALL {
     SMOP_RELEASE(interpreter,((smop_s1p_lexical_struct*)invocant)->owner);
+%}
+%DUMP {
+  smop_s1p_lexical_struct* lexical = (smop_s1p_lexical_struct*) obj;
+  return smop_dump_create((SMOP__Object*[]) {
+      SMOP_DUMP_NAGC,
+      smop_dump_attr_create("owner"),
+      smop_dump_obj_create(lexical->owner),
+      smop_dump_attr_create("entry.key"),
+      smop_dump_obj_create(lexical->entry->key),
+      smop_dump_attr_create("entry.value"),
+      smop_dump_obj_create(lexical->entry->value),
+      NULL
+  });
 %}
 
 %method BIND(value)
