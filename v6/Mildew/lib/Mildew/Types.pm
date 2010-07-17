@@ -1,7 +1,7 @@
 use v5.10;
 use Mildew::Emit::Yeast;
 use MooseX::Declare;
-class TypeInfo {
+class Mildew::TypeInfo {
     has type=>(is=>'rw',builder=>'infer_type',lazy=>1);
     has mold=>(is=>'rw',isa=>'AST::Block::SSA');
     has usage=>(is=>'ro',isa=>'ArrayRef[AST::Base]',default=>sub {[]});
@@ -9,14 +9,14 @@ class TypeInfo {
         push(@{$self->usage},$stmt);
     }
     method infer_type {
-        Type::Unknown->new();
+        Mildew::Type::Unknown->new();
     }
 }
 
-class TypeInfo::FromAssignment extends TypeInfo {
+class Mildew::TypeInfo::FromAssignment extends Mildew::TypeInfo {
     has orgin=>(is=>'ro',isa=>'AST::Base',required=>1);
     method infer_type {
-        $self->type(Type::SelfRecursive->new());
+        $self->type(Mildew::Type::SelfRecursive->new());
         my $rvalue = $self->orgin->rvalue;
         if ($rvalue->isa('AST::Call')) {
             my $type = $rvalue->capture->invocant->type_info->type->method_call($self->orgin);
@@ -26,22 +26,22 @@ class TypeInfo::FromAssignment extends TypeInfo {
             }
             $type;
         } else {
-            Type::Unknown->new();
+            Mildew::Type::Unknown->new();
         }
     }
 }
-class TypeInfo::Phi extends TypeInfo {
+class Mildew::TypeInfo::Phi extends Mildew::TypeInfo {
 }
-class TypeInfo::IntegerConstant extends TypeInfo {
+class Mildew::TypeInfo::IntegerConstant extends Mildew::TypeInfo {
     method infer_type {
-        Type::IntegerConstant->new();
+        Mildew::Type::IntegerConstant->new();
     }
 }
-class TypeInfo::StringConstant extends TypeInfo {
+class Mildew::TypeInfo::StringConstant extends Mildew::TypeInfo {
 }
-class TypeInfo::External extends TypeInfo {
+class Mildew::TypeInfo::External extends Mildew::TypeInfo {
 }
-class Type {
+class Mildew::Type {
     sub str {
         my ($value,$str) = @_;
         is_str($value) && $value->value;
@@ -53,7 +53,7 @@ class Type {
     method debug {
     }
     method method_call($call) {
-        Type::Unknown->new();
+        Mildew::Type::Unknown->new();
     }
     method emit_call($i,$stmt,$value) {
         my $list = sub {
@@ -106,24 +106,24 @@ class Type {
         ref $self;
     }
 }
-role Type::FETCH {
+role Mildew::Type::FETCH {
     method method_call($stmt) {
         my $call = $stmt->rvalue;
-        my $id = Type::str($call->identifier);
+        my $id = Mildew::Type::str($call->identifier);
         if ($id eq 'FETCH') {
             $self;
         } else {
-            Type::Unknown->new();
+            Mildew::Type::Unknown->new();
         }
     }
 }
-class Type::IntegerConstant extends Type with Type::FETCH {
+class Mildew::Type::IntegerConstant extends Mildew::Type with Mildew::Type::FETCH {
 }
-class Type::Prototype extends Type {
+class Mildew::Type::Prototype extends Mildew::Type {
     has type=>(is=>'ro');
     method method_call($stmt) {
         my $call = $stmt->rvalue;
-        my $id = Type::str($call->identifier);
+        my $id = Mildew::Type::str($call->identifier);
         if ($id eq 'new') {
             $self->type->();
         } elsif ($id eq 'FETCH') {
@@ -131,10 +131,10 @@ class Type::Prototype extends Type {
         }
     }
 }
-class Type::Scope extends Type {
+class Mildew::Type::Scope extends Mildew::Type {
     has content=>(is=>'rw');
     has reg=>(is=>'rw',isa=>'AST::Reg');
-    has outer=>(is=>'ro',isa=>'Type');
+    has outer=>(is=>'ro',isa=>'Mildew::Type');
     use Scalar::Util qw(refaddr);
     use Term::ANSIColor qw(:constants);
 
@@ -152,14 +152,14 @@ class Type::Scope extends Type {
                 if (refaddr($call->capture->invocant) == refaddr($self->reg)) {
                     if (
                         @{$call->capture->positional} == 1
-                        && Type::is_str($call->capture->positional->[0])
+                        && Mildew::Type::is_str($call->capture->positional->[0])
                     ) {
-                        my $name = Type::str($call->capture->positional->[0]);
-                        if (Type::str($call->identifier) eq 'postcircumfix:{ }') {
+                        my $name = Mildew::Type::str($call->capture->positional->[0]);
+                        if (Mildew::Type::str($call->identifier) eq 'postcircumfix:{ }') {
                             $self->debug("variable defined in scope: ",GREEN,$name,RESET);
-                            $self->content->{$name} = Type::Lexical->new();
+                            $self->content->{$name} = Mildew::Type::Lexical->new();
                             $stmt->lvalue->type_info->type();
-                        } elsif (Type::str($call->identifier) eq 'lookup') {
+                        } elsif (Mildew::Type::str($call->identifier) eq 'lookup') {
                             $self->debug("variable used in scope:",GREEN,$name,RESET);
                             $stmt->lvalue->type_info->type();
                         } else {
@@ -176,14 +176,14 @@ class Type::Scope extends Type {
     method lookup($varname) {
         $self->debug("looking up $varname");
         if (!defined $self->content) {
-            return Type::Unknown->new();
+            return Mildew::Type::Unknown->new();
         }
         if (my $type = $self->content->{$varname}) {
             $type;
         } elsif ($self->outer) {
             $self->outer->lookup($varname);
         } else {
-            Type::Unknown->new();
+            Mildew::Type::Unknown->new();
         }
     }
     method method_call($stmt) {
@@ -192,21 +192,21 @@ class Type::Scope extends Type {
         if (!defined $self->content) {
             $self->infer_lexicals;
         }
-        my $id = Type::str($call->identifier);
-        if (($id eq 'lookup' || $id eq 'postcircumfix:{ }')  && Type::is_str($call->capture->positional->[0])) {
+        my $id = Mildew::Type::str($call->identifier);
+        if (($id eq 'lookup' || $id eq 'postcircumfix:{ }')  && Mildew::Type::is_str($call->capture->positional->[0])) {
             $self->debug("handling method:",$id);
-            $self->lookup(Type::str($call->capture->positional->[0]));
+            $self->lookup(Mildew::Type::str($call->capture->positional->[0]));
         } else {
             $self->debug("not handling method:",$id);
-            Type::Unknown->new();
+            Mildew::Type::Unknown->new();
         }
     }
 }
-class Type::Lexical extends Type {
+class Mildew::Type::Lexical extends Mildew::Type {
     use Term::ANSIColor qw(:constants);
     use Scalar::Util qw(refaddr);
     use Carp qw(cluck);
-    has content=>(is=>'rw',isa=>'Type',lazy_build=>1);
+    has content=>(is=>'rw',isa=>'Mildew::Type',lazy_build=>1);
     has binds=>(is=>'ro',isa=>'ArrayRef[Type]',default=>sub {[]});
     has stores=>(is=>'ro',isa=>'ArrayRef[Type]',default=>sub {[]});
     method _build_content {
@@ -217,7 +217,7 @@ class Type::Lexical extends Type {
             $self->debug("1 BIND: ",$self->binds->[0]);
         } else {
             $self->debug("many BINDs");
-            $container = Type::Scalar->new();
+            $container = Mildew::Type::Scalar->new();
         }
 
         use Data::Dumper;
@@ -229,20 +229,20 @@ class Type::Lexical extends Type {
         $container;
     }
     method method_call($call) {
-        if (Type::str($call->rvalue->identifier) eq 'FETCH') {
+        if (Mildew::Type::str($call->rvalue->identifier) eq 'FETCH') {
             $self->debug(RED,"called FETCH on lexical",RESET);
             $self->content->method_call($call);
-        } elsif (Type::str($call->rvalue->identifier) eq 'BIND') {
+        } elsif (Mildew::Type::str($call->rvalue->identifier) eq 'BIND') {
             $self;
         } else {
-            Type::Unknown->new();
+            Mildew::Type::Unknown->new();
         }
     }
     method add_usage($reg,$usage) {
         if ($usage->isa('AST::Assign')) {
             my $call = $usage->rvalue;
             if ($call->isa('AST::Call') && (refaddr $call->capture->invocant == refaddr $reg)) {
-                my $id = Type::str($call->identifier);
+                my $id = Mildew::Type::str($call->identifier);
                 if ($id eq 'BIND') {
                     push (@{$self->binds},$call->capture->positional->[0]->type_info->type);
                     $self->debug("propagating {");
@@ -265,7 +265,7 @@ class Type::Lexical extends Type {
         (ref $self) . " of " . $self->content->pretty;
     }    
 }
-class Type::Scalar extends Type {
+class Mildew::Type::Scalar extends Mildew::Type {
     use Carp qw(cluck);
     use Scalar::Util qw(refaddr);
     has stores=>(is=>'ro',isa=>'ArrayRef[Type]',default=>sub {[]});
@@ -281,35 +281,35 @@ class Type::Scalar extends Type {
         } else {
             use Data::Dumper;
             #cluck "wrong number of stores: ",(refaddr $self),Dumper($self->stores);
-            Type::Unknown->new();
+            Mildew::Type::Unknown->new();
         }
     }
     method method_call($call) {
-        if (Type::str($call->rvalue->identifier) eq 'FETCH') {
+        if (Mildew::Type::str($call->rvalue->identifier) eq 'FETCH') {
             $self->content;
         } else {
-            Type::Unknown->new();
+            Mildew::Type::Unknown->new();
         }
     }
     method pretty {
-        'Type::Scalar of ' . ($self->has_content ? $self->content->pretty : '(not calculated yet value)');
+        'Mildew::Type::Scalar of ' . ($self->has_content ? $self->content->pretty : '(not calculated yet value)');
     }    
 }
-class Type::Unknown extends Type {
+class Mildew::Type::Unknown extends Mildew::Type {
 }
 
-class Type::SelfRecursive extends Type::Unknown {
+class Mildew::Type::SelfRecursive extends Mildew::Type::Unknown {
     method method_call($call) {
         $self->debug("method call on self recursive\n");
-        Type::SelfRecursive->new();
+        Mildew::Type::SelfRecursive->new();
     }
 }
 
-class Type::MildewSOLoader extends Type {
+class Mildew::Type::MildewSOLoader extends Mildew::Type {
 }
-$Mildew::LexicalPreludeType = Type::Scope->new(
+$Mildew::LexicalPreludeType = Mildew::Type::Scope->new(
     content => {
-        MildewSOLoader => Type::Lexical->new(content=>Type::MildewSOLoader->new()),
-        Scalar => Type::Prototype->new(type=>sub {Type::Scalar->new()}),
+        MildewSOLoader => Mildew::Type::Lexical->new(content=>Mildew::Type::MildewSOLoader->new()),
+        Scalar => Mildew::Type::Prototype->new(type=>sub {Mildew::Type::Scalar->new()}),
     }
 );

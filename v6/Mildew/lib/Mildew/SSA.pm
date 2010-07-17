@@ -3,7 +3,7 @@ use Scalar::Util qw(refaddr);
 use Set::Object ();
 use List::MoreUtils qw(uniq);
 use Hash::Util::FieldHash qw(idhash);
-use Types;
+use Mildew::Types;
 use v5.10;
 use strict;
 use warnings;
@@ -188,7 +188,7 @@ sub doms {
     for (@{$mold->regs}) {
         my $reg = '$'.$_;
         $regs{$blocks->[0]}{$reg} = AST::Reg->new(
-            type_info=>TypeInfo->new($types->{$reg} ? (type=>$types->{$reg}) : () ),
+            type_info=>Mildew::TypeInfo->new($types->{$reg} ? (type=>$types->{$reg}) : () ),
             name=>$reg,
             real_name=>$reg
         );
@@ -224,7 +224,7 @@ sub doms {
                     $regs{$block}{$reg} = $new_reg;
                     unshift @{$block->stmts},AST::Assign->new(lvalue=>$new_reg,rvalue=>AST::Phi->new(regs=>\@phi));
 
-                    $new_reg->type_info(TypeInfo::FromAssignment->new(orgin=>$block->stmts->[0]));
+                    $new_reg->type_info(Mildew::TypeInfo::FromAssignment->new(orgin=>$block->stmts->[0]));
                 } elsif (@phi) {
                     $regs{$block}{$reg} = $phi[0];
                 }
@@ -239,7 +239,7 @@ sub doms {
                         $regs{$block}{$reg->name};
                     } elsif ($reg->name =~ /^¢|^\?/) {
                         my $new_reg = AST::Reg->new(real_name=>$reg->name,name=>$reg->name);
-                        $new_reg->type_info(TypeInfo::External->new());
+                        $new_reg->type_info(Mildew::TypeInfo::External->new());
                         $new_reg;
                     # FIXME
                     } elsif ($reg->name =~ /_\d+$/) {
@@ -264,7 +264,7 @@ sub set_reg_orgins {
     for my $block (@{$blocks}) {
         for my $stmt (@{$block->stmts}) {
             if ($stmt->isa('AST::Assign')) {
-                    $stmt->lvalue->type_info(TypeInfo::FromAssignment->new(orgin=>$stmt));
+                    $stmt->lvalue->type_info(Mildew::TypeInfo::FromAssignment->new(orgin=>$stmt));
             }
         }
     }

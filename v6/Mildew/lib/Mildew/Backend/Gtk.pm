@@ -1,7 +1,7 @@
 use v5.10;
 use MooseX::Declare;
 use Mildew::SSA;
-use Types;
+use Mildew::Types;
 class Mildew::Backend::Gtk with Mildew::Backend {
     has format=>(is=>'ro');
     method compile($ast,$output) {
@@ -11,7 +11,7 @@ class Mildew::Backend::Gtk with Mildew::Backend {
         use lib '/home/pawel/Forest-Gtk2/lib';
         require Forest::Gtk2;
         my $tree_view = Forest::Gtk2::tree_to_tree_view(Mildew::SSA::to_ssa($ast->simplified,{
-            '$scope' => Type::Scope->new(outer=> $Mildew::LexicalPreludeType)
+            '$scope' => Mildew::Type::Scope->new(outer=> $Mildew::LexicalPreludeType)
         })->forest); 
         my $window = Gtk2::Window->new('toplevel');
         $window->add($tree_view);
