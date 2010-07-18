@@ -120,6 +120,8 @@ Q:PIR {
     $P0['&run'] = s
     $P0['&open'] = s
     $P0['&slurp'] = s
+    $P0['&unlink'] = s
+    $P0['&dir'] = s
 };
 # EVALBOT ARTIFACT
 >,
