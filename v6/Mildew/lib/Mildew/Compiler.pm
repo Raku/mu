@@ -1,6 +1,6 @@
 use v5.10;
 use MooseX::Declare;
-use AST;
+use Mildew::AST;
 use VAST;
 BEGIN {
     for (<src/VAST/*.pm>) {
@@ -8,7 +8,7 @@ BEGIN {
     }
 }
 class Mildew::Compiler {
-    use AST::Helpers;
+    use Mildew::AST::Helpers;
     has frontend  => (is=>'ro');
     has backend => (is=>'ro');
     method ast($code) {

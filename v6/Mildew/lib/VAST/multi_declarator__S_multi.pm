@@ -2,7 +2,7 @@ package VAST::multi_declarator__S_multi;
 use utf8;
 use strict;
 use warnings;
-use AST::Helpers;
+use Mildew::AST::Helpers;
 use v5.10;
 
 sub emit_m0ld {
@@ -22,7 +22,7 @@ sub emit_m0ld {
 
     my $sig = $routine->{multisig}[0]{signature}[0];
     my $rout = routine($routine->{blockoid},($sig ? $sig->emit_m0ld : empty_sig));
-    my $ret = AST::Seq->new(stmts=>[
+    my $ret = Mildew::AST::Seq->new(stmts=>[
         $Mildew::multis->{$name} ? () : call(BIND => curlies($name),[call new => lookupf('Multi')]),
         call(get_outer_candidates => lookupf($name),[string $name,reg '$scope']),
         call(push => FETCH(call candidates => lookupf($name)),[$rout]),

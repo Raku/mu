@@ -1,5 +1,5 @@
-class AST::Block extends AST::Base {
-    has 'stmts' => (is=>'ro',isa=>'ArrayRef[AST::Base]');
+class Mildew::AST::Block extends Mildew::AST::Base {
+    has 'stmts' => (is=>'ro',isa=>'ArrayRef[Mildew::AST::Base]');
     has 'regs' => (is=>'ro',default=>sub {[]},isa=>'ArrayRef[Str]');
     method m0ld($ret) {
         "my $ret = mold {\n"
@@ -9,9 +9,9 @@ class AST::Block extends AST::Base {
     }
     method pretty {
         return 'mold {...}' if defined $Mildew::consise_pretty;
-        "mold \{\n". AST::indent(
+        "mold \{\n". Mildew::AST::indent(
             join('',map {'my $'.$_.";\n"} @{$self->regs})
-            . join("",map {AST::terminate_stmt  $_->pretty } @{$self->stmts})
+            . join("",map {Mildew::AST::terminate_stmt  $_->pretty } @{$self->stmts})
         ) . "\}"
     }
     method simplified {
@@ -22,7 +22,7 @@ class AST::Block extends AST::Base {
             ($value,@side_effects) = $_->simplified;
             push (@stmts,@side_effects);
         }
-        AST::Block::Simplified->new(regs=>$self->regs,stmts=>[@stmts,$value ? ($value) : ()]);
+        Mildew::AST::Block::Simplified->new(regs=>$self->regs,stmts=>[@stmts,$value ? ($value) : ()]);
     }
     method took {
         my $took = 0;

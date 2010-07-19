@@ -1,7 +1,7 @@
 use MooseX::Declare;
 class VAST::nibbler {
     use Scalar::Util 'blessed';
-    use AST::Helpers;
+    use Mildew::AST::Helpers;
     method emit_m0ld {
         my @parts = @{$self->{'.'}};
         if (@parts == 1) {

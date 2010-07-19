@@ -1,7 +1,7 @@
 use v5.10;
 use MooseX::Declare;
 class VAST::scope_declarator__S_our {
-    use AST::Helpers;
+    use Mildew::AST::Helpers;
     method emit_m0ld {
         #XXX refactor
         if (my $decl = $self->{scoped}{declarator}) {

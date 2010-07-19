@@ -2,7 +2,7 @@ use v5.10;
 use MooseX::Declare;
 use utf8;
 class VAST::escape__S_Back {
-    use AST::Helpers;
+    use Mildew::AST::Helpers;
     method emit_m0ld {
         my %backslashes = (n=>"\n");
         if ($self->{item}->isa('VAST::backslash__S_stopper')) {

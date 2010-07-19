@@ -2,7 +2,7 @@ use utf8;
 use v5.10;
 use MooseX::Declare;
 class VAST::statement_control__S_use {
-    use AST::Helpers;
+    use Mildew::AST::Helpers;
     method emit_m0ld {
         use YAML::XS;
         my $module = $self->{module_name}{longname};

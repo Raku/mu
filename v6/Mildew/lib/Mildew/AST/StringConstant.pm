@@ -1,6 +1,6 @@
 use v5.10;
 use MooseX::Declare;
-class AST::StringConstant extends AST::Base {;
+class Mildew::AST::StringConstant extends Mildew::AST::Base {;
     has 'value' => (is=>'ro');
     has 'type_info' => (is=>'ro',lazy=>1,default=>sub {Mildew::TypeInfo::StringConstant->new()});
     method m0ld($ret) {

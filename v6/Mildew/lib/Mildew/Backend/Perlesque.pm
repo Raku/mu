@@ -16,12 +16,12 @@ class Mildew::Backend::Perlesque with Mildew::Backend {
     method emit_block($block) {
         my %regs;
         my $value = sub {
-            if ($_[0]->isa('AST::Reg')) {
+            if ($_[0]->isa('Mildew::AST::Reg')) {
                 $regs{$_[0]->real_name}++;
                 $_[0]->real_name;
-            } elsif ($_[0]->isa('AST::IntegerConstant')) {
+            } elsif ($_[0]->isa('Mildew::AST::IntegerConstant')) {
                 'P6int.new(' . $_[0]->value . ')';
-            } elsif ($_[0]->isa('AST::StringConstant')) {
+            } elsif ($_[0]->isa('Mildew::AST::StringConstant')) {
                 my $str = $_[0]->value;
                 # TODO properly quote characters
                 $str =~ s/(["\\])/\\$1/g;
@@ -31,7 +31,7 @@ class Mildew::Backend::Perlesque with Mildew::Backend {
                 ref($_[0]);
             }
         };
-#            if ($_[0]->isa('AST::Reg')) {
+#            if ($_[0]->isa('Mildew::AST::Reg')) {
 #                if ($_[0]->name =~ /^¢/) {
 #                    my $n = $_[0]->name;
 #                    $n =~ s/^¢//;
@@ -41,7 +41,7 @@ class Mildew::Backend::Perlesque with Mildew::Backend {
 #                    $regs{$_[0]->real_name} = $reg_id++;
 #                }
 #                "frame->reg[" . $regs{$_[0]->real_name} . "]";
-#            } elsif ($_[0]->isa('AST::Block::SSA')) {
+#            } elsif ($_[0]->isa('Mildew::AST::Block::SSA')) {
 #                my ($func,$expr,$init) = $_[0]->emit_c;
 #                $funcs .= $func;
 #                $call_init_funcs .= $init;
@@ -55,10 +55,10 @@ class Mildew::Backend::Perlesque with Mildew::Backend {
         for my $sub_block (@{$block->stmts}) {
             for my $stmt (@{$sub_block->stmts}) {
                 #$code .= "\n/*".$stmt->pretty."*/";
-                if ($stmt->isa('AST::Goto')) {
+                if ($stmt->isa('Mildew::AST::Goto')) {
                     $code .= "#goto\n"
                     #$code .= "frame->pc = " . $labels{$stmt->block->id} . ";" . "break;\n"
-                } elsif ($stmt->isa('AST::Branch')) {
+                } elsif ($stmt->isa('Mildew::AST::Branch')) {
                     $code .= "#branch\n";
 #                    $code .= "frame->pc = "
 #                        . $value->($stmt->cond)
@@ -67,19 +67,19 @@ class Mildew::Backend::Perlesque with Mildew::Backend {
 #                        . " : "
 #                        . $labels{$stmt->then->id}
 #                        . ";break;\n";
-                } elsif ($stmt->isa('AST::Reg')) {
+                } elsif ($stmt->isa('Mildew::AST::Reg')) {
                     # make it a noop
-                } elsif ($stmt->isa('AST::Assign')) {
-                    if ($stmt->rvalue->isa('AST::Call')) {
+                } elsif ($stmt->isa('Mildew::AST::Assign')) {
+                    if ($stmt->rvalue->isa('Mildew::AST::Call')) {
                         my $type = $stmt->rvalue->capture->invocant->type_info->type;
                         $code .= $type->emit_perlesque_call($stmt,$value) . "\n";
 
-                    } elsif ($stmt->rvalue->isa('AST::Phi')) {
+                    } elsif ($stmt->rvalue->isa('Mildew::AST::Phi')) {
                         # TODO make it a noop
-                    } elsif ($stmt->rvalue->isa('AST::InferredTypeTest')) {
+                    } elsif ($stmt->rvalue->isa('Mildew::AST::InferredTypeTest')) {
                         $code .= "#inferred type test\n"
                         #my $type = $stmt->rvalue->value->type_info->type;
-                        #$code .= Emit::Yeast::assign($value->($stmt->lvalue),$value->(AST::IntegerConstant->new(value=>eval($stmt->rvalue->test) ? 1 : 0)));
+                        #$code .= Emit::Yeast::assign($value->($stmt->lvalue),$value->(Mildew::AST::IntegerConstant->new(value=>eval($stmt->rvalue->test) ? 1 : 0)));
                         #die if $@;
                     } else {
                         $code .= "# assignment\n";

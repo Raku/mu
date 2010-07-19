@@ -28,6 +28,6 @@ Mildew::Backend::Gtk
 
 =head1 DESCRIPTION
 
-This backend displays the AST using Forest::Gtk2
+This backend displays the Mildew::AST using Forest::Gtk2
 
 =cut

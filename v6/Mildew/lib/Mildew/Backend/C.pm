@@ -1,8 +1,8 @@
 use v5.10;
 use MooseX::Declare;
 role Mildew::Backend::C {
-    use AST;
-    use AST::Helpers;
+    use Mildew::AST;
+    use Mildew::AST::Helpers;
     use File::Temp qw(tempfile tmpnam);
 
     has cflags=>(lazy_build=>1,is=>'rw');
@@ -27,7 +27,7 @@ role Mildew::Backend::C {
     # false doesn't support setr
     sub wrap_in_block_without_setr {
         my ($ast,$scope) = @_;
-        AST::Block->new(regs=>['interpreter','scope'],stmts=>[fcall(call(new => FETCH(lookup('Code')),[],[string 'outer'=>($scope // reg '$scope'),string 'signature'=>empty_sig(),string 'mold' => $ast]))]);
+        Mildew::AST::Block->new(regs=>['interpreter','scope'],stmts=>[fcall(call(new => FETCH(lookup('Code')),[],[string 'outer'=>($scope // reg '$scope'),string 'signature'=>empty_sig(),string 'mold' => $ast]))]);
     }
 
     method compile($ast,$output) {

@@ -1,16 +1,16 @@
 use v5.10;
 use MooseX::Declare;
-class AST::If extends AST::Base {
-    use AST::Helpers;
+class Mildew::AST::If extends Mildew::AST::Base {
+    use Mildew::AST::Helpers;
     has 'cond' => (is => 'ro');
     has 'then' => (is => 'ro');
     has 'else' => (is => 'ro');
     has 'elsif' => (is => 'ro');
     method m0ld($ret) {
-        my $id_cond = AST::unique_id;
-        my $label_then = AST::unique_label;
-        my $label_else = AST::unique_label;
-        my $label_endif = AST::unique_label;
+        my $id_cond = Mildew::AST::unique_id;
+        my $label_then = Mildew::AST::unique_label;
+        my $label_else = Mildew::AST::unique_label;
+        my $label_endif = Mildew::AST::unique_label;
         my $cond = $self->cond->m0ld($id_cond);
         my $then = 'noop;';
         $then = $self->then->m0ld($ret) if $self->then;
@@ -21,9 +21,9 @@ class AST::If extends AST::Base {
         my $elsifs = '';
         if ($self->elsif) {
             foreach my $part (@{$self->elsif}) {
-                my $id_elsif_cond = AST::unique_id;
-                my $label_elsif_then = AST::unique_label;
-                my $label_elsif_else = AST::unique_label;
+                my $id_elsif_cond = Mildew::AST::unique_id;
+                my $label_elsif_then = Mildew::AST::unique_label;
+                my $label_elsif_else = Mildew::AST::unique_label;
                 my $elsif_cond = $part->cond->m0ld($id_elsif_cond);
                 my $elsif_then = $part->then->m0ld($ret);
                 $elsifs .= $elsif_cond."\n".
@@ -52,8 +52,8 @@ class AST::If extends AST::Base {
     method simplified {
 
 
-        my $endif = AST::Seq->new(stmts=>[],id=>AST::unique_label);
-        my $result = AST::unique_reg;
+        my $endif = Mildew::AST::Seq->new(stmts=>[],id=>Mildew::AST::unique_label);
+        my $result = Mildew::AST::unique_reg;
 
         my @parts = ($self,$self->elsif ? @{$self->elsif}: ());
         my $branch;
@@ -62,16 +62,16 @@ class AST::If extends AST::Base {
             my $old_branch = $branch;
             my ($cond,@cond_setup) = call(true=>FETCH($part->cond))->simplified;
             my ($then_val,@then_setup) = $part->then->simplified;
-            my $then = AST::Seq->new(id=>AST::unique_label,stmts=>[@then_setup,AST::Assign->new(lvalue=>$result,rvalue=>$then_val),AST::Goto->new(block=>$endif)]);
-            $branch = AST::Branch->new(cond=>$cond,then=>$then);
-            my $block = AST::Seq->new(id=>AST::unique_label,stmts=>[@cond_setup,$branch,$then]);
+            my $then = Mildew::AST::Seq->new(id=>Mildew::AST::unique_label,stmts=>[@then_setup,Mildew::AST::Assign->new(lvalue=>$result,rvalue=>$then_val),Mildew::AST::Goto->new(block=>$endif)]);
+            $branch = Mildew::AST::Branch->new(cond=>$cond,then=>$then);
+            my $block = Mildew::AST::Seq->new(id=>Mildew::AST::unique_label,stmts=>[@cond_setup,$branch,$then]);
             push(@setup,$block);
             $old_branch->else($block) if $old_branch;
         }
 
         if ($self->else) {
             my ($else_val,@else_setup) = $self->else->simplified;
-            my $else = AST::Seq->new(id=>AST::unique_label,stmts=>[@else_setup,AST::Assign->new(lvalue=>$result,rvalue=>$else_val),AST::Goto->new(block=>$endif)]);
+            my $else = Mildew::AST::Seq->new(id=>Mildew::AST::unique_label,stmts=>[@else_setup,Mildew::AST::Assign->new(lvalue=>$result,rvalue=>$else_val),Mildew::AST::Goto->new(block=>$endif)]);
             $branch->else($else);
             push(@setup,$else);
         } else {
@@ -85,26 +85,26 @@ class AST::If extends AST::Base {
         if ($self->then) {
             $code =
                 'if ' . $self->cond->pretty . " {\n"
-                . AST::indent($self->then->pretty) . "\n"
+                . Mildew::AST::indent($self->then->pretty) . "\n"
                 . "}\n";
         } else {
             $code =
                 'unless ' . $self->cond->pretty . " {\n"
-                . AST::indent($self->else->pretty) . "\n"
+                . Mildew::AST::indent($self->else->pretty) . "\n"
                 . "}\n";
         }
         if ($self->elsif) {
             foreach my $part (@{$self->elsif}) {
                 $code .=
                   'elsif '.$part->cond->pretty . " {\n"
-                    . AST::indent($self->then->pretty). "\n"
+                    . Mildew::AST::indent($self->then->pretty). "\n"
                     . "}\n";
             }
         }
         if ($self->else) {
             $code .=
               "else {\n"
-                . AST::indent($self->else->pretty). "\n"
+                . Mildew::AST::indent($self->else->pretty). "\n"
                 . "}\n";
         }
         $code;

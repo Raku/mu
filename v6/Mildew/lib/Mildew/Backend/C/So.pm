@@ -4,8 +4,8 @@ use SMOP;
 
 # TODO seperate the shared library creation from the type of the C backend
 class Mildew::Backend::C::So extends Mildew::Backend::OptC {
-    use AST;
-    use AST::Helpers;
+    use Mildew::AST;
+    use Mildew::AST::Helpers;
     use File::Temp qw(tempfile tmpnam);
 
     method compile($ast,$output) {
@@ -24,10 +24,10 @@ class Mildew::Backend::C::So extends Mildew::Backend::OptC {
     }
     method handle_YOU_ARE_HERE($ast) {
 
-        AST::Block->new(
+        Mildew::AST::Block->new(
             regs=>[@{$ast->regs},'YOU_ARE_HERE'],
             stmts=>trailing_return([
-                    AST::Assign->new(lvalue=>reg '$YOU_ARE_HERE',rvalue=>reg '$scope'),
+                    Mildew::AST::Assign->new(lvalue=>reg '$YOU_ARE_HERE',rvalue=>reg '$scope'),
                     @{$ast->stmts},
                     reg '$YOU_ARE_HERE'])
         );

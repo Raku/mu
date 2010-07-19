@@ -2,7 +2,7 @@ use v5.10;
 use MooseX::Declare;
 use utf8;
 class VAST::postcircumfix__S_Paren_Thesis {
-    use AST::Helpers;
+    use Mildew::AST::Helpers;
     method emit_m0ld {
         my $arg;
         if ($self->{arg}->isa('VAST::term__S_name')) {

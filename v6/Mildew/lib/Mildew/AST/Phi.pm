@@ -1,7 +1,7 @@
 use v5.10;
 use utf8;
 use MooseX::Declare;
-class AST::Phi extends AST::Base {
+class Mildew::AST::Phi extends Mildew::AST::Base {
     has 'regs' => (is => 'ro');
     method pretty {
         "phi(".join (',',map {$_->pretty} @{$self->regs}).")";

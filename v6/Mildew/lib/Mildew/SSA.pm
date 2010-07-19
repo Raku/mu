@@ -43,21 +43,21 @@ sub transform_stmt {
         }
     }
 
-    if ($value->isa('AST::Call')) {
-        AST::Call->new(identifier=>transform_stmt($callbacks,$value->identifier),capture=>transform_stmt($callbacks,$value->capture));
-    } elsif ($value->isa('AST::Capture')) {
-        AST::Capture->new(
+    if ($value->isa('Mildew::AST::Call')) {
+        Mildew::AST::Call->new(identifier=>transform_stmt($callbacks,$value->identifier),capture=>transform_stmt($callbacks,$value->capture));
+    } elsif ($value->isa('Mildew::AST::Capture')) {
+        Mildew::AST::Capture->new(
             ($value->invocant ? (invocant => transform_stmt($callbacks,$value->invocant)) : ()),
             positional => [map {transform_stmt($callbacks,$_)} @{$value->positional}],
             named=>[map {transform_stmt($callbacks,$_)} @{$value->named}]
         );
 
-    } elsif ($value->isa('AST::Assign')) {
-        AST::Assign->new(lvalue=>transform_stmt($callbacks,$value->lvalue),rvalue=>transform_stmt($callbacks,$value->rvalue));
-    } elsif ($value->isa('AST::InferredTypeTest')) {
-        AST::InferredTypeTest->new(value=>transform_stmt($callbacks,$value->value),test=>$value->test);
-    } elsif ($value->isa('AST::Branch')) {
-        AST::Branch->new(then=>$value->then,else=>$value->else,cond=>transform_stmt($callbacks,$value->cond));
+    } elsif ($value->isa('Mildew::AST::Assign')) {
+        Mildew::AST::Assign->new(lvalue=>transform_stmt($callbacks,$value->lvalue),rvalue=>transform_stmt($callbacks,$value->rvalue));
+    } elsif ($value->isa('Mildew::AST::InferredTypeTest')) {
+        Mildew::AST::InferredTypeTest->new(value=>transform_stmt($callbacks,$value->value),test=>$value->test);
+    } elsif ($value->isa('Mildew::AST::Branch')) {
+        Mildew::AST::Branch->new(then=>$value->then,else=>$value->else,cond=>transform_stmt($callbacks,$value->cond));
     } else {
         $value;
     }
@@ -74,19 +74,19 @@ sub alive_regs {
     idhash my %alive_regs;
     for my $block (@{$postorder}) {
         $alive_regs{$block} = Set::Object->new();
-        my $insert = sub {$alive_regs{$block}->insert(map {$_->name} grep {$_->isa('AST::Reg')} @_)};
+        my $insert = sub {$alive_regs{$block}->insert(map {$_->name} grep {$_->isa('Mildew::AST::Reg')} @_)};
         for my $stmt (@{$block->stmts}) {
-            if ($stmt->isa('AST::Assign')) {
-                if ($stmt->rvalue->isa('AST::Call')) {
+            if ($stmt->isa('Mildew::AST::Assign')) {
+                if ($stmt->rvalue->isa('Mildew::AST::Call')) {
                     my $capture = $stmt->rvalue->capture; 
                      $insert->($capture->invocant,@{$capture->positional},@{$capture->named});
-                } elsif ($stmt->rvalue->isa('AST::InferredTypeTest')) {
+                } elsif ($stmt->rvalue->isa('Mildew::AST::InferredTypeTest')) {
                     $insert->($stmt->rvalue->value);
                 } else {
                     $insert->($stmt->rvalue);
                 }
-            } elsif ($stmt->isa('AST::Branch')) {
-                $alive_regs{$block}->insert($stmt->cond->name) if $stmt->cond->isa('AST::Reg');
+            } elsif ($stmt->isa('Mildew::AST::Branch')) {
+                $alive_regs{$block}->insert($stmt->cond->name) if $stmt->cond->isa('Mildew::AST::Reg');
             } else {
                 $insert->($stmt);
             }
@@ -187,7 +187,7 @@ sub doms {
     idhash my %regs;
     for (@{$mold->regs}) {
         my $reg = '$'.$_;
-        $regs{$blocks->[0]}{$reg} = AST::Reg->new(
+        $regs{$blocks->[0]}{$reg} = Mildew::AST::Reg->new(
             type_info=>Mildew::TypeInfo->new($types->{$reg} ? (type=>$types->{$reg}) : () ),
             name=>$reg,
             real_name=>$reg
@@ -196,14 +196,14 @@ sub doms {
     # TODO - handle assigning to the value twice in the same block correctly
     for my $block (@{$postorder}) {
         for my $stmt (@{$block->stmts}) {
-            if ($stmt->isa('AST::Assign')) {
+            if ($stmt->isa('Mildew::AST::Assign')) {
                 my $name = $stmt->lvalue->name;
-                my $reg = AST::Reg->new(
+                my $reg = Mildew::AST::Reg->new(
                     name=>$name."_".++$unique{$name},
                     real_name=>$name,
                 );
                 $regs{$block}{$name} = $reg;
-                $stmt = AST::Assign->new(lvalue=>$reg,rvalue=>$stmt->rvalue);
+                $stmt = Mildew::AST::Assign->new(lvalue=>$reg,rvalue=>$stmt->rvalue);
 
             }
         }
@@ -220,9 +220,9 @@ sub doms {
                 my @phi = uniq map {$regs{$_}{$reg} || ()} @{$dominance_frontiers->{$block}};
                 if (@phi >= 2) {
                     #die "phi function for $reg: ",join ',',map {$_->name} @phi;
-                    my $new_reg = AST::Reg->new(name=>$reg."_".++$unique{$reg},real_name=>$reg);
+                    my $new_reg = Mildew::AST::Reg->new(name=>$reg."_".++$unique{$reg},real_name=>$reg);
                     $regs{$block}{$reg} = $new_reg;
-                    unshift @{$block->stmts},AST::Assign->new(lvalue=>$new_reg,rvalue=>AST::Phi->new(regs=>\@phi));
+                    unshift @{$block->stmts},Mildew::AST::Assign->new(lvalue=>$new_reg,rvalue=>Mildew::AST::Phi->new(regs=>\@phi));
 
                     $new_reg->type_info(Mildew::TypeInfo::FromAssignment->new(orgin=>$block->stmts->[0]));
                 } elsif (@phi) {
@@ -233,12 +233,12 @@ sub doms {
 
         for my $stmt (@{$block->stmts}) {
             $stmt = transform_stmt({
-                'AST::Reg'   => sub {
+                'Mildew::AST::Reg'   => sub {
                     my ($reg) = @_;
                     if ($regs{$block}{$reg->name}) {
                         $regs{$block}{$reg->name};
                     } elsif ($reg->name =~ /^¢|^\?/) {
-                        my $new_reg = AST::Reg->new(real_name=>$reg->name,name=>$reg->name);
+                        my $new_reg = Mildew::AST::Reg->new(real_name=>$reg->name,name=>$reg->name);
                         $new_reg->type_info(Mildew::TypeInfo::External->new());
                         $new_reg;
                     # FIXME
@@ -249,7 +249,7 @@ sub doms {
                         die $reg->name." is not in ".Dumper($regs{$block});
                     }
                 },
-                'AST::Block' => sub {
+                'Mildew::AST::Block' => sub {
                     my ($block) = @_;
                     Mildew::SSA::to_ssa($block);
                 }
@@ -263,18 +263,18 @@ sub set_reg_orgins {
 
     for my $block (@{$blocks}) {
         for my $stmt (@{$block->stmts}) {
-            if ($stmt->isa('AST::Assign')) {
+            if ($stmt->isa('Mildew::AST::Assign')) {
                     $stmt->lvalue->type_info(Mildew::TypeInfo::FromAssignment->new(orgin=>$stmt));
             }
         }
     }
     for my $block (@{$blocks}) {
         for my $stmt (@{$block->stmts}) {
-            if ($stmt->isa('AST::Assign')) {
-                if ($stmt->rvalue->isa('AST::Call')) {
+            if ($stmt->isa('Mildew::AST::Assign')) {
+                if ($stmt->rvalue->isa('Mildew::AST::Call')) {
                     my $capture = $stmt->rvalue->capture;
                     for my $reg ($capture->invocant,@{$capture->named},@{$capture->positional}) {
-                        next unless $reg->isa('AST::Reg');
+                        next unless $reg->isa('Mildew::AST::Reg');
                         $reg->type_info->add_usage($stmt);
                     }
                 }
@@ -294,14 +294,14 @@ sub to_ssa {
         doms($mold,\@blocks,$types);
         set_reg_orgins(\@blocks);
     }
-    AST::Block::SSA->new(regs=>$mold->regs,stmts=>\@blocks); 
+    Mildew::AST::Block::SSA->new(regs=>$mold->regs,stmts=>\@blocks); 
 }
 sub from_ssa {
     my ($mold) = @_;
     idhash my %unssa;
     for my $block (@{$mold->stmts}) {
         @{$block->stmts} = grep {
-            if ($_->isa('AST::Assign') && $_->rvalue->isa('AST::Phi')) {
+            if ($_->isa('Mildew::AST::Assign') && $_->rvalue->isa('Mildew::AST::Phi')) {
                 $unssa{$_->lvalue} = 1;
                 for my $reg (@{$_->rvalue->regs}) {
                     $unssa{$reg} = 1;
@@ -315,11 +315,11 @@ sub from_ssa {
     for my $block (@{$mold->stmts}) {
         for my $stmt (@{$block->stmts}) {
             $stmt = transform_stmt({
-                'AST::Reg' => sub {
+                'Mildew::AST::Reg' => sub {
                     my ($reg) = @_;       
-                    $unssa{$reg} ? AST::Reg->new(name=>$reg->real_name) : $reg;
+                    $unssa{$reg} ? Mildew::AST::Reg->new(name=>$reg->real_name) : $reg;
                 },
-                'AST::Block' => sub {
+                'Mildew::AST::Block' => sub {
                      my ($block) = @_;       
                      from_ssa($block);
                      $block;
@@ -352,9 +352,9 @@ sub fix_jumps {
     my ($blocks,$blocks_by_id) = @_;
     for my $block (@{$blocks}) {
         for my $stmt (@{$block->stmts}) {
-            if ($stmt->isa('AST::Goto')) {
+            if ($stmt->isa('Mildew::AST::Goto')) {
                 $stmt->block($blocks_by_id->{$stmt->block->id});
-            } elsif ($stmt->isa('AST::Branch')) {
+            } elsif ($stmt->isa('Mildew::AST::Branch')) {
                 $stmt->then($blocks_by_id->{$stmt->then->id});
                 $stmt->else($blocks_by_id->{$stmt->else->id});
             }
@@ -364,16 +364,16 @@ sub fix_jumps {
 sub flatten {
     my ($flattened_thing,$blocks,$blocks_by_id) = @_;
     for (@{$flattened_thing->stmts}) {
-        if ($_->isa('AST::Seq')) {
+        if ($_->isa('Mildew::AST::Seq')) {
             if ($_->id) {
-                my $block = AST::Seq->new(stmts=>[],id=>$_->id);
+                my $block = Mildew::AST::Seq->new(stmts=>[],id=>$_->id);
                 push (@{$blocks},$block);
                 $blocks_by_id->{$block->id} = $block;
             }
             flatten($_,$blocks,$blocks_by_id);
         } else {
             unless (@{$blocks}) {
-                push (@{$blocks},AST::Seq->new(stmts=>[],id=>'start'));
+                push (@{$blocks},Mildew::AST::Seq->new(stmts=>[],id=>'start'));
             }
             push(@{$blocks->[-1]->stmts},$_);
         }

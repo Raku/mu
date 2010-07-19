@@ -1,4 +1,4 @@
-package AST::Helpers;
+package Mildew::AST::Helpers;
 use Exporter 'import';
 our @EXPORT = qw(string reg integer call FETCH lookup capturize let fcall name_components empty_sig routine code move_CONTROL XXX trailing_return varname lookupf curlies named_and_positional dump lookup_package YYY wrap_in_block);
 use Carp 'confess';
@@ -14,20 +14,20 @@ sub YYY {
         die Dump($_[0]);
 }
 sub string($) {
-    AST::StringConstant->new(value=>$_[0]);
+    Mildew::AST::StringConstant->new(value=>$_[0]);
 }
 
 sub reg($) {
-    AST::Reg->new(name=>$_[0]);
+    Mildew::AST::Reg->new(name=>$_[0]);
 }
 
 sub integer($) {
-    AST::IntegerConstant->new(value=>$_[0]);
+    Mildew::AST::IntegerConstant->new(value=>$_[0]);
 }
 
 
 sub call {
-    AST::Call->new(identifier=>string($_[0]),capture=>AST::Capture->new(invocant => $_[1],positional => $_[2]//[],named => $_[3]//[]));
+    Mildew::AST::Call->new(identifier=>string($_[0]),capture=>Mildew::AST::Capture->new(invocant => $_[1],positional => $_[2]//[],named => $_[3]//[]));
 }
 
 sub FETCH {
@@ -57,9 +57,9 @@ sub fcall {
 }
 sub capturize {
     my ($pos,$named) = @_;
-    AST::Call->new(
+    Mildew::AST::Call->new(
         identifier => string "new",
-        capture => AST::Capture->new(
+        capture => Mildew::AST::Capture->new(
             invocant => FETCH(lookup("capture")),
             positional => $pos // [],
             named => $named // []
@@ -70,29 +70,29 @@ sub capturize {
 sub let {
     my ($value,$block) = @_;
     my $adhoc_sig = $Mildew::adhoc_sig;
-    AST::Let->new(value=>$value,block=>sub { local $Mildew::adhoc_sig = $adhoc_sig;$block->(@_)});
+    Mildew::AST::Let->new(value=>$value,block=>sub { local $Mildew::adhoc_sig = $adhoc_sig;$block->(@_)});
 }
 
 sub empty_sig {
-  AST::Call->new
+  Mildew::AST::Call->new
     ( identifier => string 'new',
-      capture => AST::Capture->new
+      capture => Mildew::AST::Capture->new
       ( invocant => FETCH(lookup('AdhocSignature')),
         positional => [],
         named =>
-        [ string 'BIND' => AST::Block->new
+        [ string 'BIND' => Mildew::AST::Block->new
           ( regs => [qw(interpreter scope capture)],
             stmts => trailing_return([]))]));
 }
 
 sub block_sig {
-  AST::Call->new
+  Mildew::AST::Call->new
     ( identifier => string 'new',
-      capture => AST::Capture->new
+      capture => Mildew::AST::Capture->new
       ( invocant => FETCH(lookup('AdhocSignature')),
         positional => [],
         named =>
-        [ string 'BIND' => AST::Block->new
+        [ string 'BIND' => Mildew::AST::Block->new
           ( regs => [qw(interpreter scope capture)],
             stmts => trailing_return([
                 call BIND => curlies('$_'),[call positional => reg '$capture',[integer 0]] 
@@ -113,7 +113,7 @@ sub routine {
             string 'signature' => block_sig(),
             string 'outer' => reg '$scope',
 	    string 'mold' =>
-	    AST::Block->new
+	    Mildew::AST::Block->new
 	    ( regs => ['interpreter','scope'],
 	      stmts =>
 	      [ call( "setr" =>
@@ -198,7 +198,7 @@ sub name_components {
 }
 
 sub named_and_positional {
-    [grep { ref $_ ne 'AST::Pair' } @_],[map { $_->key, $_->value } grep { ref eq 'AST::Pair' } @_]
+    [grep { ref $_ ne 'Mildew::AST::Pair' } @_],[map { $_->key, $_->value } grep { ref eq 'Mildew::AST::Pair' } @_]
 }
 
 
@@ -212,7 +212,7 @@ sub lookup_package {
 
 sub wrap_in_block {
     my ($ast,$scope) = @_;
-    AST::Block->new(regs=>['interpreter','scope'],stmts=>trailing_return([fcall(call(new => FETCH(lookup('Code')),[],[string 'outer'=>($scope // reg '$scope'),string 'signature'=>empty_sig(),string 'mold' => $ast]))]));
+    Mildew::AST::Block->new(regs=>['interpreter','scope'],stmts=>trailing_return([fcall(call(new => FETCH(lookup('Code')),[],[string 'outer'=>($scope // reg '$scope'),string 'signature'=>empty_sig(),string 'mold' => $ast]))]));
 }
 
 1;

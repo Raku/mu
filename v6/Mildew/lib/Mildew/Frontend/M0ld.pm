@@ -1,12 +1,12 @@
 use v5.10;
 use MooseX::Declare;
 use Regexp::Grammars;
-use AST;
+use Mildew::AST;
 class Mildew::Frontend::M0ld {
     # $REGS needs to be a global variable for local to work
     our $REGS = [];
 
-    # converts an arrayref of statements to a AST::Block
+    # converts an arrayref of statements to a Mildew::AST::Block
     sub stmts_to_block {
         my ($stmts) = @_;
         my @stmts;
@@ -17,7 +17,7 @@ class Mildew::Frontend::M0ld {
                 if ($seqs{$label}) {
                     die "Duplicate label $label.\n";
                 }
-                $seqs{$label} = AST::Seq->new(stmts=>[],id=>$label);
+                $seqs{$label} = Mildew::AST::Seq->new(stmts=>[],id=>$label);
             }
         }
         my @seqs = ();
@@ -28,13 +28,13 @@ class Mildew::Frontend::M0ld {
             }
             my $stmt = $stmt_label->[1];
             unless (@seqs) {
-                push(@seqs,AST::Seq->new(stmts=>[])) if $stmt;
+                push(@seqs,Mildew::AST::Seq->new(stmts=>[])) if $stmt;
             }
             if (!defined $stmt) {
             } elsif ($stmt->{goto}) {
-                push(@{$seqs[-1]->stmts},AST::Goto->new(block=>$seqs{$stmt->{goto}}));
+                push(@{$seqs[-1]->stmts},Mildew::AST::Goto->new(block=>$seqs{$stmt->{goto}}));
             } elsif ($stmt->{cond}) {
-                push(@{$seqs[-1]->stmts},AST::Branch->new(
+                push(@{$seqs[-1]->stmts},Mildew::AST::Branch->new(
                     cond=>$stmt->{cond},
                     then=>$seqs{$stmt->{then}},
                     else=>$seqs{$stmt->{else}}
@@ -44,7 +44,7 @@ class Mildew::Frontend::M0ld {
                 push(@{$seqs[-1]->stmts},$stmt);
             }
         }
-        AST::Block::Simplified->new(stmts=>\@seqs,regs=>$REGS);
+        Mildew::AST::Block::Simplified->new(stmts=>\@seqs,regs=>$REGS);
     }
 
 
@@ -77,19 +77,19 @@ class Mildew::Frontend::M0ld {
     (?:<[argument]> ** ,)?
     \)
     (?{ 
-        $MATCH = AST::Call->new(
+        $MATCH = Mildew::AST::Call->new(
             identifier=>$MATCH{identifier},
-            capture=>AST::Capture->new(
+            capture=>Mildew::AST::Capture->new(
                 invocant => $MATCH{invocant},
-                positional => [grep { ! $_->isa('AST::Pair') } @{$MATCH{argument}}],
-                named => [map { $_->key, $_->value } grep { $_->isa('AST::Pair') } @{$MATCH{argument}}]
+                positional => [grep { ! $_->isa('Mildew::AST::Pair') } @{$MATCH{argument}}],
+                named => [map { $_->key, $_->value } grep { $_->isa('Mildew::AST::Pair') } @{$MATCH{argument}}]
             )
         )
     })
     
     <rule: assign>
     (?:my)? <register> = <rvalue>
-    (?{ $MATCH = AST::Assign->new(lvalue=>$MATCH{register},rvalue=>$MATCH{rvalue}) })
+    (?{ $MATCH = Mildew::AST::Assign->new(lvalue=>$MATCH{register},rvalue=>$MATCH{rvalue}) })
     <token: rvalue>
     <MATCH=call> | <MATCH=value>
     
@@ -102,7 +102,7 @@ class Mildew::Frontend::M0ld {
     
     <rule: named_argument>
     (?: \: <key=value> \( <val=value> \) )
-    (?{$MATCH = AST::Pair->new(key=>$MATCH{key},value=>$MATCH{val})})
+    (?{$MATCH = Mildew::AST::Pair->new(key=>$MATCH{key},value=>$MATCH{val})})
     
     
     <token: noop>
@@ -125,11 +125,11 @@ class Mildew::Frontend::M0ld {
     
     <token: integer>
     (\d+)
-    (?{$MATCH = AST::IntegerConstant->new(value=>$+)})
+    (?{$MATCH = Mildew::AST::IntegerConstant->new(value=>$+)})
     
     <token: register>
     ((?> (?: \$ | \? | ¢) \p{IsAlpha} \w*))
-    (?{$MATCH = AST::Reg->new(name=>$+)})
+    (?{$MATCH = Mildew::AST::Reg->new(name=>$+)})
     
     <token: string_part>
     (?:
@@ -137,7 +137,7 @@ class Mildew::Frontend::M0ld {
     ([^\\"])  (?{$MATCH = $^N}) )
     <token: string>
     " (<[string_part]>*) "
-    (?{$MATCH = AST::StringConstant->new(value=>join('',@{$MATCH{string_part}}))})
+    (?{$MATCH = Mildew::AST::StringConstant->new(value=>join('',@{$MATCH{string_part}}))})
     
     <rule: submold>
     (?{local $REGS = []})

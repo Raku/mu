@@ -1,16 +1,16 @@
 use v5.10;
 use MooseX::Declare;
-class AST::While extends AST::Base {
-    use AST::Helpers;
+class Mildew::AST::While extends Mildew::AST::Base {
+    use Mildew::AST::Helpers;
     has 'cond' => (is => 'ro');
     has 'body' => (is => 'ro');
 
     method m0ld {
-        my $id_cond = AST::unique_id;
-        my $start = AST::unique_label;
-        my $label_start = AST::unique_label;
-        my $label_end = AST::unique_label;
-        my $label_body = AST::unique_label;
+        my $id_cond = Mildew::AST::unique_id;
+        my $start = Mildew::AST::unique_label;
+        my $label_start = Mildew::AST::unique_label;
+        my $label_end = Mildew::AST::unique_label;
+        my $label_body = Mildew::AST::unique_label;
     
         $label_start . ":" . $self->cond->m0ld($id_cond) . "\n" .
         'my '.$id_cond.'_val = '.$id_cond.'."FETCH"();'."\n".
@@ -23,7 +23,7 @@ class AST::While extends AST::Base {
 
     method pretty {
         'while ' . $self->cond->pretty . " {\n"
-        . AST::indent($self->body->pretty) . "\n"
+        . Mildew::AST::indent($self->body->pretty) . "\n"
         . "}\n";
     }
 
@@ -32,15 +32,15 @@ class AST::While extends AST::Base {
         my ($cond,@cond_setup) = call(true => FETCH($self->cond))->simplified;
         my ($ret,@body_setup) = $self->body->simplified;
 
-        my $branch = AST::Branch->new(cond=>$cond);
+        my $branch = Mildew::AST::Branch->new(cond=>$cond);
 
-        my $cond_block = AST::Seq->new(id=>AST::unique_label,stmts=>[@cond_setup,$branch]);
-        my $body = AST::Seq->new(id=>AST::unique_label,stmts=>[
+        my $cond_block = Mildew::AST::Seq->new(id=>Mildew::AST::unique_label,stmts=>[@cond_setup,$branch]);
+        my $body = Mildew::AST::Seq->new(id=>Mildew::AST::unique_label,stmts=>[
             @body_setup,
-            AST::Goto->new(block=>$cond_block)
+            Mildew::AST::Goto->new(block=>$cond_block)
         ]);
 
-        my $end = AST::Seq->new(id=>AST::unique_label,stmts=>[]);
+        my $end = Mildew::AST::Seq->new(id=>Mildew::AST::unique_label,stmts=>[]);
         
         $branch->then($body);
         $branch->else($end);

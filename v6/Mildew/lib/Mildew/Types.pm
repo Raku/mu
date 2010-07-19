@@ -3,8 +3,8 @@ use Mildew::Emit::Yeast;
 use MooseX::Declare;
 class Mildew::TypeInfo {
     has type=>(is=>'rw',builder=>'infer_type',lazy=>1);
-    has mold=>(is=>'rw',isa=>'AST::Block::SSA');
-    has usage=>(is=>'ro',isa=>'ArrayRef[AST::Base]',default=>sub {[]});
+    has mold=>(is=>'rw',isa=>'Mildew::AST::Block::SSA');
+    has usage=>(is=>'ro',isa=>'ArrayRef[Mildew::AST::Base]',default=>sub {[]});
     method add_usage($stmt) {
         push(@{$self->usage},$stmt);
     }
@@ -14,11 +14,11 @@ class Mildew::TypeInfo {
 }
 
 class Mildew::TypeInfo::FromAssignment extends Mildew::TypeInfo {
-    has orgin=>(is=>'ro',isa=>'AST::Base',required=>1);
+    has orgin=>(is=>'ro',isa=>'Mildew::AST::Base',required=>1);
     method infer_type {
         $self->type(Mildew::Type::SelfRecursive->new());
         my $rvalue = $self->orgin->rvalue;
-        if ($rvalue->isa('AST::Call')) {
+        if ($rvalue->isa('Mildew::AST::Call')) {
             my $type = $rvalue->capture->invocant->type_info->type->method_call($self->orgin);
             $self->type($type);
             for my $usage (@{$self->usage}) {
@@ -48,7 +48,7 @@ class Mildew::Type {
     }
     sub is_str {
         my ($value) = @_;
-        defined $value && $value->isa('AST::StringConstant');
+        defined $value && $value->isa('Mildew::AST::StringConstant');
     }
     method debug {
     }
@@ -78,7 +78,7 @@ class Mildew::Type {
             "[" . join(',',(map {$value->($_)} @_)) . "]"
         };
         my $capture = $stmt->rvalue->capture;
-        my $perlesque_capture = AST::unique_id();
+        my $perlesque_capture = Mildew::AST::unique_id();
 
         my $add_named = '';
         my @named = @{$capture->named};
@@ -133,7 +133,7 @@ class Mildew::Type::Prototype extends Mildew::Type {
 }
 class Mildew::Type::Scope extends Mildew::Type {
     has content=>(is=>'rw');
-    has reg=>(is=>'rw',isa=>'AST::Reg');
+    has reg=>(is=>'rw',isa=>'Mildew::AST::Reg');
     has outer=>(is=>'ro',isa=>'Mildew::Type');
     use Scalar::Util qw(refaddr);
     use Term::ANSIColor qw(:constants);
@@ -147,7 +147,7 @@ class Mildew::Type::Scope extends Mildew::Type {
         $self->content({});
 
         for my $stmt (@{$self->reg->type_info->usage}) {
-            if ($stmt->rvalue->isa('AST::Call')) {
+            if ($stmt->rvalue->isa('Mildew::AST::Call')) {
                 my $call = $stmt->rvalue;
                 if (refaddr($call->capture->invocant) == refaddr($self->reg)) {
                     if (
@@ -239,9 +239,9 @@ class Mildew::Type::Lexical extends Mildew::Type {
         }
     }
     method add_usage($reg,$usage) {
-        if ($usage->isa('AST::Assign')) {
+        if ($usage->isa('Mildew::AST::Assign')) {
             my $call = $usage->rvalue;
-            if ($call->isa('AST::Call') && (refaddr $call->capture->invocant == refaddr $reg)) {
+            if ($call->isa('Mildew::AST::Call') && (refaddr $call->capture->invocant == refaddr $reg)) {
                 my $id = Mildew::Type::str($call->identifier);
                 if ($id eq 'BIND') {
                     push (@{$self->binds},$call->capture->positional->[0]->type_info->type);

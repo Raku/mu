@@ -1,12 +1,12 @@
 use v5.10;
 use MooseX::Declare;
-class AST::InferredTypeTest extends AST::Base {
+class Mildew::AST::InferredTypeTest extends Mildew::AST::Base {
     has 'value' => (is=>'ro');
     has 'test' => (is=>'ro');
     method simplified {
         my ($value,@setup) = $self->value->simplified;
-        my $ret = AST::unique_reg;
-        ($ret,@setup,AST::Assign->new(lvalue=>$ret,rvalue=>AST::InferredTypeTest->new(value=>$value,test=>$self->test)));
+        my $ret = Mildew::AST::unique_reg;
+        ($ret,@setup,Mildew::AST::Assign->new(lvalue=>$ret,rvalue=>Mildew::AST::InferredTypeTest->new(value=>$value,test=>$self->test)));
     }
     method m0ld {
         die "INFERRED-TYPE-CHECK is only suported on the optC backend\n";

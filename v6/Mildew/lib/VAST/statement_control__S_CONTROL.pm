@@ -6,7 +6,7 @@ use utf8;
 # before this, so we can peacefully delay the setup of the
 # control block up to this point.
 class VAST::statement_control__S_CONTROL {
-    use AST::Helpers;
+    use Mildew::AST::Helpers;
     method emit_m0ld {
         call 'set_control' => (call 'continuation' => reg '$interpreter'), [ code($self->{block},FETCH(lookup('$DefaultBlockSignature'))) ];
     }

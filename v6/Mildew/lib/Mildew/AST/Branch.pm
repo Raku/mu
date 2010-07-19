@@ -1,6 +1,6 @@
 use v5.10;
 use MooseX::Declare;
-class AST::Branch extends AST::Base {
+class Mildew::AST::Branch extends Mildew::AST::Base {
     has 'cond' => (is=>'ro');
     has 'then' => (is=>'rw');
     has 'else' => (is=>'rw');
@@ -16,6 +16,6 @@ class AST::Branch extends AST::Base {
     }
     method simplified {
         my ($cond,@setup) = $self->cond->simplified;
-        (AST::Branch->new(cond=>$cond,then=>$self->then,else=>$self->else,@setup));
+        (Mildew::AST::Branch->new(cond=>$cond,then=>$self->then,else=>$self->else,@setup));
     }
 }

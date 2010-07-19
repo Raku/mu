@@ -3,7 +3,7 @@ use utf8;
 use strict;
 use warnings;
 use v5.10;
-use AST::Helpers;
+use Mildew::AST::Helpers;
 
 sub emit_m0ld {
     my $m = shift;
@@ -22,7 +22,7 @@ sub emit_m0ld {
     } else {
         XXX
     }
-    AST::Pair->new(key => $key, value => $value);
+    Mildew::AST::Pair->new(key => $key, value => $value);
 }
 
 1;

@@ -1,7 +1,7 @@
 use MooseX::Declare;
 class VAST::variable {
     use utf8;
-    use AST::Helpers;
+    use Mildew::AST::Helpers;
     method emit_m0ld {
         my $m = shift;
         use YAML::XS;

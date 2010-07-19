@@ -28,7 +28,7 @@ class Mildew::Frontend::STD::Cached {
             return $parse->{VAST};
         }
 
-        # we need to duplicate the calls to gen_class before we can use the AST
+        # we need to duplicate the calls to gen_class before we can use the Mildew::AST
         require Actions;
         my $gen_class = \&Actions::gen_class;
         my @gen_class;

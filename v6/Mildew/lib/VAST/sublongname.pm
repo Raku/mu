@@ -1,7 +1,7 @@
 use MooseX::Declare;
 class VAST::sublongname {
     use utf8;
-    use AST::Helpers;
+    use Mildew::AST::Helpers;
     method components {
         my $shortname = $self->{subshortname};
         if ($shortname->{desigilname}) {

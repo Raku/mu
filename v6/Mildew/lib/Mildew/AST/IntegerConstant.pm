@@ -1,6 +1,6 @@
 use v5.10;
 use MooseX::Declare;
-class AST::IntegerConstant extends AST::Base {
+class Mildew::AST::IntegerConstant extends Mildew::AST::Base {
     has 'value' => (is=>'ro');
     has 'type_info' => (is=>'ro',lazy=>1,default=>sub {Mildew::TypeInfo::IntegerConstant->new()});
     method m0ld($ret) {

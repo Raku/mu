@@ -1,7 +1,7 @@
 use v5.10;
 use MooseX::Declare;
 class VAST::dotty__S_Dot {
-    use AST::Helpers;
+    use Mildew::AST::Helpers;
     method emit_m0ld {
         use YAML::XS;
         # STD workaround

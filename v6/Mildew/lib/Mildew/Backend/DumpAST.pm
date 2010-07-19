@@ -18,6 +18,6 @@ Mildew::Backend::DumpAST
 
 =head1 DESCRIPTION
 
-This backend prints out the AST in a format specified by the closure.
+This backend prints out the Mildew::AST in a format specified by the closure.
 
 =cut

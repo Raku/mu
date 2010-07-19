@@ -6,7 +6,7 @@ use utf8;
 # before this, so we can peacefully delay the setup of the
 # catch block up to this point.
 class VAST::statement_control__S_CATCH {
-    use AST::Helpers;
+    use Mildew::AST::Helpers;
     method emit_m0ld {
         call 'set_catch' => (call 'continuation' => reg '$interpreter'), [ code($self->{block},FETCH(lookup('$DefaultBlockSignature'))) ];
     }

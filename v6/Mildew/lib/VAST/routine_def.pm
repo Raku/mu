@@ -2,7 +2,7 @@ package VAST::routine_def;
 use utf8;
 use strict;
 use warnings;
-use AST::Helpers;
+use Mildew::AST::Helpers;
 
 sub emit_m0ld {
     my ($m, $visibility) = @_;
@@ -49,7 +49,7 @@ sub emit_m0ld {
 		}
 	    }
 	}
-	AST::Seq->new(stmts => [
+	Mildew::AST::Seq->new(stmts => [
 			  ( $visibility eq 'our' ? 
 			    call(BIND => (call 'postcircumfix:{ }' => FETCH(lookup '$?PACKAGE'),
 					  [ string $name ]),[$value])

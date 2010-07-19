@@ -2,7 +2,7 @@ use v5.10;
 use MooseX::Declare;
 use utf8;
 class VAST::scope_declarator__S_has {
-    use AST::Helpers;
+    use Mildew::AST::Helpers;
     sub accessor {
         my $var_decl = shift;
         #XXX hack
@@ -10,13 +10,13 @@ class VAST::scope_declarator__S_has {
     		       sigil => { TEXT => $var_decl->{variable}{sigil}{TEXT} },
     		       desigilname => $var_decl->{variable}{desigilname} }, 'VAST::variable';
     
-        my $sig = AST::Call->new
+        my $sig = Mildew::AST::Call->new
             ( identifier => string 'new',
-              capture => AST::Capture->new
+              capture => Mildew::AST::Capture->new
               ( invocant => FETCH(lookup('AdhocSignature')),
                 positional => [],
                 named =>
-                [ string 'BIND' => AST::Block->new
+                [ string 'BIND' => Mildew::AST::Block->new
                   ( regs => [qw(interpreter scope capture)],
                     stmts => trailing_return([call BIND => (call 'postcircumfix:{ }' => reg '$scope',[string '$¿self']),[call positional => reg '$capture',[integer 0]]]))]));
     
@@ -24,7 +24,7 @@ class VAST::scope_declarator__S_has {
     	 [ string 'outer' => reg '$scope',
                string 'signature' => $sig,
     	   string 'mold' => 
-    	   AST::Block->new(regs => ['interpreter','scope'],
+    	   Mildew::AST::Block->new(regs => ['interpreter','scope'],
     			   stmts => trailing_return([ $priv->emit_m0ld ])) ]);
     }
     sub attribute {
@@ -45,7 +45,7 @@ class VAST::scope_declarator__S_has {
     	my $twigil = $var_decl->{variable}{twigil}[0]{TEXT};
     	my $private_name = $sigil.'!'.$var_decl->{variable}{desigilname}{longname}{name}{identifier}{TEXT};
     	my $name = $sigil.$twigil.$var_decl->{variable}{desigilname}{longname}{name}{identifier}{TEXT};
-    	AST::Seq->new(stmts => [
+    	Mildew::AST::Seq->new(stmts => [
     			  call(STORE=>call(name=>$attribute),[string $name]),
     			  call(STORE=>call(private_name=>$attribute),[string $private_name]),
     			  call(STORE=>call(container_type=>$attribute),[FETCH(lookup($container_type))]),
@@ -71,7 +71,7 @@ class VAST::scope_declarator__S_has {
 
 	    }
 
-	    AST::Seq->new
+	    Mildew::AST::Seq->new
 		(stmts => [
 		     call(add_attribute =>
 			  FETCH(call '^!how' => $CLASS),

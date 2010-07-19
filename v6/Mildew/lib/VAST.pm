@@ -9,7 +9,7 @@ use MooseX::Declare;
 }
 class VAST::Base {
     method emit_m0ld {
-        use AST::Helpers;
+        use Mildew::AST::Helpers;
         if ($self->{infix}) {
             my $name = $self->{infix}{SYM};
             return fcall('&infix:'.$name,[map {$_->emit_m0ld} @{$self->{args}}]);

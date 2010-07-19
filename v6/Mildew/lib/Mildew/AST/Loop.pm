@@ -1,22 +1,22 @@
 use v5.10;
 use MooseX::Declare;
-class AST::Loop extends AST::Base {
+class Mildew::AST::Loop extends Mildew::AST::Base {
     has 'code' => (is => 'ro');
     method m0ld($ret) {
-        my $label = AST::unique_label;
+        my $label = Mildew::AST::unique_label;
         $label.':'.($self->code->m0ld($ret))."\n".
         'goto '.$label.';'."\n";
     }
     method simplified {
-        my $goto = AST::Goto->new();
+        my $goto = Mildew::AST::Goto->new();
         my ($ret,@setup) = $self->code->simplified;
-        my $block = AST::Seq->new(id=>AST::unique_label,stmts=>[@setup,$goto]);
+        my $block = Mildew::AST::Seq->new(id=>Mildew::AST::unique_label,stmts=>[@setup,$goto]);
         $goto->block($block);
         ($ret,$block);
     }
     method pretty {
         return "loop {\n"
-        . AST::indent($self->code->pretty) . "\n"
+        . Mildew::AST::indent($self->code->pretty) . "\n"
         . "}\n";
     }
 }

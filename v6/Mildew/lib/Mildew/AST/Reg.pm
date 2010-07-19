@@ -1,6 +1,6 @@
 use v5.10;
 use MooseX::Declare;
-class AST::Reg extends AST::Base {
+class Mildew::AST::Reg extends Mildew::AST::Base {
     has 'name' => (is=>'ro');
     has 'real_name' => (is=>'ro');
     has 'type_info' => (is=>'rw');

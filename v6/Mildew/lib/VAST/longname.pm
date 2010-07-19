@@ -1,7 +1,7 @@
 use MooseX::Declare;
 class VAST::longname {
     use utf8;
-    use AST::Helpers;
+    use Mildew::AST::Helpers;
     method canonical {
         my $single_variant = '';
         if ($self->{colonpair}[1]) {

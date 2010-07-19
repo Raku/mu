@@ -86,7 +86,7 @@ class Mildew::Backend::OptC with Mildew::Backend::C {
         }
 
         my $value = sub {
-            if ($_[0]->isa('AST::Reg')) {
+            if ($_[0]->isa('Mildew::AST::Reg')) {
                 if ($_[0]->name =~ /^¢|^\?/) {
                     my $n = $_[0]->name;
                     $n =~ s/^¢|^\?//;
@@ -96,15 +96,15 @@ class Mildew::Backend::OptC with Mildew::Backend::C {
                     $regs{$_[0]->real_name} = $reg_id++;
                 }
                 "frame->reg[" . $regs{$_[0]->real_name} . "]";
-            } elsif ($_[0]->isa('AST::StringConstant')) {
+            } elsif ($_[0]->isa('Mildew::AST::StringConstant')) {
                 my $str = $_[0]->value;
                 # TODO properly quote characters
                 $str =~ s/(["\\])/\\$1/g;
                 $str =~ s/\n/\\n/g;
                 $constant->('SMOP__NATIVE__idconst_createn("' . $str . '",' . length(encode_utf8($_[0]->value)) . ')');
-            } elsif ($_[0]->isa('AST::IntegerConstant')) {
+            } elsif ($_[0]->isa('Mildew::AST::IntegerConstant')) {
                 $constant->('SMOP__NATIVE__int_create(' . $_[0]->value . ')');
-            } elsif ($_[0]->isa('AST::Block::SSA')) {
+            } elsif ($_[0]->isa('Mildew::AST::Block::SSA')) {
                 my ($func,$expr,$init) = $self->emit_block($_[0]);
                 $funcs .= $func;
                 $call_init_funcs .= $init;
@@ -120,9 +120,9 @@ class Mildew::Backend::OptC with Mildew::Backend::C {
                 $labels{$subblock->id} = $i;
             }
             for my $stmt (@{$subblock->stmts}) {
-                if ($stmt->isa('AST::Assign')) {
+                if ($stmt->isa('Mildew::AST::Assign')) {
                     # TODO - handle profile_info more cleanly
-                    if ($stmt->rvalue->isa('AST::Call') && defined $Mildew::profile_info) {
+                    if ($stmt->rvalue->isa('Mildew::AST::Call') && defined $Mildew::profile_info) {
                         $i++; 
                     }
                 }
@@ -142,9 +142,9 @@ class Mildew::Backend::OptC with Mildew::Backend::C {
                     $code .= "\nsmop_dump_print(interpreter,(SMOP__Object*)frame,$file);\n";
                 }
 
-                if ($stmt->isa('AST::Goto')) {
+                if ($stmt->isa('Mildew::AST::Goto')) {
                     $code .= "frame->pc = " . $labels{$stmt->block->id} . ";" . "break;\n"
-                } elsif ($stmt->isa('AST::Branch')) {
+                } elsif ($stmt->isa('Mildew::AST::Branch')) {
                     $code .= "frame->pc = "
                         . $value->($stmt->cond)
                         . " == SMOP__NATIVE__bool_false ? "
@@ -152,11 +152,11 @@ class Mildew::Backend::OptC with Mildew::Backend::C {
                         . " : "
                         . $labels{$stmt->then->id}
                         . ";break;\n";
-                } elsif ($stmt->isa('AST::Reg')) {
+                } elsif ($stmt->isa('Mildew::AST::Reg')) {
                     # make it a noop
                     $code .= ';';
-                } elsif ($stmt->isa('AST::Assign')) {
-                    if ($stmt->rvalue->isa('AST::Call')) {
+                } elsif ($stmt->isa('Mildew::AST::Assign')) {
+                    if ($stmt->rvalue->isa('Mildew::AST::Call')) {
                         my $type = $stmt->rvalue->capture->invocant->type_info->type;
                         my ($c,$trailing) = $type->emit_call($i,$stmt,$value);
                         $code .= $c;
@@ -164,12 +164,12 @@ class Mildew::Backend::OptC with Mildew::Backend::C {
                             $i++;
                             $code .= "case $i: frame->pc = " . ($i+1) . ';' . $trailing;
                         }
-                    } elsif ($stmt->rvalue->isa('AST::Phi')) {
+                    } elsif ($stmt->rvalue->isa('Mildew::AST::Phi')) {
                         # TODO make it a noop
                         $code .= ';';
-                    } elsif ($stmt->rvalue->isa('AST::InferredTypeTest')) {
+                    } elsif ($stmt->rvalue->isa('Mildew::AST::InferredTypeTest')) {
                         my $type = $stmt->rvalue->value->type_info->type;
-                        $code .= Mildew::Emit::Yeast::assign($value->($stmt->lvalue),"SMOP_REFERENCE(interpreter,".$value->(AST::IntegerConstant->new(value=>eval($stmt->rvalue->test) ? 1 : 0).")"));
+                        $code .= Mildew::Emit::Yeast::assign($value->($stmt->lvalue),"SMOP_REFERENCE(interpreter,".$value->(Mildew::AST::IntegerConstant->new(value=>eval($stmt->rvalue->test) ? 1 : 0).")"));
                         die if $@;
                     } else {
                         $code .= Mildew::Emit::Yeast::assign($value->($stmt->lvalue),"SMOP_REFERENCE(interpreter,".$value->($stmt->rvalue).")");

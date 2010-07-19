@@ -1,6 +1,6 @@
 use v5.10;
 use MooseX::Declare;
-class AST::Assign extends AST::Base {
+class Mildew::AST::Assign extends Mildew::AST::Base {
     has 'lvalue' => (is => 'ro');
     has 'rvalue' => (is => 'ro');
     method pretty {
@@ -14,7 +14,7 @@ class AST::Assign extends AST::Base {
     }
     method simplified {
         my ($rvalue,@setup) = $self->rvalue->simplified;
-        ($self->lvalue,@setup,AST::Assign->new(lvalue=>$self->lvalue,rvalue=>$rvalue));
+        ($self->lvalue,@setup,Mildew::AST::Assign->new(lvalue=>$self->lvalue,rvalue=>$rvalue));
     }
     method forest {
         my $node = $self->pretty;

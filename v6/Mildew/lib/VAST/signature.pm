@@ -2,7 +2,7 @@ package VAST::signature;
 use utf8;
 use strict;
 use warnings;
-use AST::Helpers;
+use Mildew::AST::Helpers;
 
 sub emit_m0ld_ahsig_with_invocant {
     my $m = shift;
@@ -24,13 +24,13 @@ sub emit_m0ld_ahsig {
         $other++;
     }
 
-    AST::Call->new
+    Mildew::AST::Call->new
         ( identifier => string 'new',
-          capture => AST::Capture->new
+          capture => Mildew::AST::Capture->new
           ( invocant => FETCH(lookup('AdhocSignature')),
             positional => [],
             named =>
-            [ string 'BIND' => AST::Block->new
+            [ string 'BIND' => Mildew::AST::Block->new
               ( regs => [qw(interpreter scope capture)],
                 stmts => trailing_return(\@stmts))]));
 }
@@ -45,7 +45,7 @@ sub emit_m0ld_with_invocant {
     $m->emit_m0ld(
     let $invocant, sub {
         my $invocant = shift;
-        AST::Seq->new(stmts => [
+        Mildew::AST::Seq->new(stmts => [
             call(STORE => (call variable => $invocant),[ string '$¿self']),
             $invocant]
         );
@@ -60,7 +60,7 @@ sub emit_m0ld {
     let $sig, sub {
         my $sig = shift;
         my $stmts = [map ({call register => $_,[$sig]} @other),map ({call register => $_->emit_m0ld,[$sig]} @{$m->{parameter}}),$sig];
-        AST::Seq->new(stmts => $stmts);
+        Mildew::AST::Seq->new(stmts => $stmts);
     };
 }
 1;
