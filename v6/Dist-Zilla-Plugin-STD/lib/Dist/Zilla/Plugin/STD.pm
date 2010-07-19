@@ -8,7 +8,7 @@ with 'Dist::Zilla::Role::FileGatherer';
 
 
 sub renamed_file {
-    my ($self,$source_name,$target_name) = @_;
+    my ($self,$source_name,$target_name,$filter) = @_;
     open my $fh, '<', $source_name or die "can't open $source_name for reading: $!";
 
     # This is needed or \r\n is filtered to be just \n on win32.
@@ -18,10 +18,13 @@ sub renamed_file {
     #     -- Pawel Murias
     binmode $fh, ':raw';
 
+    my $content = do { local $/; <$fh> };
+    $content = $filter->($content) if $filter;
     $self->add_file(Dist::Zilla::File::OnDisk->new({
         name    => $target_name,
-        content => do { local $/; <$fh> },
+        content => $content,
     }));
+
 
 }
 sub gather_files {
@@ -41,7 +44,8 @@ sub gather_files {
 
   # generated files
   for (qw(STD Cursor)) {
-      $self->renamed_file("$_.pmc","lib/$_.pm");
+      my $version = $self->zilla->version;
+      $self->renamed_file("$_.pmc","lib/$_.pm",sub {my $content = shift;$content =~ s/package STD;/package STD;BEGIN {\$STD::VERSION = $version}/;$content});
   }
 
   # adhoc stuff
@@ -49,6 +53,7 @@ sub gather_files {
   $self->renamed_file('uniprops','data/uniprops');
   $self->renamed_file('NULL.lex','lib/NULL.lex');
   $self->renamed_file('mangle.pl','lib/mangle.pl');
+  $self->renamed_file('inc/MyBuilder.pm','inc/MyBuilder.pm');
 
 }
 

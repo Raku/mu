@@ -664,4 +664,4 @@ $LexicalPrelude{'&infix:>'} := &more;
 
 }
 
-YOU_ARE_HERE;
+{YOU_ARE_HERE};

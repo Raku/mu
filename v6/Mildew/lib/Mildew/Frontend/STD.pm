@@ -58,10 +58,6 @@ class Mildew::Frontend::STD {
         require Mildew::Setting::SMOP;
         [$self->tmp,Mildew::Setting::SMOP::std_tmp_files_path().'/']
     }
-    method _build_syml_search_path {
-        require Mildew::Setting::SMOP;
-        [$self->tmp,Mildew::Setting::SMOP::std_tmp_files_path().'/']
-    }
     method _build_PERL6LIB {
         require Mildew::Setting::SMOP;
         Mildew::Setting::SMOP::standard_libs();

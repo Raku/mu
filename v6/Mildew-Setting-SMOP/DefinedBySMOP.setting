@@ -28,4 +28,4 @@ my module PRIMITIVES {
   sub SMOP_RI { }
   sub dump_print($obj,$template) {}
 }
-YOU_ARE_HERE;
+{YOU_ARE_HERE};
