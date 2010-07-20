@@ -7,6 +7,28 @@ Unanswered questions:
 Pm-20:  What's the result of something like...?
             my $x = [<a b c d>];  'a b c d' ~~ / $x /;
 
+Pm-21:  Does a regex in a grammar definition "hides" an outer-scoped 
+    lexical regex of the same name?  (I'm guessing "yes" but want
+    to confirm.)
+
+        my regex abc { ... };
+
+        grammar XYZ {
+            regex TOP { <abc> };
+            regex abc { ... };
+        }
+
+        # XYZ.TOP ends up calling the XYZ.abc, and not &abc, yes?
+
+Pm-22:  What about something like ... ?
+
+        my regex alpha { <[A..Z]> }
+
+        grammar XYZ {
+            regex TOP { <alpha> };   # uses the lexical &alpha?
+        }
+
+
 ===========================================================
 
 Answered questions:
