@@ -83,7 +83,7 @@ package Evalbot;
             niecza => {
                 chdir       => '../../../niecza',
                 cmd_line    => 'cat %i| /opt/perl-5.12.1/bin/perl niecza_eval %program >> %out 2>&1',
-#                revision    => \&get_revision,
+                revision    => sub { get_revision_from_file('~/niecza/VERSION')},
             },
             perlito => {
                 chdir       => '../../../Perlito',
