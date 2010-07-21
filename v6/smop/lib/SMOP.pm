@@ -5,7 +5,6 @@ my @MODULES = qw(s0native dump nagc util capture interpreter mold yeast native l
 use File::ShareDir qw(dist_dir);
 use strict;
 use warnings;
-our $VERSION = 0.01;
 sub lib_flags {
     my @LIBS;
     push(@LIBS,'-L',dist_dir('SMOP'));
