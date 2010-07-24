@@ -17,7 +17,6 @@ cd $SVN_DIR
 svn up
 
 perl util/smartlinks.pl --out-dir $DEST_DIR --dir $ROOT_DIR/svn-pugs/t --css /syn/perl.css --line-anchor --pod-dir $POD_DIR
-perl util/smartlinks.pl --out-dir $DEST_DIR/S32 --pod-dir $POD_DIR/S32-setting-library --dir t --css /syn/perl.css --line-anchor
 
 # Copy the icons for smartlinks highlighting
 cp -ufp docs/feather/hilite-*.png $DEST_DIR/
