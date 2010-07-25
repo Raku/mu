@@ -190,7 +190,7 @@ set_hll_global [\'IO\'], \'Socket\', $P0
 
         if ($message =~ m/^p6eval:/) {
             return "Usage: ", join(',', sort keys %impls), ': $code';
-        } elsif ($message =~ m/\A$regex\s+(.*)\z/s){
+        } elsif ($message =~ m/\A$regex\s*(.*)\z/s){
             my ($eval_name, $str) = ($1, $2);
             my $e = $impls{$eval_name};
             return "Please use /msg $self->{nick} $str" 
