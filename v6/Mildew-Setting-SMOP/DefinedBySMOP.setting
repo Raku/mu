@@ -28,4 +28,7 @@ my module PRIMITIVES {
   sub SMOP_RI { }
   sub dump_print($obj,$template) {}
 }
+my module EXTERNAL {
+  sub eval_perl5($code) {}
+}
 {YOU_ARE_HERE};

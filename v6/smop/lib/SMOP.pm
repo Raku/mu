@@ -1,8 +1,8 @@
 package SMOP;
 # ABSTRACT: Simple Meta Object Programming
-# p5 is disabled for now
-my @MODULES = qw(s0native dump nagc util capture interpreter mold yeast native lost s1p p6opaque s1p-oo mold-message profile);
+my @MODULES = qw(s0native dump nagc util capture interpreter mold yeast native lost s1p p6opaque s1p-oo mold-message profile p5);
 use File::ShareDir qw(dist_dir);
+use ExtUtils::Embed qw(ldopts ccopts);
 use strict;
 use warnings;
 sub lib_flags {
@@ -11,6 +11,7 @@ sub lib_flags {
     for my $module (@MODULES) {
         push(@LIBS,'-lsmop-' . $module);
     }
+    push(@LIBS,split(' ',ldopts));
     return @LIBS;
 }
 sub include_flags {

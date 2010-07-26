@@ -38,7 +38,7 @@ knowhow Foo {
         say "ok 12";
     }
 }
-EXTERNAL::eval_perl5('sub {$::smop_object = $_[0]}')(Foo.FETCH);
+(EXTERNAL::eval_perl5('sub {$::smop_object = $_[0]}'))(Foo.FETCH);
 EXTERNAL::eval_perl5('
     $::smop_object->ok10;
     print "ok 11\n";

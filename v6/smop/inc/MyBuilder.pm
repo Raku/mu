@@ -25,7 +25,6 @@ my $ldopts = ldopts . '-lrt';
 
 use v5.10;
 
-# p5 is disabled for now
 my @MODULES = qw(s0native dump nagc util capture interpreter mold yeast native lost s1p p6opaque s1p-oo mold-message profile p5);
 
 my $BUILDDIR = 'build';
@@ -56,8 +55,8 @@ sub ACTION_code {
     $self->dispatch("create_library");
 #    $self->dispatch("create_binaries");
     $self->dispatch("create_tests");
-#
-#    $self->dispatch("compile_xscode");
+
+    $self->dispatch("compile_xscode");
 
     $self->SUPER::ACTION_code;
 }
@@ -146,14 +145,18 @@ sub smop_lib_flags {
     for my $module (@MODULES) {
         push(@LIBS,'-lsmop-' . $module);
     }
+    push(@LIBS,split(' ',ldopts));
     return @LIBS;
 }
-sub smop_include_flags {
+sub smop_include_dirs {
     my @INCLUDE = (catdir("base","include"),catdir("util","include"));
     for my $module (@MODULES) {
         push(@INCLUDE,"$module/include");
     }
-    return map {"-I$_"} @INCLUDE;
+    @INCLUDE;
+}
+sub smop_include_flags {
+    return map {"-I$_"} smop_include_dirs();
 }
 sub ACTION_create_tests {
     my $self = shift;
@@ -167,11 +170,9 @@ sub ACTION_create_tests {
     print STDERR "\n** Creating test binaries\n";
 
     mkdir(catdir($BUILDDIR,'t'));
-    my $LIBS = '-L'.catdir($BUILDDIR,'lib');
-    for my $module (@MODULES) {
-        $LIBS .= ' -lsmop-' . $module;
-    }
-    $LIBS .= ' '.ldopts;
+
+    my $LIBS = join(' ',smop_lib_flags);
+
     for my $module (@MODULES) {
         for my $test (@{$self->rscan_dir("$BUILDDIR/$module/t" ,       qr/\.o$/)}) {
             my $exe_file = $test;
@@ -216,16 +217,60 @@ sub ACTION_create_library {
         }
     }
 
-#
-#    $libpath = catfile($libpath, "libbtparse$LIBEXT");
-#
-#
-#    my $libdir = catdir($self->blib, 'usrlib');
-#    mkpath( $libdir, 0, 0777 ) unless -d $libdir;
-#
-#    $self->copy_if_modified( from   => $libfile,
-#                             to_dir => $libdir,
-#                             flatten => 1 );
+}
+sub ACTION_compile_xscode {
+    my $self = shift;
+    my $cbuilder = $self->cbuilder;
+
+    my $archdir = catdir( $self->blib, 'arch', 'auto', 'SMOP','Interoperability');
+    make_path( $archdir ) unless -d $archdir;
+    make_path(catdir("build","SMOP"));
+
+    my $ext = sub {catfile("build","SMOP","Interoperability".$_[0])};
+
+    print STDERR "\n** Preparing XS code\n";
+    my $xsfile = catfile("Interoperability.xs");
+    my $cfile = $ext->(".c");
+
+    $self->add_to_cleanup($cfile); ## FIXME - cargo culted FIXME
+    if (!$self->up_to_date($xsfile, $cfile)) {
+        ExtUtils::ParseXS::process_file( filename   => $xsfile,
+                                         prototypes => 0,
+                                         output     => $cfile);
+    }
+
+    my $ofile = $ext->(".o");
+    $self->add_to_cleanup($ofile); ## FIXME - cargo culted FIXME
+    if (!$self->up_to_date($cfile, $ofile)) {
+        $cbuilder->compile( source               => $cfile,
+                            include_dirs         => [ smop_include_dirs() ],
+                            object_file          => $ofile);
+    }
+
+#    # Create .bs bootstrap file, needed by Dynaloader.
+    my $bs_file = catfile( $archdir, "Interoperability.bs" );
+    if ( !$self->up_to_date( $ofile, $bs_file ) ) {
+        ExtUtils::Mkbootstrap::Mkbootstrap($bs_file);
+        if ( !-f $bs_file ) {
+            # Create file in case Mkbootstrap didn't do anything.
+            open( my $fh, '>', $bs_file ) or confess "Can't open $bs_file: $!";
+        }
+        utime( (time) x 2, $bs_file );    # touch
+    }
+
+#    my $objects = $self->rscan_dir("xscode",qr/\.o$/);
+    my $objects = [$ofile];
+    my $lib_file = catfile( $archdir, "Interoperability.$Config{dlext}" );
+    if ( !$self->up_to_date( [ @$objects ], $lib_file ) ) {
+        say STDERR "making $lib_file";
+        $cbuilder->link(
+                        module_name => 'SMOP::Interoperability',
+                        extra_compiler_flags => ccopts,
+#                        extra_linker_flags => '-Lbtparse/src -lbtparse ',
+                        objects     => $objects,
+                        lib_file    => $lib_file,
+                       );
+    }
 }
 
 sub ACTION_test {
@@ -240,7 +285,7 @@ sub ACTION_test {
         $ENV{LD_LIBRARY_PATH} = $path;
     }
 
-    my $cflags = join(',',smop_include_flags(),smop_lib_flags());
+    my $cflags = join(':',smop_include_flags(),smop_lib_flags());
     my $harness = TAP::Harness->new({ exec=>sub {
         my ($harness,$file) = @_;
         if ($file =~ /\.m0ld$/) {

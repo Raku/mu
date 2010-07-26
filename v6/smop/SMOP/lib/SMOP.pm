@@ -10,7 +10,7 @@ our $main_coro = new Coro::State;
 our $VERSION = '0.01';
 
 require XSLoader;
-XSLoader::load('SMOP', $VERSION);
+XSLoader::load('SMOP::Interoperability', $VERSION);
 
 sub coro_from_eval {
     my $code = shift;
@@ -60,10 +60,6 @@ use overload
         "$_[0]" eq "$_[1]";
     }
     ;
-our $AUTOLOAD;
-sub AUTOLOAD {
-    print "AUTOLOAD: ",$SMOP::Object::AUTOLOAD,"\n";
-}
 sub DESTROY {
     #print "DESTROY :)\n";
 }
@@ -74,24 +70,11 @@ __END__
 
 SMOP - Perl extension for SMOP
 
-=head1 SYNOPSIS
 
-  use SMOP;
-  my $int = SMOP::NATIVE::int->create(10);
-  my $true = SMOP::NATIVE::bool->true;
-  my $fals = SMOP::NATIVE::bool->false;
-  my $idconst = SMOP::NATIVE::idconst->create('Hello World');
-  my $rootns = SMOP::S1P->RootNamespace;
-  my $prelud = SMOP::S1P->LexicalPrelude;
-  my $mold = SMOP::Mold->create(12,[$rootns, $int, $true, $fals], [1,2,3,1,2,3,1,2,3]);
-  my $frame = SMOP::MoldFrame->create($mold);
-  my $result = SMOP::Interpreter->run($frame);
 
 =head1 DESCRIPTION
 
-This module provides access to the SMOP runtime from Perl 5. It still
-doesn't interoperate in a way to provide callbacks, therefore you
-cannot exchange continuations from SMOP to p5.
+This module provides access to the SMOP runtime from Perl 5.
 
 =head1 SEE ALSO
 

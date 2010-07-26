@@ -27,9 +27,9 @@ class Mildew::Backend::OptC with Mildew::Backend::C {
         use YAML::XS;
         $self->trace($trace);
         $self->dump($dump);
-        $self->cflags([split(',',$cflags)]) if $cflags;
+        $self->cflags([split(':',$cflags)]) if $cflags;
         $self->load_setting(!$no_setting) if $no_setting;
-        $self->ld_library_path([split(',',$ld_library_path)]) if $ld_library_path;
+        $self->ld_library_path([split(':',$ld_library_path)]) if $ld_library_path;
         $self->valgrind($valgrind);
         $self->gdb($gdb);
         $self->wrap_in_block(!$no_wrap_in_block);
