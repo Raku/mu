@@ -26,7 +26,7 @@ my $ldopts = ldopts . '-lrt';
 use v5.10;
 
 # p5 is disabled for now
-my @MODULES = qw(s0native dump nagc util capture interpreter mold yeast native lost s1p p6opaque s1p-oo mold-message profile);
+my @MODULES = qw(s0native dump nagc util capture interpreter mold yeast native lost s1p p6opaque s1p-oo mold-message profile p5);
 
 my $BUILDDIR = 'build';
 
@@ -70,6 +70,7 @@ sub ACTION_create_objects {
 #
     print STDERR "\n** Compiling C files\n";
 
+    my %extra_flags = (p5=>ccopts);
 
     my @INCLUDE = (catdir("base","include"),catdir("util","include"));
     for my $module (@MODULES) {
@@ -92,9 +93,10 @@ sub ACTION_create_objects {
             $object =~ s/\.c/.o/;
             $object =~ s/^/$BUILDDIR\//;
             next if $self->up_to_date($file, $object);
+            my $extra_flags = $extra_flags{$module} ? ' '.$extra_flags{$module} : '';
             $cbuilder->compile(object_file  => $object,
                 source       => $file,
-                extra_compiler_flags => "-g",
+                extra_compiler_flags => $extra_flags,
                 include_dirs => [@INCLUDE])
         }
 
@@ -165,10 +167,11 @@ sub ACTION_create_tests {
     print STDERR "\n** Creating test binaries\n";
 
     mkdir(catdir($BUILDDIR,'t'));
-    my $LIBS = $ldopts .' -L'.catdir($BUILDDIR,'lib');
+    my $LIBS = '-L'.catdir($BUILDDIR,'lib');
     for my $module (@MODULES) {
         $LIBS .= ' -lsmop-' . $module;
     }
+    $LIBS .= ' '.ldopts;
     for my $module (@MODULES) {
         for my $test (@{$self->rscan_dir("$BUILDDIR/$module/t" ,       qr/\.o$/)}) {
             my $exe_file = $test;
