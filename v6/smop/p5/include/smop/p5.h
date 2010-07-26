@@ -15,8 +15,8 @@ extern int* SMOP__P5__current_coro_has_next;
 SMOP__Object* SMOP__P5__SV_create(SMOP__Object* interpreter,SMOP__Object* p5interpreter,SV* sv);
 PerlInterpreter* SMOP__P5__p5interpreter_unbox(SMOP__Object* interpreter,SMOP__Object* p5interpreter);
 SMOP__Object* SMOP__P5__Coro_create(SMOP__Object* interpreter,SMOP__Object* p5interpreter,SV* coro);
-SV* SMOP__Object2SV(SMOP__Object* interpreter,PerlInterpreter* my_perl,SMOP__Object* object);
-void SMOP__P5__transfer_to_main_coro(SMOP__Object* interpreter,PerlInterpreter* my_perl);
+SV* SMOP__Object2SV(SMOP__Object* interpreter,pTHX_ SMOP__Object* object);
+void SMOP__P5__transfer_to_main_coro(pTHX_ SMOP__Object* interpreter);
 
 void smop_p5interpreter_init(SMOP__Object* interpreter);
 void smop_p5interpreter_destr(SMOP__Object* interpreter);

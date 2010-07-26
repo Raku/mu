@@ -19,7 +19,7 @@ SMOP__Object* SMOP__P5__Coro_create(SMOP__Object* interpreter,SMOP__Object* p5in
     return (SMOP__Object*) ret;
 }
 
-void SMOP__P5__transfer_to_main_coro(SMOP__Object* interpreter,PerlInterpreter* my_perl) {
+void SMOP__P5__transfer_to_main_coro(pTHX_ SMOP__Object* interpreter) {
 
 
   SV* current = SMOP__P5__current_coro_state;
@@ -120,6 +120,6 @@ void SMOP__P5__transfer_to_main_coro(SMOP__Object* interpreter,PerlInterpreter* 
     SMOP__Object* ret = SMOP__NATIVE__capture_positional(interpreter, capture, 1);
 
 
-    SV* ret_sv = SMOP__Object2SV(interpreter,my_perl,ret);
+    SV* ret_sv = SMOP__Object2SV(interpreter,aTHX_ ret);
     sv_setsv_flags(SMOP__P5__result_sv,ret_sv, SV_NOSTEAL);
   }

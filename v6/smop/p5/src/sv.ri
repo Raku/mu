@@ -26,7 +26,7 @@
     SMOP__Object* object = (SMOP__Object*) obj_address;
     SMOP__Object* interpreter = SMOP__P5__smop_interpreter;
     SMOP__P5__result_sv = NULL;
-    SMOP__P5__transfer_to_main_coro(interpreter,my_perl);
+    SMOP__P5__transfer_to_main_coro(aTHX_ interpreter);
 
     SMOP__Object* rvalue = SV2SMOP__Object(interpreter,SMOP_REFERENCE(interpreter,SMOP__P5__smop_p5interpreter),sv);
 
@@ -44,17 +44,17 @@
 
     SMOP__Object* ret = SMOP_DISPATCH(interpreter,SMOP_RI(object),SMOP__ID__FETCH,SMOP__NATIVE__capture_create(interpreter,(SMOP__Object*[]) {SMOP_REFERENCE(interpreter,object),NULL},(SMOP__Object*[]) {NULL}));
 
-    SV* ret_sv = SMOP__Object2SV(interpreter,my_perl,ret);
+    SV* ret_sv = SMOP__Object2SV(interpreter,aTHX_ ret);
 
     /*if (ret->RI == RI) {
         SvSetSV_nosteal(sv,ret_sv);
     } else {
     }*/
     sv_setsv_flags(sv,ret_sv, SV_NOSTEAL);
-    SMOP__P5__transfer_to_main_coro(interpreter,my_perl);
+    SMOP__P5__transfer_to_main_coro(aTHX_ interpreter);
     return 0;
   }
-  SV* SMOP__Object2SV(SMOP__Object* interpreter,PerlInterpreter* my_perl,SMOP__Object* object) {
+  SV* SMOP__Object2SV(SMOP__Object* interpreter,pTHX_ SMOP__Object* object) {
     if (object->RI == (SMOP__ResponderInterface*)RI) {
       SV* ret = ((smop_p5_sv_struct*)object)->sv;
       SMOP_RELEASE(interpreter,object);
@@ -94,7 +94,7 @@
     ENTER;
     SAVETMPS;
     PUSHMARK(SP);
-    XPUSHs(SMOP__Object2SV(interpreter,my_perl,invocant));
+    XPUSHs(SMOP__Object2SV(interpreter,aTHX_ invocant));
 
     XPUSHs(sv_2mortal(newSVpvn(method,len)));
 
@@ -102,7 +102,7 @@
     int i;
     for (i=1;i < positionals;i++) {
       SMOP__Object* object = SMOP__NATIVE__capture_positional(interpreter,capture,i);
-      XPUSHs(SMOP__Object2SV(interpreter,my_perl,object));
+      XPUSHs(SMOP__Object2SV(interpreter,aTHX_ object));
     }
 
     PUTBACK;
@@ -177,7 +177,7 @@
   int i;
   for (i=0;i < positionals;i++) {
     SMOP__Object* object = SMOP__NATIVE__capture_positional(interpreter,real_capture,i);
-    XPUSHs(SMOP__Object2SV(interpreter,my_perl,object));
+    XPUSHs(SMOP__Object2SV(interpreter,aTHX_ object));
   }
 
   SMOP_RELEASE(interpreter,real_capture);
