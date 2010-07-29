@@ -27,33 +27,44 @@ sub renamed_file {
 
 
 }
+sub STD_prefix {
+    my $content = shift;
+    $content =~ s/LazyMap/STD::LazyMap/g;
+    $content =~ s/Actions/STD::Actions/g;
+    $content;
+}
 sub gather_files {
-  my ($self, $arg) = @_;
+    my ($self, $arg) = @_;
+  
+    # handwritten .pmc files
+    for (qw(CursorBase DEBUG NAME RE_ast Stash)) {
+      $self->renamed_file("$_.pmc","lib/$_.pm",\&STD_prefix)
+    }
+  
+    # .pm files
+    for (qw(Actions LazyMap)) {
+        $self->renamed_file("$_.pm","lib/STD/$_.pm",\&STD_prefix);
+    }
+  
+    system('make');
+  
+    # generated files
+    for (qw(STD Cursor)) {
+        my $version = $self->zilla->version;
+        $self->renamed_file("$_.pmc","lib/$_.pm",sub {
+            my $content = shift;
+            $content =~ s/package STD;/package STD;BEGIN {\$STD::VERSION = $version}/;
 
-  # handwritten .pmc files
-  for (qw(CursorBase DEBUG NAME RE_ast Stash)) {
-    $self->renamed_file("$_.pmc","lib/$_.pm")
-  }
-
-  # .pm files
-  for (qw(Actions LazyMap)) {
-      $self->renamed_file("$_.pm","lib/$_.pm");
-  }
-
-  system('make');
-
-  # generated files
-  for (qw(STD Cursor)) {
-      my $version = $self->zilla->version;
-      $self->renamed_file("$_.pmc","lib/$_.pm",sub {my $content = shift;$content =~ s/package STD;/package STD;BEGIN {\$STD::VERSION = $version}/;$content});
-  }
-
-  # adhoc stuff
-  $self->renamed_file('viv','lib/viv');
-  $self->renamed_file('uniprops','data/uniprops');
-  $self->renamed_file('NULL.lex','lib/NULL.lex');
-  $self->renamed_file('mangle.pl','lib/mangle.pl');
-  $self->renamed_file('inc/MyBuilder.pm','inc/MyBuilder.pm');
+            STD_prefix($content);
+        });
+    }
+  
+    # adhoc stuff
+    $self->renamed_file('viv','lib/viv',\&STD_prefix);
+    $self->renamed_file('uniprops','data/uniprops');
+    $self->renamed_file('NULL.lex','lib/NULL.lex');
+    $self->renamed_file('mangle.pl','lib/mangle.pl');
+    $self->renamed_file('inc/MyBuilder.pm','inc/MyBuilder.pm');
 
 }
 

@@ -19,7 +19,7 @@ class Mildew::Frontend::STD::Cached {
 
             # generating the missing VAST classes
             for (@{$parse->{gen_class}}) {
-                Actions::gen_class(@{$_})
+                STD::Actions::gen_class(@{$_})
             } 
 
             # the $::ORIG var contains the orginal string
@@ -29,12 +29,12 @@ class Mildew::Frontend::STD::Cached {
         }
 
         # we need to duplicate the calls to gen_class before we can use the Mildew::AST
-        require Actions;
-        my $gen_class = \&Actions::gen_class;
+        require STD::Actions;
+        my $gen_class = \&STD::Actions::gen_class;
         my @gen_class;
         {
         no warnings 'redefine';
-        *Actions::gen_class = sub {
+        *STD::Actions::gen_class = sub {
             say "generating class $_[0]";
             push(@gen_class,[@_]);
             $gen_class->(@_);
