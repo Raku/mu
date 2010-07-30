@@ -129,7 +129,7 @@ Q:PIR {
             star => {
                 chdir       => '../../../rakudo-star-2010.07/',
                 cmd_line    => 'cat %i | ./perl6 %program >> %out 2>&1',
-                revision    => sub { '* 2010.07' },
+                revision    => sub { '2010.07' },
                 filter      => \&filter_pct,
 # Rakudo loops infinitely when first using Safe.pm, and then declaring
 # another class. So don't do that, rather inline the contents of Safe.pm.
