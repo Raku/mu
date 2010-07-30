@@ -102,9 +102,9 @@ sub _fork_and_eval {
     if (!defined $fork_val){
         confess "Can't fork(): $!";
     } elsif ($fork_val == 0) {
-        local $SIG{ALRM} = sub { close $fh; exit 14 };
+        local $SIG{ALRM} = sub {print $fh "(timeout)"; close $fh; exit 14 };
         _set_resource_limits();
-        alarm 14;
+        alarm 12;
         _auto_execute($executer, $program, $fh, $filename);
         alarm 0;
         close $fh;
@@ -163,7 +163,6 @@ sub _auto_execute {
 sub _set_resource_limits {
 # stolen from evalhelper-p5.pl
     setrlimit RLIMIT_CPU,  15, 20                    or confess "Couldn't setrlimit: $!\n";
-    alarm 15;
 #    setrlimit RLIMIT_VMEM,  500 * 2**20, 200 * 2**20 or confess "Couldn't setrlimit: $!\n";
 # STD.pm has a lexing subdir, varying in size, so allow 15MB
     my $size_limit = 15 * 1024**2;
