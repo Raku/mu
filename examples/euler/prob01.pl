@@ -10,12 +10,11 @@ Find the sum of all the multiples of 3 or 5 below 1000.
 =end Problem
 
 use v6;
-use Benchmark <timeit>;
+use Benchmark; #<timeit>;
 
 sub main {
     my @multiples = grep { $^a % 3 == 0 || $^a % 5 == 0 }, 1..^1000;
     say [+](@multiples);
 }
-
 my @t = timeit(1, &main);
 say "execution time: @t[0]"

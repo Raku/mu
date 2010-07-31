@@ -11,6 +11,7 @@ body {
     background-color:#FFF;
     border: #E9E9E9 4px solid;
     -moz-border-radius:2em;
+    -webkit-border-radius:2em;
 }
 /* Add Copyright TPF message, licence text, whatever */
 html:after {
@@ -24,6 +25,7 @@ div {
     border: #CEC4DE 2px solid;
     background: #EEE repeat scroll;
     -moz-border-radius: 1em;
+    -webkit-border-radius: 1em;
     padding:0 14px;
 }
 li > a {
@@ -44,6 +46,7 @@ pre {
     padding:8px; 
     margin:0 9%;
     -moz-border-radius:1em;
+    -webkit-border-radius:1em;
 }
 h1 {
     margin-left:40%

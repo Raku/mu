@@ -6,13 +6,20 @@ sub try(Any $this) {
   if ($this ~~ Hash) {
     my $yesno    = yes($this<question>) ?? "yes" !! "no";
     my %new      = $this;
-    %new{$yesno} = try %new{$yesno};
-    return \%new;
+    %new{$yesno} = try(%new{$yesno});
+    return %new;
   }
 
-  if (yes "Is it a $this") {
-    say "I got it!";
-    return $this;
+  if($this ~~ Hash) {
+      if (yes "Is it a $this<question>") {
+        say "I got it!";
+        return $this;
+      }
+  } else {
+      if (yes "Is it a $this") {
+        say "I got it!";
+        return $this;
+      }
   }
 
   print "No!?  What was it then? ";
@@ -23,10 +30,10 @@ sub try(Any $this) {
 
   my %new = (
     question => $q,
-    yes      => sub { $yes ?? $new  !! $this }.(),
-    no       => sub { $yes ?? $this !! $new  }.(),
+    yes      => sub { $yes ?? $new  !! $this },
+    no       => sub { $yes ?? $this !! $new  },
   );
-  return \%new;
+  return %new;
 }
 
 sub yes(Str $q) {
@@ -43,7 +50,7 @@ sub yes(Str $q) {
 my $info = "dog";
 
 loop {
-  $info = try $info;
+  $info = try($info);
   last unless yes "Play again?";
 }
 

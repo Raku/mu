@@ -37,7 +37,7 @@ We can do this repeatedly until we get to the topmost cell. That cell will end u
 =end Insight
 
 use v6;
-use Benchmark <timeit>;
+use Benchmark;# qw<timeit>;
 
 my @triangle;
 for [<75>],
