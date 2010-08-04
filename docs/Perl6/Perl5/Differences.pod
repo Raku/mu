@@ -7,11 +7,11 @@ Perl6::Perl5::Differences -- Differences between Perl 5 and Perl 6
 This document is intended to be used by Perl 5 programmers who are new to Perl
 6 and just want a quick overview of the main differences.  More detail on
 everything can be found in the language reference, which have been linked to
-throughout. 
+throughout.
 
 This list is currently known to be incomplete.
 
-=cut 
+=cut
 
 # S02
 
@@ -495,9 +495,19 @@ as C<String>, C<Array>, etc.
 
 You can still say C<sort(@array)> if you prefer the non-OO idiom.
 
+=head1 MISCELLANEOUS
+
+Bits that can be file elsewhere.
+
+=head2 Command-line arguments
+
+The command-line arguments are now in C<@*ARGS>, not C<@ARGV>.  Note the
+C<*> twigil because C<@*ARGS> is a global.
+
 =head1 AUTHORS
 
-Kirrily "Skud" Robert, <skud@cpan.org>,
+Kirrily "Skud" Robert, C<< <skud@cpan.org> >>,
 Mark Stosberg,
 Moritz Lenz,
-Trey Harris
+Trey Harris,
+Andy Lester
