@@ -59,7 +59,7 @@ For details, see L<S02/"Names and Variables">.
 
 =head2 New ways of referring to array and hash elements
 
-Number of elements in an array: 
+Number of elements in an array:
 
     Was:    $#array+1 or scalar(@array)
     Now:    @array.elems
@@ -95,7 +95,7 @@ twigil refers to data that is known at compile time.
 There are still three main contexts, void, item (formerly scalar) and list.
 Aditionally there are more specialized contexts, and operators that force that
 context.
-    
+
     my @array = 1, 2, 3;
 
     # generic item context
@@ -106,14 +106,14 @@ context.
 
     # numeric context
     say +@array;                    # 3
-    
+
     # boolean context
     my $is-nonempty = ?@array;
 
 Hyphens C<'> and dashes C<-> are allowed as part of identifiers, as long as
 they appear between two letters.
 
-=cut 
+=cut
 
 # S03
 
@@ -154,32 +154,32 @@ binary OR operators are split into string and numeric operators, that is C<~&>
 is binary string AND, C<+&> is binary numeric AND, C<~|> is binary string OR
 etc.
 
-	Was: $foo & 1;
-	Now: $foo +& 1;
+    Was: $foo & 1;
+    Now: $foo +& 1;
 
 The bitwise operators are now prefixed with a +, ~ or ? depending if the
 data type is a number, string or boolean.
 
-	Was: $foo << 42;
-	Now: $foo +< 42;
+    Was: $foo << 42;
+    Now: $foo +< 42;
 
 The assignment operators have been changed in a similar vein:
 
-	Was: $foo <<= 42;
-	Now: $foo +<= 42;
+    Was: $foo <<= 42;
+    Now: $foo +<= 42;
 
 Parenthesis don't construct lists, they merely group. Lists are
 constructed with the comma operator. It has tighter precedence than the list
 assignment operator, which allows you to write lists on the right hand side
 without parens:
-    
+
     my @list = 1, 2, 3;     # @list really has three elements
 
 The arrow operator C<< -> >> for dereferencing is gone. Since
 everything is an object, and derferencing parenthesis are just method calls
 with syntactic sugar, you can directly use the appropriate pair of
 parentheses for either indexing or method calls:
-    
+
     my $aoa = [[1, 2, 3], [4, 5, 6], [7, 8, 9]];
     say $aoa[1][0];         # 4
 
@@ -209,18 +209,18 @@ there's a space after the C<if>, otherwise it's a sub call.
 
 Using C<eval> on a block is now replaced with C<try>.
 
-    Was:  eval { 
-            # ... 
-          }; 
-          if ($@) { 
+    Was:  eval {
+            # ...
+          };
+          if ($@) {
             warn "oops: $@";
-          } 
+          }
     Now:  try  {
              # ...
              CATCH { warn "oops: $!" }
-          } 
+          }
 
-CATCH provides more flexiblity in handling errors. 
+CATCH provides more flexiblity in handling errors.
 See L<S04/"Exception_handlers"> for details.
 
 =head2 foreach becomes for
@@ -256,7 +256,7 @@ C<loop> can also be used for infinite loops:
 
 # S05
 
-=head1 Regexes and Rules 
+=head1 Regexes and Rules
 
 Here's a simple translation of a Perl5 regular expression to Perl6:
 
@@ -264,19 +264,19 @@ Here's a simple translation of a Perl5 regular expression to Perl6:
     Now:    $str ~~ m:P5:i/^\d{2,5}\s/
 
 The C<:P5> modifier is there because the standard Perl6 syntax is rather
-different, and 'P5' notes a Perl5 compatibility syntax.  For a substitution: 
+different, and 'P5' notes a Perl5 compatibility syntax.  For a substitution:
 
     Was:    $str =~ s/(a)/$1/e;
     Now:    $str ~~ s:P5/(a)/{$0}/;
 
 Notice that C<$1> starts at C<$0> now, and C</e> is gone
-in favor of the embedded closure notation. 
+in favor of the embedded closure notation.
 
 For the full specification, see L<S05>. See also:
 
 The related Apocalypse, which justifies the changes:
 
-  http://dev.perl.org/perl6/doc/design/apo/A05.html 
+  http://dev.perl.org/perl6/doc/design/apo/A05.html
 
 And the related Exegesis, which explains it more detail:
 
@@ -292,19 +292,19 @@ And the related Exegesis, which explains it more detail:
 
 Formats will be handled by external libraries.
 
-=cut 
+=cut
 
-#S10 
+#S10
 
 =head1 Packages
 
-=cut 
+=cut
 
-#S11 
+#S11
 
 =head1 Modules
 
-=cut 
+=cut
 
 #S12
 
@@ -317,7 +317,7 @@ twigil.
     class YourClass {
         has $!private;
         has @.public;
-        
+
         # and with write accessor
         has $.stuff is rw;
 
@@ -335,11 +335,11 @@ twigil.
 
 =head2 Dynamic method calls distinguish symbolic refs from hard refs
 
-  Was: $self->$method() 
-  Now: $self.$method()		# hard ref
-  Now: $self."$method"()	# symbolic ref
+  Was: $self->$method()
+  Now: $self.$method()      # hard ref
+  Now: $self."$method"()    # symbolic ref
 
-=cut 
+=cut
 
 #S13
 
@@ -372,7 +372,7 @@ with the same name as the type you want to cast to.
 If you want to write a class whose objects can be assigned to a variable with
 the C<@> sigil, you have to implement the C<Positional> roles. Likewise for
 the C<%> sigil you need to do the C<Associative> role. The C<&> sigil implies
-C<Callable>. 
+C<Callable>.
 
 The roles provides the operators C<< postcircumfix:<[ ]> >> (Positional; for
 array indexing), C<< postcircumfix:<{ }> >>
@@ -395,7 +395,7 @@ You should override these to provide meaningful semantics.
 
 See L<S13> for all the gory details.
 
-=cut 
+=cut
 
 #S16
 
@@ -406,9 +406,9 @@ See L<S13> for all the gory details.
 
 For details, see L<S03/"Changes to Perl 5 operators"/"The filetest operators now return a result that is both a boolean">
 
-=cut 
+=cut
 
-#S26 
+#S26
 
 # XXX needs some brave rewrite
 
@@ -439,8 +439,8 @@ when you want to refer only to a single item.
 
 To pass an argument to modify by reference:
 
-  Was: sub foo {...};        foo(\$bar) 
-  Now: sub foo ($bar is rw); foo($bar)  
+  Was: sub foo {...};        foo(\$bar)
+  Now: sub foo ($bar is rw); foo($bar)
 
 The "obsolete" reference above has the details. Also, look for
 I<Capture> under L<S02/"Names_and_Variables">, or at the Capture FAQ,
