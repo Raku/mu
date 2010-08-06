@@ -13,12 +13,11 @@ Perl 6 that's achievable for a newcomer.
     diakopter
     colomon
     masak
+    pmichau
 
     YOUR NAME HERE
 
 =head1 IDEAS
-
-    Fix up a test file
 
     Port a smallish module
         - Log::Message
@@ -30,13 +29,28 @@ Perl 6 that's achievable for a newcomer.
     Fix $bug in $implementation
         - Right now, Rakudo fails to handle the case when &infix:<op>() doesn't exist
         and you do "my $a; $a op= $b;"  This needs both a good test and a fix.
+        (might not be as trivial as initially thought)
 
-    Write documentation/examples for $function/$feature
+    Write documentation/examples for $function/$feature (needs infrastructure
+    first)
 
-    Implement $*ARGFILES (see S02 for description).
+    Implement Match.new that accepts the Match.perl output (mostly done, only
+    hard parts left)
 
-    Implement Match.new that accepts the Match.perl output
+=head1 DONE
 
-    Others:
+We've had these challenges so far (numbers in parenthesis are the number of
+submissions):
+
+    1   (4)   A website for proto
+    2   (1)   Fix up a test
+    3   (2)   MAIN sub
+    4   (1)   samecase for subst
+    5   (3)   Str.trans
+    6   (2)   book rendering
+    7   (1)   try.rakudo.org
+    8   (2)   $*ARGFILES
+
+=cut
 
 # vim: spell ft=pod
