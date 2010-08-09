@@ -52,6 +52,10 @@ package Evalbot;
     my $postfix = ':';
 
     our %impls = (
+            'partcl-nqp' => {
+                chdir       => '../../../partcl-nqp',
+                cmd_line    => 'cat %i | ./partcl %program >> %out 2>&1',
+            },
             perlesque => {
                 chdir       => '../../../perlesque/trunk/Sprixel/bin/Release',
                 cmd_line    => 'cat %i | mono -O=-all,cfold perlesque.exe %program >> %out 2>&1',
