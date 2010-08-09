@@ -55,6 +55,7 @@ package Evalbot;
             'partcl-nqp' => {
                 chdir       => '../../../partcl-nqp',
                 cmd_line    => 'cat %i | ./partcl %program >> %out 2>&1',
+                filter      => \&filter_pct,
             },
             perlesque => {
                 chdir       => '../../../perlesque/trunk/Sprixel/bin/Release',
