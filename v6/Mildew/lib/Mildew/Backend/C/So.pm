@@ -20,6 +20,7 @@ class Mildew::Backend::C::So extends Mildew::Backend::OptC {
         ));
 
         # compile the c source to the executable
+        $ENV{LD_RUN_PATH} = SMOP::ld_library_path;
         system("gcc","-fPIC","-g","-xc",@{$self->cflags},"-shared",$c_file,"-o",$output);
     }
     method handle_YOU_ARE_HERE($ast) {

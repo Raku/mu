@@ -220,16 +220,22 @@ sub ACTION_create_library {
 }
 sub ACTION_compile_xscode {
     my $self = shift;
+    $self->build_SMOP_xs_module('Embed');
+    $self->build_SMOP_xs_module('Interoperability');
+}
+
+sub build_SMOP_xs_module {
+    my ($self,$name) = @_;
     my $cbuilder = $self->cbuilder;
 
-    my $archdir = catdir( $self->blib, 'arch', 'auto', 'SMOP','Interoperability');
+    my $archdir = catdir( $self->blib, 'arch', 'auto', 'SMOP',$name);
     make_path( $archdir ) unless -d $archdir;
     make_path(catdir("build","SMOP"));
 
-    my $ext = sub {catfile("build","SMOP","Interoperability".$_[0])};
+    my $ext = sub {catfile("build","SMOP",$name.$_[0])};
 
     print STDERR "\n** Preparing XS code\n";
-    my $xsfile = catfile("Interoperability.xs");
+    my $xsfile = catfile("$name.xs");
     my $cfile = $ext->(".c");
 
     $self->add_to_cleanup($cfile); ## FIXME - cargo culted FIXME
@@ -248,7 +254,7 @@ sub ACTION_compile_xscode {
     }
 
 #    # Create .bs bootstrap file, needed by Dynaloader.
-    my $bs_file = catfile( $archdir, "Interoperability.bs" );
+    my $bs_file = catfile( $archdir, "$name.bs" );
     if ( !$self->up_to_date( $ofile, $bs_file ) ) {
         ExtUtils::Mkbootstrap::Mkbootstrap($bs_file);
         if ( !-f $bs_file ) {
@@ -258,13 +264,12 @@ sub ACTION_compile_xscode {
         utime( (time) x 2, $bs_file );    # touch
     }
 
-#    my $objects = $self->rscan_dir("xscode",qr/\.o$/);
     my $objects = [$ofile];
-    my $lib_file = catfile( $archdir, "Interoperability.$Config{dlext}" );
+    my $lib_file = catfile( $archdir, "$name.$Config{dlext}" );
     if ( !$self->up_to_date( [ @$objects ], $lib_file ) ) {
         say STDERR "making $lib_file";
         $cbuilder->link(
-                        module_name => 'SMOP::Interoperability',
+                        module_name => "SMOP::$name",
                         extra_compiler_flags => ccopts,
 #                        extra_linker_flags => '-Lbtparse/src -lbtparse ',
                         objects     => $objects,

@@ -63,12 +63,15 @@ role Mildew::Backend::C {
         exec(@debug_aids,$tmp_executable);
     }
 
+    method path_to_setting {
+        'MildewCORE.setting.so';
+    }
+
     # load the setting
     method enclosing_scope {
 
-        $self->load_setting
-        ? call(load => call(new => FETCH(lookup 'MildewSOLoader')),
-            [string 'MildewCORE.setting.so',FETCH(lookup('$LexicalPrelude'))]) 
+        $self->load_setting ? call(load => call(new => FETCH(lookup 'MildewSOLoader')),
+            [string $self->path_to_setting,FETCH(lookup('$LexicalPrelude'))]) 
         : reg '$scope';
     }
 }

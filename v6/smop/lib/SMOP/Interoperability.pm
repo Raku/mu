@@ -9,7 +9,7 @@ our $main_coro = new Coro::State;
 
 
 require XSLoader;
-XSLoader::load('SMOP::Interoperability', $VERSION);
+XSLoader::load('SMOP::Interoperability');
 
 sub coro_from_eval {
     my $code = shift;

@@ -20,4 +20,7 @@ sub include_flags {
 sub ld_library_path {
     dist_dir('SMOP');
 }
+sub modules {
+    @MODULES;
+}
 1;

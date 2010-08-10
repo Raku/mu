@@ -1,6 +1,35 @@
-package SMOP::Boilerplate;
+use v5.10;
+use MooseX::Declare;
+use Mildew::Setting::SMOP;
+class Mildew::Backend::C::V6 extends Mildew::Backend::C::So {
+    use Mildew::AST;
+    use Mildew::AST::Helpers;
+    use File::Temp qw(tempfile tmpnam);
 
-our $BOILERPLATE = <<'END';
+
+
+    # false doesn't support setr
+    sub wrap_in_block_without_setr {
+        my ($ast,$scope) = @_;
+        Mildew::AST::Block->new(regs=>['interpreter','scope'],stmts=>[fcall(call(new => FETCH(lookup('Code')),[],[string 'outer'=>($scope // reg '$scope'),string 'signature'=>empty_sig(),string 'mold' => $ast]))]);
+    }
+
+    method compile($ast,$output) {
+        die "-o is required when compiling to an executable\n" unless $output;
+        my ($c_fh,$c_file) = tempfile();
+        binmode($c_fh,":utf8");
+        my $wrapped_ast = $self->wrap_in_block ? wrap_in_block_without_setr($ast,$self->enclosing_scope) : $ast;
+        print $c_fh $self->c_source($wrapped_ast);
+
+
+        # compile the c source to the shared library
+        $ENV{LD_RUN_PATH} = join(':',SMOP::ld_library_path(),Mildew::Setting::SMOP::ld_library_path());
+        system("gcc","-fPIC","-g","-xc",@{$self->cflags},"-shared",$c_file,"-o",$output);
+    }
+
+
+    method get_boilerplate {
+        <<'END'
 #include <smop/base.h>
 #include <smop/s0native.h>
 #include <smop/nagc.h>
@@ -24,7 +53,9 @@ void smop_p5_destr(SMOP__Object* interpreter);
 /* Your helper function go here */
 %%FUNCS%%
 
-int main(int argc, char** argv) {
+int run(int argc, char** argv) {
+  printf("running...\n");
+
   smop_s0native_init();
   smop_dump_init();
   smop_nagc_init();
@@ -77,49 +108,16 @@ int main(int argc, char** argv) {
                     (SMOP__Object*[]) {SMOP_REFERENCE(interpreter,interpreter),NULL},
                     (SMOP__Object*[]) {NULL}));
 
-
-
-  smop_mold_message_destr(interpreter);
-  smop_p5_destr(interpreter);
-  smop_s1p_oo_destr(interpreter);
-  smop_p6opaque_destr(interpreter);
-  smop_lost_destr(interpreter);
-  smop_s1p_destr(interpreter);
-  smop_native_destr(interpreter);
-
-  SMOP_DISPATCH(interpreter, SMOP_RI(interpreter),
-                SMOP__NATIVE__idconst_create("loop"),
-                SMOP__NATIVE__capture_create(
-                    interpreter,
-                    (SMOP__Object*[]) {SMOP_REFERENCE(interpreter,interpreter),NULL}
-                    ,(SMOP__Object*[]) {NULL}));
-
-  SMOP_DISPATCH(interpreter, SMOP_RI(interpreter),
-    SMOP__NATIVE__idconst_create("goto"),
-    SMOP__NATIVE__capture_create(
-        interpreter,
-        (SMOP__Object*[]) {SMOP_REFERENCE(interpreter,interpreter),SMOP__NATIVE__bool_false,NULL}
-        ,(SMOP__Object*[]) {NULL}));
-
-  SMOP_DISPATCH(interpreter, SMOP_RI(interpreter),
-                SMOP__NATIVE__idconst_create("loop") , SMOP__NATIVE__capture_create(
-                    interpreter,
-                    (SMOP__Object*[]) {SMOP_REFERENCE(interpreter,interpreter),NULL},
-                    (SMOP__Object*[]) {NULL}));
-
-  SMOP_RELEASE(SMOP__EmptyInterpreter,interpreter);
-
-
-  smop_yeast_destr();
-  smop_mold_destr();
-  smop_interpreter_destr();
-  smop_capture_destr();
-  smop_nagc_destr();
-  smop_dump_destr();
-  smop_s0native_destr();
-  smop_s1p_close_dlhandles();
-
   return 0;
 }
 END
-1;
+    }
+
+    method path_to_setting {
+        Mildew::Setting::SMOP::ld_library_path() . '/' .
+        'MildewCORE.setting.so';
+    }
+    method run($ast) {
+        die "can't run with this backend";
+    }
+}
