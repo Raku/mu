@@ -29,8 +29,7 @@ sub renamed_file {
 }
 sub STD_prefix {
     my $content = shift;
-    $content =~ s/LazyMap/STD::LazyMap/g;
-    $content =~ s/Actions/STD::Actions/g;
+    $content =~ s/(Cursor|LazyMap|Actions|LazyConst|LazyRange|LazyRangeRev)\b/STD::$1/g;
     $content;
 }
 sub gather_files {
@@ -49,11 +48,15 @@ sub gather_files {
     system('make');
   
     # generated files
-    for (qw(STD Cursor)) {
+
+    $self->renamed_file("Cursor.pmc","lib/STD/Cursor.pm",\&STD_prefix);
+
+    my %gen;
+    for (qw(STD)) {
         my $version = $self->zilla->version;
         $self->renamed_file("$_.pmc","lib/$_.pm",sub {
             my $content = shift;
-            $content =~ s/package STD;/package STD;BEGIN {\$STD::VERSION = $version}/;
+            $content =~ s/package STD;/package STD;BEGIN {\n\$STD::VERSION = $version\n}/;
 
             STD_prefix($content);
         });

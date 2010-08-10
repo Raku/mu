@@ -7,7 +7,6 @@ use Carp;
 use Coro;
 our $main_coro = new Coro::State;
 
-our $VERSION = '0.01';
 
 require XSLoader;
 XSLoader::load('SMOP::Interoperability', $VERSION);
