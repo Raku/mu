@@ -1,4 +1,4 @@
-package V6::mildew::Runtime;
+package v6::mildew::Runtime;
 use strict;
 use warnings;
 use v5.10;

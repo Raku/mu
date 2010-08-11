@@ -47,7 +47,7 @@ sub pmc_compile {
     say "compiling <<$source>> to $so";
     $compiler->compile($source,$so);
 
-    my $perl5 = 'use V6::mildew::Runtime;V6::mildew::Runtime::load("'.printable($so).'");1;';
+    my $perl5 = 'use v6::mildew::Runtime;&{"v6::mildew::Runtime::load"}("'.printable($so).'");1;';
 
     # Don't write when we failed to compile, otherwise it never recompiles!
     die unless defined $perl5 
