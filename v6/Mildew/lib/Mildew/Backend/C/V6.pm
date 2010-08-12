@@ -30,6 +30,9 @@ class Mildew::Backend::C::V6 extends Mildew::Backend::C::So {
 
     method get_boilerplate {
         <<'END'
+
+#include <smop/main.h>
+
 #include <smop/base.h>
 #include <smop/s0native.h>
 #include <smop/nagc.h>
@@ -47,35 +50,13 @@ class Mildew::Backend::C::V6 extends Mildew::Backend::C::So {
 #include <smop/nagc.h>
 #include <stdio.h>
 
-void smop_p5_init(SMOP__Object* interpreter);
-void smop_p5_destr(SMOP__Object* interpreter);
-
 /* Your helper function go here */
 %%FUNCS%%
 
 int run(int argc, char** argv) {
-  printf("running...\n");
 
-  smop_s0native_init();
-  smop_dump_init();
-  smop_nagc_init();
-  smop_capture_init();
-  smop_interpreter_init();
-  smop_mold_init();
-  smop_yeast_init();
 
-  SMOP__Object* interpreter = SMOP_interpreter_create(SMOP__EmptyInterpreter);
-
-  smop_native_init(interpreter);
-  smop_s1p_init(interpreter);
-
-  smop_lost_init(interpreter);
-  smop_p6opaque_init(interpreter);
-  smop_s1p_oo_init(interpreter);
-
-  smop_p5_init(interpreter);
-
-  smop_mold_message_init(interpreter);
+  SMOP__Object* interpreter = smop_main_get_interpreter();
 
 
   /* The frame creation code goes here */
