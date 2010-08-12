@@ -25,7 +25,7 @@ my $ldopts = ldopts . '-lrt';
 
 use v5.10;
 
-my @MODULES = qw(s0native dump nagc util capture interpreter mold yeast native lost s1p p6opaque s1p-oo mold-message profile p5);
+my @MODULES = qw(s0native dump nagc util capture interpreter mold yeast native lost s1p p6opaque s1p-oo mold-message profile p5 main);
 
 my $BUILDDIR = 'build';
 
