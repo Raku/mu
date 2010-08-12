@@ -44,7 +44,6 @@ sub pmc_compile {
         frontend=>Mildew::Frontend::STD->new());
 
     my $so = tmpnam;
-    say "compiling <<$source>> to $so";
     $compiler->compile($source,$so);
 
     my $perl5 = 'use v6::mildew::Runtime;&{"v6::mildew::Runtime::load"}("'.printable($so).'");1;';
