@@ -1,3 +1,0 @@
-use v5.10;
-use Simple;
-say "survived after loading Simple";
