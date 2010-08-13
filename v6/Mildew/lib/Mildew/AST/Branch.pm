@@ -19,6 +19,7 @@ class Mildew::AST::Branch extends Mildew::AST::Base {
         (Mildew::AST::Branch->new(cond=>$cond,then=>$self->then,else=>$self->else,@setup));
     }
 }
+
 =head1 NAME
 
 Mildew::AST::Branch - a conditional jump
