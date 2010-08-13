@@ -18,9 +18,9 @@ class VAST::sublongname {
             }
             # TODO find the source of the warning
             my $ret =
-                $self->{sigil}{TEXT}
+                ($self->{sigil}{TEXT} // '')
                 . ($self->{twigil}[0]{TEXT} // '')
-                . $shortname->{category}{TEXT}
+                . ($shortname->{category}{TEXT} // '')
                 . ':'
                 . $shortname->{colonpair}[0]{v}{circumfix}{nibble}->Str
                 . $single_variant;
