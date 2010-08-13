@@ -1,0 +1,3 @@
+CREATE TABLE report (run_time text);
+CREATE TABLE "test_run" (report text, file text, elapsed float, relative float);
+
