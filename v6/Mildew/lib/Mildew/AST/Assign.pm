@@ -22,3 +22,30 @@ class Mildew::AST::Assign extends Mildew::AST::Base {
         Forest::Tree->new(node=>$node,children=>[$self->lvalue->forest,$self->rvalue->forest]);
     }
 }
+
+=head1 NAME
+
+Mildew::AST::Assign - an assignment to a register
+
+=head1 DESCRIPTION
+
+Assign a value or a result of a call to a register.
+
+=head1 ATTRIBUTES
+
+=over 4
+
+=item rvalue
+
+The thing which we will assign to lvalue.
+In simplified AST it is a constant,Mildew::AST::Reg or Mildew::AST::Call.
+
+=item lvalue
+
+Mildew::AST::Reg which will be assigned to
+
+=item then
+
+Where to jump if I<cond> is not equal to native false
+
+=cut
