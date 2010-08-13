@@ -38,6 +38,7 @@ role Mildew::Backend::C {
         print $c_fh $self->c_source($wrapped_ast);
 
 
+        local $ENV{LD_RUN_PATH} = join(':',@{$self->ld_library_path});
         # compile the c source to the executable
         system("gcc","-g","-xc",@{$self->cflags},$c_file,"-o",$output);
     }
@@ -52,7 +53,6 @@ role Mildew::Backend::C {
         my $tmp_executable = tmpnam;
         $self->compile($ast,$tmp_executable);
 
-        local $ENV{LD_LIBRARY_PATH} = join(':',@{$self->ld_library_path});
 
         #'../mildew-old/CORE:../smop/build/lib';
         # local $ENV{PERL5LIB} = "../smop/SMOP/blib/lib/:../smop/SMOP/blib/arch:" . ($ENV{PERL5LIB} || '');
