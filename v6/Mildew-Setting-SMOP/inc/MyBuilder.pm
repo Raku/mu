@@ -11,6 +11,11 @@ use Carp;
 use File::Spec::Functions qw(catdir catfile);
 use File::Path qw(make_path);
 use TAP::Harness;
+use File::Temp qw(tmpnam);
+use File::Slurp qw(slurp);
+use Mildew::Compiler;
+use Mildew::Backend::OptC;
+use Mildew::Frontend::STD;
 
 
 use v5.10;
@@ -82,17 +87,24 @@ sub ACTION_test {
     my $self = shift;
 
     $self->dispatch("code");
+
+    my $compiler = Mildew::Compiler->new(
+        frontend=>Mildew::Frontend::STD->new(),
+        backend=>Mildew::Backend::OptC->new()
+    );
+
     my $harness = TAP::Harness->new({ exec=>sub {
         my ($harness,$file) = @_;
-        warn $file;
         if ($file =~ /^t\/p6\//) {
-            ["mildew",$file];
+            my $exec = tmpnam;
+            $compiler->compile(scalar slurp($file),$exec);
+            [$exec];
         } else {
             undef;
         }
     }});
     die "Some tests failed.\n" unless $harness->runtests(
-        glob("t/p5/*")
+        glob("t/p5/*"),glob("t/p6/sanity/*"),glob("t/p6/p5-interop/*")
     )->all_passed;
 }
 
