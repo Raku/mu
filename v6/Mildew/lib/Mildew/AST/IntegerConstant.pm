@@ -1,6 +1,7 @@
 use v5.10;
 use MooseX::Declare;
 class Mildew::AST::IntegerConstant extends Mildew::AST::Base {
+    use Mildew::Emit::Haskell;
     has 'value' => (is=>'ro');
     has 'type_info' => (is=>'ro',lazy=>1,default=>sub {Mildew::TypeInfo::IntegerConstant->new()});
     method m0ld($ret) {
@@ -14,5 +15,8 @@ class Mildew::AST::IntegerConstant extends Mildew::AST::Base {
     }
     method m0ld_literal {
         $self->value;
+    }
+    method haskell_literal {
+        '(IntegerConstant '.$self->value.')';
     }
  }

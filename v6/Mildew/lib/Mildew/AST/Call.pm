@@ -3,6 +3,7 @@ use MooseX::Declare;
 class Mildew::AST::Call extends Mildew::AST::Base {
     use namespace::autoclean;
     use Mildew::AST::Helpers qw(YYY);
+    use Mildew::Emit::Haskell;
     has 'capture' => (is=>'ro');
     has 'identifier' => (is=>'ro');
     #TODO delete
@@ -104,5 +105,8 @@ class Mildew::AST::Call extends Mildew::AST::Base {
     }
     method forest {
         Forest::Tree->new(node=>$self->pretty,children=>[map {$_->forest} ($self->capture->invocant,$self->identifier,@{$self->capture->positional},@{$self->capture->named})]);
+    }
+    method haskell_literal {
+        constructor('Call',$self->identifier,$self->capture);
     }
 }

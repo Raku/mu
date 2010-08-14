@@ -109,6 +109,7 @@ sub MAIN {
             use Data::Dumper::Concise;
             Dumper($_[0]);
         },
+        'ast-haskell' => sub {$_[0]->simplified->haskell_literal."\n"},
         ssa => sub {require Mildew::SSA;Mildew::SSA::to_ssa($_[0]->simplified,{})->pretty."\n"},
     );
     my $c = container 'Mildew' => as {

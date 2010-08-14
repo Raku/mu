@@ -1,6 +1,7 @@
 use v5.10;
 use MooseX::Declare;
 class Mildew::AST::Assign extends Mildew::AST::Base {
+    use Mildew::Emit::Haskell;
     has 'lvalue' => (is => 'ro');
     has 'rvalue' => (is => 'ro');
     method pretty {
@@ -16,11 +17,15 @@ class Mildew::AST::Assign extends Mildew::AST::Base {
         my ($rvalue,@setup) = $self->rvalue->simplified;
         ($self->lvalue,@setup,Mildew::AST::Assign->new(lvalue=>$self->lvalue,rvalue=>$rvalue));
     }
+    method haskell_literal {
+        constructor('Assign',$self->lvalue,$self->rvalue);
+    }
     method forest {
         my $node = $self->pretty;
         $node .= " - ".sprintf("%.4f",$self->took) if defined $Mildew::took && $Mildew::took->{$self->id};
         Forest::Tree->new(node=>$node,children=>[$self->lvalue->forest,$self->rvalue->forest]);
     }
+
 }
 
 =head1 NAME

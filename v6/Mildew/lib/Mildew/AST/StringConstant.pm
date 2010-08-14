@@ -1,6 +1,7 @@
 use v5.10;
 use MooseX::Declare;
 class Mildew::AST::StringConstant extends Mildew::AST::Base {;
+    use Mildew::Emit::Haskell;
     has 'value' => (is=>'ro');
     has 'type_info' => (is=>'ro',lazy=>1,default=>sub {Mildew::TypeInfo::StringConstant->new()});
     method m0ld($ret) {
@@ -20,5 +21,8 @@ class Mildew::AST::StringConstant extends Mildew::AST::Base {;
         $str =~ s/"/\\"/g;
         $str =~ s/\n/\\n/g;
         $str;
+    }
+    method haskell_literal {
+        constructor('StringConstant',$self->value);
     }
 }
