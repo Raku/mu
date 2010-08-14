@@ -110,7 +110,7 @@ context.
     # boolean context
     my $is-nonempty = ?@array;
 
-Hyphens C<'> and dashes C<-> are allowed as part of identifiers, as long as
+Apostrophes C<'> and dashes C<-> are allowed as part of identifiers, as long as
 they appear between two letters.
 
 =cut
