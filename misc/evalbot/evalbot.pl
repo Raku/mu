@@ -196,7 +196,7 @@ set_hll_global [\'IO\'], \'Socket\', $P0
                 revision    => sub { get_revision_from_file('/home/p6eval/pugs/src/perl6/snap/revision')},
             },
             yapsi   => {
-                chdir       => '../../../yapsi',
+                chdir       => '../../../bin/yapsi',
                 cmd_line    => 'PERL6LIB=lib /home/p6eval/rakudo-alpha/parrot_install/bin/alpha yapsi %program >>%out 2>&1',
             },
             highlight  => {

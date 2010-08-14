@@ -1,39 +1,30 @@
 use v6;
-class CGI-0.2;
+class CGI:ver<0.3>;
     # XXX Should this all be rw? Should any be public?
-    has %!PARAMS;
-    has $!REQUEST_METHOD;
-    has $!CONTENT_LENGTH;
-    has $!CONTENT_TYPE;
-    has $!QUERY_STRING;
+    has %.params;
+    has $.request_method;
+    has $.content_length;
+    has $.content_type;
+    has $.query_string;
     # I would prefer this syntax, but it seems not be supported yet. 
     # has $!QS_DELIMITER = ';';
-    has $!QS_DELIMITER; 
-    has $!URL_ENCODING; 
-    has $!IS_PARAMS_LOADED; 
-    has $!CHARSET;
+    has $!QS_DELIMITER = ';';
+    has $!URL_ENCODING = 'ISO-8859-1';
+    has $!IS_PARAMS_LOADED = 0;
+    has $!CHARSET      = 'ISO-8859-1';
 
 # Use method, not submethod, because we do what these behaviors to be inherited.  
 method BUILD (*%param) {
-        $!QS_DELIMITER     = ';';
-        $!URL_ENCODING     = 'iso-8859-1';
         # set charset to the safe ISO-8859-1
-        $!CHARSET          = 'ISO-8859-1';
-        $!IS_PARAMS_LOADED = 0;
-        %!PARAMS = %param if %param;
+        %!params = %param if %param;
 }
 
 ## methods
 
 # information methods
 
-method clear_params returns Void { %!PARAMS = () }
-method reset_params returns Void { %!PARAMS = (); $!IS_PARAMS_LOADED = 0; }
-
-method query_string   returns Str { $!QUERY_STRING   }
-method request_method returns Str { $!REQUEST_METHOD }
-method content_type   returns Str { $!CONTENT_TYPE   }
-method content_length returns Str { $!CONTENT_LENGTH }
+method clear_params { %!params = () }
+method reset_params { %!params = (); $!IS_PARAMS_LOADED = 0; }
 
 # make some of the less used values 'on demand'
 
@@ -65,13 +56,13 @@ method set_url_encoding(Str $encoding) {
 
 method header (
     Str        $type      = 'text/html',
-    Str        $charset   = undef,
-    Str|Array :$cookie?,
+    Str        $charset?,
+              :$cookie?,
     Str       :$target?,
               :$expires?,
     Bool      :$nph?,
     *%extra
-) returns Str {
+) {
     # construct our header
     my $header;
     # TODO:
@@ -99,26 +90,26 @@ method header (
             default       { $header ~= "" ~ $temp_key ~ ": " ~ $value~"\n"; }
         }
     }
-    
+
     if ($cookie) {
-        for @$cookie -> $one {
+        for $cookie.flat -> $one {
             #$cookie = ($cookie ~~ CGI::Cookie) ?? $cookie.as_string !! $cookie;
             
             $header ~= "Set-Cookie: " ~ $one~"\n" if $one.chars;
         }
     }
-    
+
     return "$header\n";
 }
 
 method redirect (
     Str   $location,
     Str   $target?,
-    Str   $status = "302 Found",
+    Str  :$status = "302 Found",
     Str  :$cookie,
     Bool :$nph,
     *%extra
-) returns Str {
+) {
     my %out;
 
     # XXX provide default for $location
@@ -154,15 +145,16 @@ method url_decode (Str $to_decode) returns Str {
     $decoded ~~ s:g/\+/ /;
     given $!URL_ENCODING {
         when 'iso-8859-1' {
-            $decoded ~~ s:g/%(<[<digit>a..fA..F]><[<digit>a..fA..F]>)/{chr(:16($0))}/;
+            $decoded ~~ s:g/(<xdigit>**2)/{chr(:16($0))}/;
         }
         when 'utf-8' {
-            $decoded ~~ s:g:i/%(F[CD])%([8-9AB][<digit>A..F])%([8-9AB][<digit>A..F])%([8..9AB][<digit>A..F])%([8..9AB][<digit>A..F])%([8..9AB][<digit>A..F])/{chr((:16($0)+&1)*1073741824+(:16($1)+&63)*16777216+(:16($2)+&63)*262144+(:16($3)+&63)*4096+(:16($4)+&63)*64+(:16($5)+&63))}/;
-            $decoded ~~ s:g:i/%(F[8..B])%([8..9AB][<digit>A..F])%([8..9AB][<digit>A..F])%([8..9AB][<digit>A..F])%([8..9AB][<digit>A..F])/{chr((:16($0)+&3)*16777216+(:16($1)+&63)*262144+(:16($2)+&63)*4096+(:16($3)+&63)*64+(:16($4)+&63))}/;
-            $decoded ~~ s:g:i/%(F[0..7])%([8..9AB][<digit>A..F])%([8..9AB][<digit>A..F])%([8..9AB][<digit>A..F])/{chr((:16($0)+&7)*262144+(:16($1)+&63)*4096+(:16($2)+&63)*64+(:16($3)+&63))}/;
-            $decoded ~~ s:g:i/%(E[<digit>A..F])%([8..9AB][<digit>A..F])%([8..9AB][<digit>A..F])/{chr((:16($0)+&15)*4096+(:16($1)+&63)*64+(:16($2)+&63))}/;
-            $decoded ~~ s:g:i/%([CD][<digit>A..F])%([8..9AB][<digit>A..F])/{chr((:16($0)+&31)*64+(:16($1)+&63))}/;
-            $decoded ~~ s:g:i/%([0..7][<digit>A..F])/{chr(:16($0))}/;
+            # TODO: proper UTF-8 decoding
+#            $decoded ~~ s:g:i/(F[CD])%([8-9AB][<digit>A..F])%([8-9AB][<digit>A..F])%([8..9AB][<digit>A..F])%([8..9AB][<digit>A..F])%([8..9AB][<digit>A..F])/{chr((:16($0)+&1)*1073741824+(:16($1)+&63)*16777216+(:16($2)+&63)*262144+(:16($3)+&63)*4096+(:16($4)+&63)*64+(:16($5)+&63))}/;
+#            $decoded ~~ s:g:i/%(F[8..B])%([8..9AB][<digit>A..F])%([8..9AB][<digit>A..F])%([8..9AB][<digit>A..F])%([8..9AB][<digit>A..F])/{chr((:16($0)+&3)*16777216+(:16($1)+&63)*262144+(:16($2)+&63)*4096+(:16($3)+&63)*64+(:16($4)+&63))}/;
+#            $decoded ~~ s:g:i/%(F[0..7])%([8..9AB][<digit>A..F])%([8..9AB][<digit>A..F])%([8..9AB][<digit>A..F])/{chr((:16($0)+&7)*262144+(:16($1)+&63)*4096+(:16($2)+&63)*64+(:16($3)+&63))}/;
+#            $decoded ~~ s:g:i/%(E[<digit>A..F])%([8..9AB][<digit>A..F])%([8..9AB][<digit>A..F])/{chr((:16($0)+&15)*4096+(:16($1)+&63)*64+(:16($2)+&63))}/;
+#            $decoded ~~ s:g:i/%([CD][<digit>A..F])%([8..9AB][<digit>A..F])/{chr((:16($0)+&31)*64+(:16($1)+&63))}/;
+#            $decoded ~~ s:g:i/%([0..7][<digit>A..F])/{chr(:16($0))}/;
         }
     }
     return $decoded;
@@ -185,10 +177,10 @@ method url_encode (Str $to_encode) returns Str {
     };
     given $!URL_ENCODING {
         when 'iso-8859-1' {
-            $encoded ~~ s:g/(<-[-.<alnum>]>)/{$dec2hex(ord($0))}/;
+            $encoded ~~ s:g/(<-[\-.]-alnum>)/{$dec2hex(ord($0))}/;
         }
         when 'utf-8' {
-            $encoded ~~ s:g/(<-[-.<alnum>]>)/{$utf82hex(ord($0))}/;
+            $encoded ~~ s:g/(<-[\-.]-alnum>)/{$utf82hex(ord($0))}/;
         }
     }
     return $encoded;
@@ -196,8 +188,8 @@ method url_encode (Str $to_encode) returns Str {
 
 method pack_params returns Str {
     join $!QS_DELIMITER, gather {
-        for %!PARAMS.keys.sort -> $param {
-            for each(%!PARAMS{$param}) -> $val {
+        for %!params.keys.sort -> $param {
+            for each(%!params{$param}) -> $val {
                 take(self.url_encode($param) ~ '=' ~ self.url_encode($val));                            
             }
         }
@@ -209,8 +201,8 @@ method unpack_params (Str $data) returns Str {
     for @pairs -> $pair {
         my ($key, $value) = split('=', $pair);
         $key = self.url_decode($key);
-        %!PARAMS{$key} //= [];
-        %!PARAMS{$key}.push( self.url_decode($value) );
+        %!params{$key} //= [];
+        %!params{$key}.push( self.url_decode($value) );
     }  
 }
 
@@ -218,17 +210,17 @@ method load_params {
     $!IS_PARAMS_LOADED = 1; 
     ## initialize all the globals
     try {
-        $!REQUEST_METHOD = %*ENV<REQUEST_METHOD>;
-        $!CONTENT_TYPE   = %*ENV<CONTENT_TYPE>;    
-        $!CONTENT_LENGTH = %*ENV<CONTENT_LENGTH>;   
+        $!request_method = %*ENV<REQUEST_METHOD>;
+        $!content_type   = %*ENV<CONTENT_TYPE>;    
+        $!content_length = %*ENV<CONTENT_LENGTH>;   
             
-        if (lc($!REQUEST_METHOD) eq ('get' | 'head')) {
-            $!QUERY_STRING = %*ENV<QUERY_STRING>;
-            self.unpack_params($!QUERY_STRING) if $!QUERY_STRING;
+        if (lc($!request_method) eq ('get' | 'head')) {
+            $!query_string = %*ENV<QUERY_STRING>;
+            self.unpack_params($!query_string) if $!query_string;
         }
-        elsif (lc($!REQUEST_METHOD) eq 'post') { 
-            if (!$!CONTENT_TYPE || $!CONTENT_TYPE eq 'application/x-www-form-urlencoded') {
-                my $content; # = read($*IN, $!CONTENT_LENGTH);
+        elsif (lc($!request_method) eq 'post') { 
+            if (!$!content_type || $!content_type eq 'application/x-www-form-urlencoded') {
+                my $content; # = read($*IN, $!content_length);
                 self.unpack_params($content) if $content;
             }
         }
@@ -237,7 +229,7 @@ method load_params {
             self.unpack_params($input);
         }
         else {
-            die "Invalid Content Type" if $!REQUEST_METHOD; # only die if we are running under CGI
+            die "Invalid Content Type" if $!request_method; # only die if we are running under CGI
         }
     };
     if ($!) {
@@ -251,9 +243,9 @@ method escapeHTML (Str $string is copy, Bool :$newlines) returns Str {
     # XXX check for $self.escape == 0
     #unless ($self.escape != 0) { return $toencode; }
     
-    $string ~~ s:g/&/&amp;/;
-    $string ~~ s:g/</&lt;/;
-    $string ~~ s:g/>/&gt;/;
+    $string ~~ s:g/\&/&amp;/;
+    $string ~~ s:g/\</&lt;/;
+    $string ~~ s:g/\>/&gt;/;
     
     # XXX check for HTML 3.2
     #if ($self.DTD_PUBLIC_IDENTIFIER ~~ rx:i/<-[X]>HTML 3\.2/) {
@@ -263,7 +255,7 @@ method escapeHTML (Str $string is copy, Bool :$newlines) returns Str {
         
         #$string ~~ s:g/"/&#34;/;
     #} else {
-        $string ~~ s:g/"/&quot;/;
+        $string ~~ s:g/\"/&quot;/;
     #}
     
     my $latin;
@@ -273,7 +265,7 @@ method escapeHTML (Str $string is copy, Bool :$newlines) returns Str {
     $latin = 1;
     
     if ($latin) {
-        $string ~~ s:g/'/&#39;/;
+        $string ~~ s:g/\'/&#39;/;
         $string ~~ s:g/\x8b/&#8249;/;
         $string ~~ s:g/\x9b/&#8250;/;
         
@@ -290,25 +282,24 @@ method unescapeHTML (Str $string is copy) returns Str {
 
     my $latin = ?(uc $!CHARSET ~~ "ISO-8859-1"|"WINDOWS-1252");
 
-    $string ~~ s:g/&(<-[ ; ]>*);/{
-        given (lc $0) {
+    $string ~~ s:g[(<-[ ; ]>*)\;] =
+        do given lc($0) {
             when "amp"  { "&" }
             when "quot" { '"' }
             when "gt"   { ">" }
             when "lt"   { "<" }
-            when m{^#(<digit>+)$}         && $latin { chr($1) }
-            when m:i{^#x(<[0..9a..f]>+)$} && $latin { chr(hex($1)) }
+            when m{^\#(<digit>+)$}     && $latin { chr($1) }
+            when m:i{^\#x(<xdigit>+)$} && $latin { chr(hex($1)) }
             default { $0  }
-        }
-    }/;
-    
+        };
+
     return $string;
 }
 
 # information functions (again)
 
-multi method param returns Array            { unless $!IS_PARAMS_LOADED {self.load_params}; %!PARAMS.keys.sort;  }
-multi method param (Str $key) returns Array { unless $!IS_PARAMS_LOADED {self.load_params}; %!PARAMS{$key}; }
+multi method param            { unless $!IS_PARAMS_LOADED {self.load_params}; %!params.keys.sort;  }
+multi method param (Str $key) { unless $!IS_PARAMS_LOADED {self.load_params}; %!params{$key}; }
 
 method Dump {
     return '<ul></ul>' unless self.param;
@@ -332,9 +323,7 @@ method Dump {
     }
 }
 
-method as_yaml { %!PARAMS.yaml }
-
-=pod
+=begin pod
 
 =head1 NAME
 
@@ -489,5 +478,5 @@ it under the same terms as Perl itself.
 
 See http://www.perl.com/perl/misc/Artistic.html
 
-=cut
+=end pod
 # vim: ft=perl6
