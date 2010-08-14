@@ -348,7 +348,7 @@ twigil.
 Since both builtin functions and operators are multi subs and methods,
 changing their behaviour for particular types is a simple as adding the
 appropriate multi subs and methods. If you want these to be globally
-available, you have to but them into the C<GLOBAL> namespace:
+available, you have to put them into the C<GLOBAL> namespace:
 
     multi sub GLOBAL::uc(TurkishStr $str) { ... }
 
@@ -370,7 +370,7 @@ with the same name as the type you want to cast to.
 =head2 Offering Hash and List semantics
 
 If you want to write a class whose objects can be assigned to a variable with
-the C<@> sigil, you have to implement the C<Positional> roles. Likewise for
+the C<@> sigil, you have to implement the C<Positional> roles. Likewise, for
 the C<%> sigil you need to do the C<Associative> role. The C<&> sigil implies
 C<Callable>.
 
