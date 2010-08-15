@@ -8,11 +8,12 @@ class Mildew::Backend::Gtk with Mildew::Backend {
         local $Mildew::no_setr = 1;
         require Gtk2;
         Gtk2->init;
-        use lib '/home/pawel/Forest-Gtk2/lib';
-        require Forest::Gtk2;
-        my $tree_view = Forest::Gtk2::tree_to_tree_view(Mildew::SSA::to_ssa($ast->simplified,{
+        require Forest::Tree::Viewer::Gtk2;
+        my $tree = Mildew::SSA::to_ssa($ast->simplified,{
             '$scope' => Mildew::Type::Scope->new(outer=> $Mildew::LexicalPreludeType)
-        })->forest); 
+        })->forest;
+        my $tree_view = Forest::Tree::Viewer::Gtk2->new(tree=>$tree)->view;
+
         my $window = Gtk2::Window->new('toplevel');
         $window->add($tree_view);
         $window->show_all;
