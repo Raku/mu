@@ -13,6 +13,10 @@ Pm-23:  Should TOP (or any other grammar regex) be considered
 
          grammar B { regex TOP { b } };
          say B.parse('bcd');                # failed match?
+
+Pm-24:  Is               token { <abc>* }  
+        the same as      regex { [ <abc>* ]: } 
+        or               regex { [ <abc>: ]*: }  ?
     
 ===========================================================
 
