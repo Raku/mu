@@ -7,7 +7,13 @@ Unanswered questions:
 Pm-20:  What's the result of something like...?
             my $x = [<a b c d>];  'a b c d' ~~ / $x /;
 
+Pm-23:  Should TOP (or any other grammar regex) be considered
+    to have implied $-anchors when invoked from .parse?
+    (See RT #77022.) Example:
 
+         grammar B { regex TOP { b } };
+         say B.parse('bcd');                # failed match?
+    
 ===========================================================
 
 Answered questions:
