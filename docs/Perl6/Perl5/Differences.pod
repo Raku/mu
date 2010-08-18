@@ -456,14 +456,12 @@ This is a version of C<print> that auto-appends a newline:
 Since you want to do that so often anyway, it seemed like a handy thing
 to make part of the language.
 
-=head2 wantarray()
+=head2 wantarray() is gone
 
-C<wantarray> is superseded by C<want.list>. Also available are C<want.item>
-and C<want.count>, the latter gives the number of expected values, if
-applicable.
+C<wantarray> is gone. In Perl 6, context flows outwards, which means that a
+routine does not know which context it is in.
 
-In general you are encouraged to return objects that do the right thing in
-each possible context instead of asking for your context explicitly.
+Instead you should return objects that do the right thing in every context.
 
 =head1 Unfiled
 
