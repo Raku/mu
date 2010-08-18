@@ -38,7 +38,7 @@ my $ua = LWP::UserAgent->new;
 #my $ua = LWP::UserAgent::Cached->new;  # Debug purpose
 $ua->env_proxy;
 
-my $base_url = "http://colabti.de/irclogger/irclogger_logs";
+my $base_url = "http://colabti.org/irclogger/irclogger_logs";
 warn "  info: getting $base_url/$channel...\n";
 my $res = $ua->get("$base_url/$channel");
 #warn "Got!";
