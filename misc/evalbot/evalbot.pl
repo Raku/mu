@@ -56,6 +56,7 @@ package Evalbot;
                 chdir       => '../../../partcl-nqp',
                 cmd_line    => 'cat %i | ./partcl %program >> %out 2>&1',
                 filter      => \&filter_pct,
+                revision    => sub { get_revision_from_file('/home/p6eval/partcl-nqp/.revision', 6)},
             },
             perlesque => {
                 chdir       => '../../../perlesque/trunk/Sprixel/bin/Release',
@@ -294,8 +295,12 @@ set_hll_global [\'IO\'], \'Socket\', $P0
 
     sub get_revision_from_file {
         my $file = shift;
+        my $len  = shift;
         my $res = `cat $file`;
         chomp $res;
+        if (defined($len)) {
+            return substr($res, 0, $len);
+        }
         return $res;
     }
 
