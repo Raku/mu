@@ -10,6 +10,7 @@ data Expr =
     Call Expr Capture |
     Branch Expr Lbl Lbl |
     Goto  Lbl |
+    Label Lbl |
     Assign Expr Expr
     deriving (Show,Read)
 
