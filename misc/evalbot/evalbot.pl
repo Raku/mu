@@ -52,7 +52,7 @@ package Evalbot;
     my $postfix = ':';
 
     our %impls = (
-            'partcl-nqp' => {
+            'partcl' => {
                 chdir       => '../../../partcl-nqp',
                 cmd_line    => 'cat %i | ./partcl %program >> %out 2>&1',
                 filter      => \&filter_pct,
