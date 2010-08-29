@@ -80,11 +80,12 @@ sub gather_files {
     }
 
     # adhoc stuff
-    $self->renamed_file('viv','lib/viv',\&STD_prefix);
+    $self->renamed_file('viv','bin/viv',\&STD_prefix);
+    $self->renamed_file("syml/$_.syml","data/syml/$_.syml") for
+        (qw(STD DEBUG NAME Cursor CursorBase Stash CORE));
     $self->renamed_file('uniprops','data/uniprops');
     $self->renamed_file('mangle.pl','lib/mangle.pl');
     $self->renamed_file('inc/MyBuilder.pm','inc/MyBuilder.pm');
-
 }
 
 __PACKAGE__->meta->make_immutable;
