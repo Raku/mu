@@ -32,6 +32,7 @@ sub renamed_file {
 sub STD_prefix {
     my $content = shift;
     $content =~ s/(Cursor|LazyMap|Actions|LazyConst|LazyRange|LazyRangeRev)\b/STD::$1/g;
+    $content =~ s/\^Lazy/STD::Lazy/g;
     $content;
 }
 
