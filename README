@@ -8,7 +8,7 @@ repositories:
 
     pugs            http://github.com/audreyt/Pugs.hs
     spectests       http://github.com/perl6/spectests
-    docs & specs    http://github.com/perl6/docs
+    specs           http://github.com/perl6/specs
 
 
 If you have any questions, don't hesitate to to ask on the
