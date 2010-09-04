@@ -9,15 +9,13 @@ repositories:
     pugs            http://github.com/audreyt/Pugs.hs
     spectests       http://github.com/perl6/spectests
     specs           http://github.com/perl6/specs
+    perl6.org       http://github.com/perl6/perl6.org
 
 
 If you have any questions, don't hesitate to to ask on the
 irc://irc.freenode.org/#perl6 IRC channel, or send an email to either
 perl6-users@perl.org or perl6-compilers.org. Do the same to obtain a commit
 bit for this repository.
-
-Once you have commit access, you can also invite others via the web interface
-at <http://commitbit.pugscode.org/admin/project/Pugs/people>.
 
 Many outdated things have been removed from this repository. If you still want
 to see them, check out revision r30211, which was shortly before the big
