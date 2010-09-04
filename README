@@ -1,10 +1,15 @@
 This used to be the pugs repository, but is nowadays a generic repository
-for hosting anything related to Perl 6. In particular, it contains the synopsis
-(specification), test suite, standard grammar, some implementations like SMOP,
+for hosting anything related to Perl 6. In particular, it contains the
+standard grammar, some implementations like SMOP,
 mildew, v6 and elf, various Perl 6 examples, documentation efforts and examples.
 
-The sources for the Pugs Perl 6 compiler can be found at
-<http://github.com/audreyt/Pugs.hs>.
+Other parts of the former pugs repository have been moved to other
+repositories:
+
+    pugs            http://github.com/audreyt/Pugs.hs
+    spectests       http://github.com/perl6/spectests
+    docs & specs    http://github.com/perl6/docs
+
 
 If you have any questions, don't hesitate to to ask on the
 irc://irc.freenode.org/#perl6 IRC channel, or send an email to either
