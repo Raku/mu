@@ -1,5 +1,0 @@
-# would be a one liner, but platform quoting screws this up
-while (defined ($_ = <>)) {
-    (/^---/../^RETREE_END/) || s/^ *//;
-    print;
-}

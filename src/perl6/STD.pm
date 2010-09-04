@@ -1,3 +1,0 @@
-#This file was renamed to STD.pm6 recently, but not all the links in the world have caught up.
-#Apparently yours is one of those...
-die "Did you run make in src/perl6?";
