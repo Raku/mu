@@ -29,11 +29,11 @@ if ( ! $OPT{from} ) {
 
 chdir $OPT{dir} or die "Can't chdir to (-d) '$OPT{dir}': $!";
 
-if ( 0 != system qq( git svn rebase --quiet 2> /dev/null > /dev/null ) ) {
+if ( 0 != system qq( git pull --quiet ) ) {
     die "Can't update";
 }
 
-my $prev = 'ec0d6d9b012dd3b082394e57669507313d039baf';
+my $prev = 'fdd053c8b9eeaf133580c6ed461e50efc6c2565a';
 if (-e 'previous_mail_hash') {
     $prev = `cat previous_mail_hash`;
     chomp $prev;
@@ -86,7 +86,7 @@ while (<$h>) {
     $mail->send('smtp', $OPT{smtp});
     sleep 1;
 }
- 
+
 sub filelist_for_hash {
     my $hash = shift;
     my @res = qx/git show $hash/;
@@ -109,14 +109,15 @@ test-reporter.pl -f '<emailaddr>' -d <dir>
  Options:
    -h, --help              brief help message
        --man               full documentation
-   -d, --dir               where to find a git-svn checkout of pugs
+   -d, --dir               where to find a git checkout of roast
    -f, --from              email address for the from line
        --smtp              SMTP server to use to send mail
 
 =head1 DESCRIPTION
 
 This is meant to be run as a cron job.  It assumes there's a checkout of
-the Pugs repository using git-svn.  Specify the location of this repo
+the roast repository (http://github.com/perl6/roast).
+Specify the location of this repo
 with the B<-d> option.  It will go there, update the repo, and look through
 recent commits for commit messages of a form that indicates a test was
 written for a bug report.  If it finds a commit like that, it will generate
@@ -147,8 +148,8 @@ Print the full documentation and exit.
 
 =item B<-d>
 
-This specifies the directory in which to find a checkout of the Pugs
-repository using git-svn.
+This specifies the directory in which to find a checkout of the roast
+repository (http://github.com/perl6/roast).
 
 =item B<--from>
 
