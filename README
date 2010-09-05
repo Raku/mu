@@ -11,6 +11,7 @@ repositories:
     specs           http://github.com/perl6/specs
     perl6.org       http://github.com/perl6/perl6.org
     src/perl6       http://github.com/perl6/std
+    perl5/          http://github.com/perl6/p5-modules
 
 
 If you have any questions, don't hesitate to to ask on the
