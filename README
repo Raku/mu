@@ -7,7 +7,7 @@ Other parts of the former pugs repository have been moved to other
 repositories:
 
     pugs            http://github.com/audreyt/Pugs.hs
-    spectests       http://github.com/perl6/spectests
+    spectests       http://github.com/perl6/roast
     specs           http://github.com/perl6/specs
     perl6.org       http://github.com/perl6/perl6.org
     src/perl6       http://github.com/perl6/std
