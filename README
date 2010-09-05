@@ -19,8 +19,7 @@ perl6-users@perl.org or perl6-compilers.org. Do the same to obtain a commit
 bit for this repository.
 
 Many outdated things have been removed from this repository. If you still want
-to see them, check out revision r30211, which was shortly before the big
-cleaning.
+to see them, check out revision r30211 (git sha1 6f0203060f), which was shortly before the big cleaning.
 
 Policy
 ======
