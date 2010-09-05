@@ -1,7 +1,0 @@
-use Test::More tests => 1;
-
-BEGIN {
-use_ok( 'Regexp::Parser::ConvertToSix' );
-}
-
-diag( "Testing Regexp::Parser::ConvertToSix $Regexp::Parser::ConvertToSix::VERSION" );

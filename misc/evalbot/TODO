@@ -1,8 +1,0 @@
-TODO for evalbot - please don't hesitate to implement these things (and
-other that you might think of)
-These tasks can be implemented in any order
-
- * fix utf8 issues with pugs: pugs complains about bad data when non-ascci
-   chars are involved:
-    18:30 < moritz> #pugs "ä"
-    18:30 < exp_evalbot_test> OUTPUT[decodeUTF8': bad data: '\228'␤]
