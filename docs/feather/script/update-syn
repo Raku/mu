@@ -18,6 +18,7 @@ for i in $MU_DIR $TEST_DIR $POD_DIR
 do 
     cd $i
     git pull
+    git log --pretty=%h -1 > .revision
 done
 
 cd $MU_DIR
