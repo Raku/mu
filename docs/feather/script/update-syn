@@ -10,13 +10,19 @@ ulimit -t $(( 10 * 60 ))
 
 ROOT_DIR=/home/pugscode
 DEST_DIR=$ROOT_DIR/syn
-SVN_DIR=$ROOT_DIR/svn-pugs
-POD_DIR="$SVN_DIR/docs/Perl6/Spec"
+MU_DIR=$ROOT_DIR/mu
+TEST_DIR=$ROOT_DIR/roast
+POD_DIR="$ROOT_DIR/specs"
 
-cd $SVN_DIR
-svn up
+for i in $MU_DIR $TEST_DIR $POD_DIR
+do 
+    cd $i
+    git pull
+done
 
-perl util/smartlinks.pl --out-dir $DEST_DIR --dir $ROOT_DIR/svn-pugs/t --css /syn/perl.css --line-anchor --pod-dir $POD_DIR
+cd $MU_DIR
+
+perl util/smartlinks.pl --out-dir $DEST_DIR --dir $TEST_DIR --css /syn/perl.css --line-anchor --pod-dir $POD_DIR
 
 # Copy the icons for smartlinks highlighting
 cp -ufp docs/feather/hilite-*.png $DEST_DIR/

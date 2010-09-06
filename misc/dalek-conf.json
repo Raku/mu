@@ -1,17 +1,17 @@
 [
-    { 
+    {
         "url" : "http://github.com/perl6/mu/",
         "channels": [
             ["freenode", "#perl6"]
         ]
     },
-    { 
+    {
         "url" : "http://github.com/perl6/specs/",
         "channels": [
             ["freenode", "#perl6"]
         ]
     },
-    { 
+    {
         "url" : "http://github.com/perl6/roast/",
         "channels": [
             ["freenode", "#perl6"]
