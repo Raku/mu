@@ -42,6 +42,13 @@
         ]
     },
     {
+        "url" : "http://github.com/perl6/nqp-rx/",
+        "channels": [
+            ["freenode", "#perl6"]
+        ],
+        "branches" : [ "nom" ]
+    },
+    {
         "url" : "https://github.com/Infinoid/dalek-plugins/"
     }
 ]
