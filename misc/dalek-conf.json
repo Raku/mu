@@ -49,6 +49,13 @@
         "branches" : [ "nom" ]
     },
     {
+        "url" : "http://github.com/sorear/niecza/",
+        "channels": [
+            ["freenode", "#perl6"]
+        ],
+        "branches" : [ "mm" ]
+    },
+    {
         "url" : "https://github.com/Infinoid/dalek-plugins/"
     }
 ]
