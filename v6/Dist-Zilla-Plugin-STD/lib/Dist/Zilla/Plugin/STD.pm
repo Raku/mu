@@ -6,7 +6,6 @@ use Moose::Autobox;
 use Dist::Zilla::File::OnDisk;
 with(
     'Dist::Zilla::Role::FileGatherer',
-    'Dist::Zilla::Role::VersionProvider'
 );
 
 sub renamed_file {
@@ -34,19 +33,6 @@ sub STD_prefix {
     $content =~ s/(Cursor|LazyMap|Actions|LazyConst|LazyRange|LazyRangeRev)\b/STD::$1/g;
     $content =~ s/\^Lazy/STD::Lazy/g;
     $content;
-}
-
-sub provide_version {
-    my ($self) = @_;
-
-    my $info = qx/svn info/;
-
-    if ($info =~ /^Revision: (\d+)$/m) {
-        $self->log("Got revision $1 from SVN");
-        return $1;
-    } else {
-        $self->log_fatal("Unable to extract SVN revision for version number");
-    }
 }
 
 sub gather_files {
