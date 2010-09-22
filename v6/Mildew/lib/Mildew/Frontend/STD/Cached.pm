@@ -12,8 +12,7 @@ class Mildew::Frontend::STD::Cached {
         if (my $parse = $self->cache->get($checksum)) {
             use Data::Dumper::Concise;
             {
-                local $INC{"STD.pm"} = "do-not-load";
-                do 'viv';
+                require STD::Actions;
             }
             warn "using cached ast";
 

@@ -8,6 +8,13 @@ use MooseX::Declare;
     VAST->subclasses;
 }
 class VAST::Base {
+    method Str {
+        my $b = $self->{BEG};
+        my $e = $self->{END};
+        return '' if $b > length($::ORIG);
+        substr($::ORIG, $b, $e - $b);
+    }
+
     method emit_m0ld {
         use Mildew::AST::Helpers;
         if ($self->{infix}) {

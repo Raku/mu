@@ -4,8 +4,72 @@ use MooseX::Declare;
     # STD needs to be important from the main package
     package main;
     use STD;
+    use STD::Actions;
 }
-BEGIN {package main;require 'viv'};
+{
+    package
+        CursorBase;
+    no warnings 'redefine';
+    BEGIN { *sys_real_load_modinfo = *sys_load_modinfo; }
+    sub sys_load_modinfo {
+        if ($_[1] eq 'adhoc-signatures') { return undef; }
+        goto &sys_real_load_modinfo;
+    }
+
+    # Possibly worth folding back
+    sub STD::Actions::gen_class {
+        my $class = shift;
+        my $base = shift;
+        #say $class;
+        no strict 'refs';
+        if ($STD::Actions::GENCLASS{$class}) {
+            return;
+        }
+        if (@{$class . '::ISA'} && join('|', @{$class . '::ISA'}) ne 'Moose::Object' ) {
+            $STD::Actions::GENCLASS{$class} = 1;
+            return;
+        }
+        if (!$base && $class =~ /(.*)__S_/) {
+            $base = $1;
+            STD::Actions::gen_class($base);
+        } elsif ($base) {
+            STD::Actions::gen_class($base);
+        } else {
+            $base = 'VAST::Base';
+        }
+        #say "using $base";
+        $STD::Actions::GENCLASS{$class} = $base;
+        @{$class . '::ISA'} = $base;
+    }
+
+    { package VAST::Additive; }
+    { package VAST::Autoincrement; }
+    { package VAST::Base; }
+    { package VAST::Chaining; }
+    { package VAST::Comma; }
+    { package VAST::Concatenation; }
+    { package VAST::Conditional; }
+    { package VAST::Exponentiation; }
+    { package VAST::Item_assignment; }
+    { package VAST::Junctive_and; }
+    { package VAST::Junctive_or; }
+    { package VAST::List_assignment; }
+    { package VAST::List_infix; }
+    { package VAST::List_prefix; }
+    { package VAST::Loose_and; }
+    { package VAST::Loose_or; }
+    { package VAST::Loose_unary; }
+    { package VAST::Methodcall; }
+    { package VAST::Multiplicative; }
+    { package VAST::Named_unary; }
+    { package VAST::Replication; }
+    { package VAST::Sequencer; }
+    { package VAST::Structural_infix; }
+    { package VAST::Symbolic_unary; }
+    { package VAST::Term; }
+    { package VAST::Tight_and; }
+    { package VAST::Tight_or; }
+}
 class Mildew::Frontend::STD {
     use Getopt::Long qw(GetOptionsFromArray);
     use Digest::MD4 qw(md4_hex);

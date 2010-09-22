@@ -241,7 +241,7 @@ my role ReadonlyWrapper {
     method FETCH() {
         (|$!value);
     }
-    method STORE($value) {
+    method STORE($value) { #OK not used
         ::Exception.new.throw;
     }
 }
@@ -402,7 +402,7 @@ my role ReadonlyParam {
 my role NamedReadonlyParam {
     NamedReadonlyParam.^compose_role(::Param);
     has $.name;
-    method BIND($scope,$capture,$i) {
+    method BIND($scope,$capture,$i) { #OK not used
         my $arg = $capture.named(self.name.FETCH);
         my $wrapper = ReadonlyWrapper.new;
         $wrapper.value = $arg;
@@ -410,7 +410,7 @@ my role NamedReadonlyParam {
         $wrapper.FETCH;
         $scope{self.variable.FETCH} := (|$wrapper);
     }
-    method ACCEPTS_param($capture,$i is ref,$named is ref) {
+    method ACCEPTS_param($capture,$i is ref,$named is ref) { #OK not used
         if $capture.named($.name.FETCH) {
             $named = &infix:<+>:(int,int)($named.FETCH,1);
         }
@@ -424,7 +424,7 @@ my role WholeCaptureParam {
         $i = $capture.elems;
         $named = $capture.named_count;
     }
-    method BIND($scope,$capture,$i) {
+    method BIND($scope,$capture,$i) { #OK not used
         $scope{self.variable.FETCH} = $capture;
     }
 }
@@ -524,7 +524,6 @@ my role Multi {
                 return
             }
             if $outer.exists((|$name)) {
-                my $i = 0;
                 my $multi = $outer.lookup((|$name));
                 map(sub ($candidate) {self.candidates.push((|$candidate))},$multi.candidates);
                 return;
@@ -558,7 +557,7 @@ my role Failure {
         $.exception.throw;
     }
     # UNKNOWN_METHOD is a spec def
-    method UNKNOWN_METHOD($identifier) {
+    method UNKNOWN_METHOD($identifier) { #OK not used
         $.exception.throw;
     }
 }

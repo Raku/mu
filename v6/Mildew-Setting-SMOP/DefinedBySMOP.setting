@@ -15,20 +15,20 @@ my $OUT; #HACK as we don't support $*OUT yet
 my $LexicalPrelude; #HACK
 
 my module PRIMITIVES {
-  sub int_add { }
-  sub int_equal { }
-  sub int_less { }
-  sub int_substract { }
-  sub idconst_concat { }
-  sub idconst_eq { }
-  sub get_interpreter { }
-  sub storage_name { }
-  sub ritest { }
-  sub pointer_equal { }
-  sub SMOP_RI { }
-  sub dump_print($obj,$template) {}
+  our sub int_add { }
+  our sub int_equal { }
+  our sub int_less { }
+  our sub int_substract { }
+  our sub idconst_concat { }
+  our sub idconst_eq { }
+  our sub get_interpreter { }
+  our sub storage_name { }
+  our sub ritest { }
+  our sub pointer_equal { }
+  our sub SMOP_RI { }
+  our sub dump_print($obj,$template) {} #OK not used
 }
 my module EXTERNAL {
-  sub eval_perl5($code) {}
+  sub eval_perl5($code) {} #OK not used
 }
 {YOU_ARE_HERE};
