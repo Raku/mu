@@ -62,6 +62,12 @@
         "branches" : [ "mm" ]
     },
     {
+        "url" : "http://github.com/diakopter/sprixel/",
+        "channels": [
+            ["freenode", "#perl6"]
+        ]
+    },
+    {
         "url" : "https://github.com/Infinoid/dalek-plugins/"
     }
 ]
