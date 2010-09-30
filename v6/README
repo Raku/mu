@@ -11,11 +11,4 @@ There are currently 3 active subprojects:
 
 - smop is a C implementation of the Perl 6 runtime.
 
-- ironperl is a C# implementation of a Perl 6 runtime, on the tycho VM
-    <http://code.google.com/p/tycho/> (which is in turn on the Mono VM,
-    Novell's edition of the CLI, the Common Language Infrastructure). 
-    Mono's gmcs compiles the C# to CIL
-    (Common Intermediate Language), and the mono command (JITS and)
-    executes the CIL on the (stack-based) mono VM.
-
 Inactive projects are under misc/
