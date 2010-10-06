@@ -1,0 +1,24 @@
+This is a collection of ideas for Perl 6 projects that might be useful,
+possible to implement and worthwhile, but don't exist yet.
+
+Feel free to start implementing any of these projects (and delete them from
+this file if you have something substantial running)
+
+---------------------------------------------
+
+Perl6::Critic
+
+Inspired by Perl 5's Perl::Critic, such a module could check a module or
+script against common coding guidelines
+
+---------------------------------------------
+
+Perl6Tidy
+
+Like perltidy, Perl6Tidy would parse a Perl 6 source file, and re-emit it with
+identical semantics, but formatted according to a set of rules (like only one
+statement perl line, line length limit, proper indention, vertically aligned
+assignment or binding operators etc.)
+
+
+# vim: set spell fenc=utf8:
