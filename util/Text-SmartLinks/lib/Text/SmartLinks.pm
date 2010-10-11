@@ -652,6 +652,7 @@ sub gen_code_snippet {
     my $nlines = $to - $from + 1;
     my $html_file = $file;
     $html_file =~ s{.*(t/spec/|roast/)}{};
+    my $simple_snippet_id = "simple_$snippet_id";
 
     my $html = <<"_EOC_";
 <div class="smartlink">
