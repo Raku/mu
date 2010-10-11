@@ -656,15 +656,10 @@ sub gen_code_snippet {
 
     my $html = <<"_EOC_";
 <div class="smartlink">
-  <p class="smartlink-file">From <code>$html_file</code> lines <code>$from&ndash;$to</code>$stat:<span id="smartlink_skip_${snippet_id}"> <a href="#smartlink_skipto_${snippet_id}">(skip)</a></span>
+  <p class="smartlink-file"><a href="http://github.com/perl6/roast/blob/master/$html_file#L$from-L$to"><code>$html_file</code> lines <code>$from&ndash;$to</code>$stat</a>
   </p>
-
-<div id="smartlink_${snippet_id}" class="smartlink_snippet" style="display:none">
-$snippet
 </div>
-<span id="smartlink_skipto_${snippet_id}">&nbsp;</span>
-<iframe id="$simple_snippet_id" style="display:none;" width="100%"></iframe>
-</div>
+  
 _EOC_
     $self->set_snippet($snippet_id, $html);
 
