@@ -651,7 +651,7 @@ sub gen_code_snippet {
 
     my $nlines = $to - $from + 1;
     my $html_file = $file;
-    $html_file =~ s{t/}{};
+    $html_file =~ s{.*(t/spec/|roast/)}{};
     my $simple_html = $html_file . ".simple.html";
     my $full_html = $html_file . ".html";
     my $simple_snippet_id = "simple_$snippet_id";
@@ -659,9 +659,7 @@ sub gen_code_snippet {
     my $html = <<"_EOC_";
 <div class="smartlink">
   <p class="smartlink-file">From <code>$file</code> lines <code>$from&ndash;$to</code>$stat:<span id="smartlink_skip_${snippet_id}"> <a href="#smartlink_skipto_${snippet_id}">(skip)</a></span>
-  - <a href="#" 
-onclick="return toggle_hilite('$simple_snippet_id','/~azawawi/html/$simple_html')"><img src="hilite-small.png" border="0" width="16" height="16"></a> <a href="/~azawawi/html/$full_html" target="_blank"><img src="hilite-full.png" border="0" width="22" height="22"></a>
-</p>
+  </p>
 
 <div id="smartlink_${snippet_id}" class="smartlink_snippet" style="display:none">
 $snippet
