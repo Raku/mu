@@ -652,13 +652,10 @@ sub gen_code_snippet {
     my $nlines = $to - $from + 1;
     my $html_file = $file;
     $html_file =~ s{.*(t/spec/|roast/)}{};
-    my $simple_html = $html_file . ".simple.html";
-    my $full_html = $html_file . ".html";
-    my $simple_snippet_id = "simple_$snippet_id";
 
     my $html = <<"_EOC_";
 <div class="smartlink">
-  <p class="smartlink-file">From <code>$file</code> lines <code>$from&ndash;$to</code>$stat:<span id="smartlink_skip_${snippet_id}"> <a href="#smartlink_skipto_${snippet_id}">(skip)</a></span>
+  <p class="smartlink-file">From <code>$html_file</code> lines <code>$from&ndash;$to</code>$stat:<span id="smartlink_skip_${snippet_id}"> <a href="#smartlink_skipto_${snippet_id}">(skip)</a></span>
   </p>
 
 <div id="smartlink_${snippet_id}" class="smartlink_snippet" style="display:none">
