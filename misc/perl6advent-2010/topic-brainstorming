@@ -1,0 +1,18 @@
+ Tadzik's ideas:
+ – compiler hacking
+ – traits (sub foo is something(blah blah) {})
+ – reference of types and its methods (something about gradual typing as well, or in another post?)
+ – module system
+ – about the Perl 6 Itself: specification, not an implementation, this is Rakudo, this is Niecza, this is Parrot
+
+Moritz's ideas:
+ – MAIN and USAGE subs (moritz)
+ – series operator
+ – explaining one or more Perl 6 solutions on rosettacode
+ – lexical subs and importing/exporting (moritz)
+ – is everything a reference?
+ – Z and X meta operators (moritz)
+ – basic parsing: what is a term, what is an operator? why is the distinction important? (moritz)
+ – MOP (moritz)
+ – The Perl 6 community
+ – infrastructure (what editors/IDEs are good for Perl 6 hacking/have syntax hilighting, tools used for hacking and presentations etc.)
