@@ -1,68 +1,68 @@
 [
     {
-        "url" : "http://github.com/perl6/mu/",
+        "url" : "https://github.com/perl6/mu/",
         "channels": [
             ["freenode", "#perl6"]
         ]
     },
     {
-        "url" : "http://github.com/perl6/specs/",
+        "url" : "https://github.com/perl6/specs/",
         "channels": [
             ["freenode", "#perl6"]
         ]
     },
     {
-        "url" : "http://github.com/perl6/perl6.org/",
+        "url" : "https://github.com/perl6/perl6.org/",
         "channels": [
             ["freenode", "#perl6"]
         ]
     },
     {
-        "url" : "http://github.com/perl6/modules.perl6.org/",
+        "url" : "https://github.com/perl6/modules.perl6.org/",
         "channels": [
             ["freenode", "#perl6"]
         ]
     },
     {
-        "url" : "http://github.com/perl6/evalbot/",
+        "url" : "https://github.com/perl6/evalbot/",
         "channels": [
             ["freenode", "#perl6"]
         ]
     },
     {
-        "url" : "http://github.com/perl6/ecosystem/",
+        "url" : "https://github.com/perl6/ecosystem/",
         "channels": [
             ["freenode", "#perl6"]
         ]
     },
     {
-        "url" : "http://github.com/perl6/roast/",
+        "url" : "https://github.com/perl6/roast/",
         "channels": [
             ["freenode", "#perl6"]
         ]
     },
     {
-        "url" : "http://github.com/rakudo/star/",
+        "url" : "https://github.com/rakudo/star/",
         "channels": [
             ["freenode", "#perl6"]
         ]
     },
     {
-        "url" : "http://github.com/perl6/nqp-rx/",
+        "url" : "https://github.com/perl6/nqp-rx/",
         "channels": [
             ["freenode", "#perl6"]
         ],
         "branches" : [ "nom" ]
     },
     {
-        "url" : "http://github.com/sorear/niecza/",
+        "url" : "https://github.com/sorear/niecza/",
         "channels": [
             ["freenode", "#perl6"]
         ],
         "branches" : [ "mm" ]
     },
     {
-        "url" : "http://github.com/diakopter/sprixel/",
+        "url" : "https://github.com/diakopter/sprixel/",
         "channels": [
             ["freenode", "#perl6"]
         ]
