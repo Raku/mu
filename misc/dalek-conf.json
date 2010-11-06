@@ -59,7 +59,7 @@
         "channels": [
             ["freenode", "#perl6"]
         ],
-        "branches" : [ ]
+        "branches" : []
     },
     {
         "url" : "https://github.com/diakopter/sprixel/",
