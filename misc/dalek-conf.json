@@ -549,6 +549,18 @@
             "#parrot"
          ]
       ],
+      "url": "https://github.com/parrot/parrot"
+   },
+   {
+      "branches": [
+         "master"
+      ],
+      "channels": [
+         [
+            "magnet",
+            "#parrot"
+         ]
+      ],
       "url": "https://github.com/parrot/pir"
    },
    {
