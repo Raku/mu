@@ -4,6 +4,7 @@
  – reference of types and its methods (something about gradual typing as well, or in another post?)
  – module system
  – about the Perl 6 Itself: specification, not an implementation, this is Rakudo, this is Niecza, this is Parrot
+ – The Perl 6 Way (we tend to use lazy lists quite often, in example)
 
 Moritz's ideas:
  – MAIN and USAGE subs (moritz)
@@ -16,3 +17,8 @@ Moritz's ideas:
  – MOP (moritz)
  – The Perl 6 community
  – infrastructure (what editors/IDEs are good for Perl 6 hacking/have syntax hilighting, tools used for hacking and presentations etc.)
+
+ p6-users@ ideas:
+ – sorear's fibers, laziness
+ – new way to do IO
+ – A natural language data/time parser could show off grammars.
