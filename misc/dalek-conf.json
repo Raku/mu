@@ -1,20 +1,8 @@
 [
    {
-      "channels": [
-         [
-            "magnet",
-            "#parrot"
-         ]
-      ],
       "url": "http://bschmalhofer.github.com/hq9plus/"
    },
    {
-      "channels": [
-         [
-            "magnet",
-            "#parrot"
-         ]
-      ],
       "url": "http://code.google.com/p/close"
    },
    {
@@ -27,12 +15,6 @@
       "url": "http://code.google.com/p/csmeta/"
    },
    {
-      "channels": [
-         [
-            "magnet",
-            "#parrot"
-         ]
-      ],
       "url": "http://code.google.com/p/decnum-dynpmcs/"
    },
    {
@@ -45,192 +27,66 @@
       "url": "http://code.google.com/p/java2perl6/"
    },
    {
-      "channels": [
-         [
-            "magnet",
-            "#parrot"
-         ]
-      ],
       "url": "http://code.google.com/p/paraplegic/"
    },
    {
-      "channels": [
-         [
-            "magnet",
-            "#parrot"
-         ]
-      ],
       "url": "http://code.google.com/p/parrot-jvm/"
    },
    {
-      "channels": [
-         [
-            "magnet",
-            "#parrot"
-         ]
-      ],
       "url": "http://code.google.com/p/parrot-mysql/"
    },
    {
-      "channels": [
-         [
-            "magnet",
-            "#parrot"
-         ]
-      ],
       "url": "http://code.google.com/p/porcupinepascal/"
    },
    {
-      "channels": [
-         [
-            "magnet",
-            "#parrot"
-         ]
-      ],
       "url": "http://code.google.com/p/winxed/"
    },
    {
-      "channels": [
-         [
-            "magnet",
-            "#parrot"
-         ]
-      ],
       "url": "http://gitorious.org/dbm-dynpmcs/"
    },
    {
-      "channels": [
-         [
-            "magnet",
-            "#parrot"
-         ]
-      ],
       "url": "http://gitorious.org/kakapo/"
    },
    {
-      "channels": [
-         [
-            "magnet",
-            "#parrot"
-         ]
-      ],
       "url": "http://gitorious.org/parrot-plumage/parrot-plumage"
    },
    {
-      "channels": [
-         [
-            "magnet",
-            "#parrot"
-         ]
-      ],
       "url": "http://wiki.github.com/TiMBuS/fun"
    },
    {
-      "channels": [
-         [
-            "magnet",
-            "#parrot"
-         ]
-      ],
       "url": "https://github.com/Infinoid/dalek-plugins/"
    },
    {
-      "channels": [
-         [
-            "magnet",
-            "#parrot"
-         ]
-      ],
       "url": "https://github.com/Whiteknight/matrixy"
    },
    {
-      "channels": [
-         [
-            "magnet",
-            "#parrot"
-         ]
-      ],
       "url": "https://github.com/Whiteknight/parrot-data-structures"
    },
    {
-      "channels": [
-         [
-            "magnet",
-            "#parrot"
-         ]
-      ],
       "url": "https://github.com/Whiteknight/parrot-linear-algebra"
    },
    {
-      "channels": [
-         [
-            "magnet",
-            "#parrot"
-         ]
-      ],
       "url": "https://github.com/bschmalhofer/eclectus/"
    },
    {
-      "channels": [
-         [
-            "magnet",
-            "#parrot"
-         ]
-      ],
       "url": "https://github.com/bschmalhofer/lazy-k/"
    },
    {
-      "channels": [
-         [
-            "magnet",
-            "#parrot"
-         ]
-      ],
       "url": "https://github.com/bschmalhofer/m4/"
    },
    {
-      "channels": [
-         [
-            "magnet",
-            "#parrot"
-         ]
-      ],
       "url": "https://github.com/bschmalhofer/unlambda/"
    },
    {
-      "channels": [
-         [
-            "magnet",
-            "#cardinal"
-         ]
-      ],
       "url": "https://github.com/cardinal/cardinal/"
    },
    {
-      "channels": [
-         [
-            "magnet",
-            "#parrot"
-         ]
-      ],
       "url": "https://github.com/cardinal/cardinal/"
    },
    {
-      "channels": [
-         [
-            "magnet",
-            "#parrot"
-         ]
-      ],
       "url": "https://github.com/chrisdolan/perk/"
    },
    {
-      "channels": [
-         [
-            "magnet",
-            "#parrot"
-         ]
-      ],
       "url": "https://github.com/cotto/github-trac"
    },
    {
@@ -243,84 +99,30 @@
       "url": "https://github.com/diakopter/sprixel/"
    },
    {
-      "channels": [
-         [
-            "magnet",
-            "#parrot"
-         ]
-      ],
       "url": "https://github.com/ekiru/squaak-tutorial"
    },
    {
-      "channels": [
-         [
-            "magnet",
-            "#parrot"
-         ]
-      ],
       "url": "https://github.com/ekiru/tree-optimization"
    },
    {
-      "channels": [
-         [
-            "magnet",
-            "#parrot"
-         ]
-      ],
       "url": "https://github.com/ekiru/tree-optimization"
    },
    {
-      "channels": [
-         [
-            "magnet",
-            "#parrot"
-         ]
-      ],
       "url": "https://github.com/fperrad/digest-dynpmcs/"
    },
    {
-      "channels": [
-         [
-            "magnet",
-            "#parrot"
-         ]
-      ],
       "url": "https://github.com/fperrad/lua"
    },
    {
-      "channels": [
-         [
-            "magnet",
-            "#parrot"
-         ]
-      ],
       "url": "https://github.com/fperrad/markdown/"
    },
    {
-      "channels": [
-         [
-            "magnet",
-            "#parrot"
-         ]
-      ],
       "url": "https://github.com/fperrad/parrot-MT19937"
    },
    {
-      "channels": [
-         [
-            "magnet",
-            "#parrot"
-         ]
-      ],
       "url": "https://github.com/fperrad/wmlscript/"
    },
    {
-      "channels": [
-         [
-            "magnet",
-            "#parrot"
-         ]
-      ],
       "url": "https://github.com/fperrad/xml/"
    },
    {
@@ -342,48 +144,18 @@
       "url": "https://github.com/jnthn/6model"
    },
    {
-      "channels": [
-         [
-            "magnet",
-            "#parrot"
-         ]
-      ],
       "url": "https://github.com/jnthn/blizkost/"
    },
    {
-      "channels": [
-         [
-            "magnet",
-            "#parrot"
-         ]
-      ],
       "url": "https://github.com/leto/kea"
    },
    {
-      "channels": [
-         [
-            "magnet",
-            "#parrot"
-         ]
-      ],
       "url": "https://github.com/leto/nqptap"
    },
    {
-      "channels": [
-         [
-            "magnet",
-            "#parrot"
-         ]
-      ],
       "url": "https://github.com/leto/plparrot"
    },
    {
-      "channels": [
-         [
-            "magnet",
-            "#parrot"
-         ]
-      ],
       "url": "https://github.com/leto/tapir"
    },
    {
@@ -396,48 +168,18 @@
       "url": "https://github.com/masak/yapsi"
    },
    {
-      "channels": [
-         [
-            "magnet",
-            "#parrot"
-         ]
-      ],
       "url": "https://github.com/parrot/ecmascript"
    },
    {
-      "channels": [
-         [
-            "magnet",
-            "#parrot"
-         ]
-      ],
       "url": "https://github.com/parrot/parrot"
    },
    {
-      "channels": [
-         [
-            "magnet",
-            "#parrot"
-         ]
-      ],
       "url": "https://github.com/parrot/pir"
    },
    {
-      "channels": [
-         [
-            "magnet",
-            "#parrot"
-         ]
-      ],
       "url": "https://github.com/partcl/partcl"
    },
    {
-      "channels": [
-         [
-            "magnet",
-            "#parrot"
-         ]
-      ],
       "url": "https://github.com/partcl/partcl-nqp"
    },
    {
@@ -540,12 +282,6 @@
       "url": "https://github.com/perl6/mu/"
    },
    {
-      "channels": [
-         [
-            "magnet",
-            "#parrot"
-         ]
-      ],
       "url": "https://github.com/perl6/nqp-rx"
    },
    {
@@ -558,12 +294,6 @@
       "url": "https://github.com/perl6/nqp-rx"
    },
    {
-      "channels": [
-         [
-            "magnet",
-            "#parrot"
-         ]
-      ],
       "url": "https://github.com/perl6/nqp-rx"
    },
    {
@@ -606,12 +336,6 @@
       "url": "https://github.com/perl6/roast"
    },
    {
-      "channels": [
-         [
-            "magnet",
-            "#parrot"
-         ]
-      ],
       "url": "https://github.com/perl6/roast"
    },
    {
@@ -653,29 +377,15 @@
    {
       "channels": [
          [
-            "freenode",
-            "#perl6"
-         ]
-      ],
-      "url": "https://github.com/rakudo/rakudo"
-   },
-   {
-      "channels": [
-         [
             "magnet",
-            "#parrot"
-         ]
-      ],
-      "url": "https://github.com/rakudo/rakudo"
-   },
-   {
-      "channels": [
+            "parrot"
+         ],
          [
             "freenode",
             "#perl6"
          ]
       ],
-      "url": "https://github.com/rakudo/rakudo/tree/buf"
+      "url": "https://github.com/rakudo/rakudo"
    },
    {
       "channels": [
@@ -706,21 +416,9 @@
       "url": "https://github.com/sorear/niecza/"
    },
    {
-      "channels": [
-         [
-            "magnet",
-            "#parrot"
-         ]
-      ],
       "url": "https://github.com/stefano/primitivearc/"
    },
    {
-      "channels": [
-         [
-            "magnet",
-            "#parrot"
-         ]
-      ],
       "url": "https://github.com/tene/gil/"
    },
    {
