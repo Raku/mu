@@ -22,3 +22,10 @@ Moritz's ideas:
  – sorear's fibers, laziness
  – new way to do IO
  – A natural language data/time parser could show off grammars.
+
+sorear's ideas:
+ – Beautiful secrets of the regex engine
+ – What is flattening-ness?
+ – gather and coroutines are equal in power
+ – Binding and ties
+ – Cool new feature: Builtin functions
