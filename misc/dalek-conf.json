@@ -1,8 +1,5 @@
 [
    {
-      "branches": [
-         "master"
-      ],
       "channels": [
          [
             "magnet",
@@ -12,9 +9,6 @@
       "url": "http://bschmalhofer.github.com/hq9plus/"
    },
    {
-      "branches": [
-         "master"
-      ],
       "channels": [
          [
             "magnet",
@@ -24,9 +18,6 @@
       "url": "http://code.google.com/p/close"
    },
    {
-      "branches": [
-         "master"
-      ],
       "channels": [
          [
             "freenode",
@@ -36,9 +27,6 @@
       "url": "http://code.google.com/p/csmeta/"
    },
    {
-      "branches": [
-         "master"
-      ],
       "channels": [
          [
             "magnet",
@@ -48,9 +36,6 @@
       "url": "http://code.google.com/p/decnum-dynpmcs/"
    },
    {
-      "branches": [
-         "master"
-      ],
       "channels": [
          [
             "freenode",
@@ -60,9 +45,6 @@
       "url": "http://code.google.com/p/java2perl6/"
    },
    {
-      "branches": [
-         "master"
-      ],
       "channels": [
          [
             "magnet",
@@ -72,9 +54,6 @@
       "url": "http://code.google.com/p/paraplegic/"
    },
    {
-      "branches": [
-         "master"
-      ],
       "channels": [
          [
             "magnet",
@@ -84,9 +63,6 @@
       "url": "http://code.google.com/p/parrot-jvm/"
    },
    {
-      "branches": [
-         "master"
-      ],
       "channels": [
          [
             "magnet",
@@ -96,9 +72,6 @@
       "url": "http://code.google.com/p/parrot-mysql/"
    },
    {
-      "branches": [
-         "master"
-      ],
       "channels": [
          [
             "magnet",
@@ -108,9 +81,6 @@
       "url": "http://code.google.com/p/porcupinepascal/"
    },
    {
-      "branches": [
-         "master"
-      ],
       "channels": [
          [
             "magnet",
@@ -120,9 +90,6 @@
       "url": "http://code.google.com/p/winxed/"
    },
    {
-      "branches": [
-         "master"
-      ],
       "channels": [
          [
             "magnet",
@@ -132,9 +99,6 @@
       "url": "http://gitorious.org/dbm-dynpmcs/"
    },
    {
-      "branches": [
-         "master"
-      ],
       "channels": [
          [
             "magnet",
@@ -144,9 +108,6 @@
       "url": "http://gitorious.org/kakapo/"
    },
    {
-      "branches": [
-         "master"
-      ],
       "channels": [
          [
             "magnet",
@@ -156,9 +117,6 @@
       "url": "http://gitorious.org/parrot-plumage/parrot-plumage"
    },
    {
-      "branches": [
-         "master"
-      ],
       "channels": [
          [
             "magnet",
@@ -168,9 +126,6 @@
       "url": "http://wiki.github.com/TiMBuS/fun"
    },
    {
-      "branches": [
-         "master"
-      ],
       "channels": [
          [
             "magnet",
@@ -180,9 +135,6 @@
       "url": "https://github.com/Infinoid/dalek-plugins/"
    },
    {
-      "branches": [
-         "master"
-      ],
       "channels": [
          [
             "magnet",
@@ -192,9 +144,6 @@
       "url": "https://github.com/Whiteknight/matrixy"
    },
    {
-      "branches": [
-         "master"
-      ],
       "channels": [
          [
             "magnet",
@@ -204,9 +153,6 @@
       "url": "https://github.com/Whiteknight/parrot-data-structures"
    },
    {
-      "branches": [
-         "master"
-      ],
       "channels": [
          [
             "magnet",
@@ -216,9 +162,6 @@
       "url": "https://github.com/Whiteknight/parrot-linear-algebra"
    },
    {
-      "branches": [
-         "master"
-      ],
       "channels": [
          [
             "magnet",
@@ -228,9 +171,6 @@
       "url": "https://github.com/bschmalhofer/eclectus/"
    },
    {
-      "branches": [
-         "master"
-      ],
       "channels": [
          [
             "magnet",
@@ -240,9 +180,6 @@
       "url": "https://github.com/bschmalhofer/lazy-k/"
    },
    {
-      "branches": [
-         "master"
-      ],
       "channels": [
          [
             "magnet",
@@ -252,9 +189,6 @@
       "url": "https://github.com/bschmalhofer/m4/"
    },
    {
-      "branches": [
-         "master"
-      ],
       "channels": [
          [
             "magnet",
@@ -264,9 +198,6 @@
       "url": "https://github.com/bschmalhofer/unlambda/"
    },
    {
-      "branches": [
-         "master"
-      ],
       "channels": [
          [
             "magnet",
@@ -276,9 +207,6 @@
       "url": "https://github.com/cardinal/cardinal/"
    },
    {
-      "branches": [
-         "master"
-      ],
       "channels": [
          [
             "magnet",
@@ -288,21 +216,15 @@
       "url": "https://github.com/cardinal/cardinal/"
    },
    {
-      "branches": [
-         "master"
-      ],
       "channels": [
          [
             "magnet",
             "#parrot"
          ]
       ],
-      "url": "https://github.com/chrisdolan/perk/tree/master"
+      "url": "https://github.com/chrisdolan/perk/"
    },
    {
-      "branches": [
-         "master"
-      ],
       "channels": [
          [
             "magnet",
@@ -312,9 +234,6 @@
       "url": "https://github.com/cotto/github-trac"
    },
    {
-      "branches": [
-         "master"
-      ],
       "channels": [
          [
             "freenode",
@@ -324,9 +243,6 @@
       "url": "https://github.com/diakopter/sprixel/"
    },
    {
-      "branches": [
-         "master"
-      ],
       "channels": [
          [
             "magnet",
@@ -336,9 +252,6 @@
       "url": "https://github.com/ekiru/squaak-tutorial"
    },
    {
-      "branches": [
-         "master"
-      ],
       "channels": [
          [
             "magnet",
@@ -348,9 +261,6 @@
       "url": "https://github.com/ekiru/tree-optimization"
    },
    {
-      "branches": [
-         "master"
-      ],
       "channels": [
          [
             "magnet",
@@ -360,9 +270,6 @@
       "url": "https://github.com/ekiru/tree-optimization"
    },
    {
-      "branches": [
-         "master"
-      ],
       "channels": [
          [
             "magnet",
@@ -372,9 +279,6 @@
       "url": "https://github.com/fperrad/digest-dynpmcs/"
    },
    {
-      "branches": [
-         "master"
-      ],
       "channels": [
          [
             "magnet",
@@ -384,9 +288,6 @@
       "url": "https://github.com/fperrad/lua"
    },
    {
-      "branches": [
-         "master"
-      ],
       "channels": [
          [
             "magnet",
@@ -396,9 +297,6 @@
       "url": "https://github.com/fperrad/markdown/"
    },
    {
-      "branches": [
-         "master"
-      ],
       "channels": [
          [
             "magnet",
@@ -408,9 +306,6 @@
       "url": "https://github.com/fperrad/parrot-MT19937"
    },
    {
-      "branches": [
-         "master"
-      ],
       "channels": [
          [
             "magnet",
@@ -420,9 +315,6 @@
       "url": "https://github.com/fperrad/wmlscript/"
    },
    {
-      "branches": [
-         "master"
-      ],
       "channels": [
          [
             "magnet",
@@ -432,9 +324,6 @@
       "url": "https://github.com/fperrad/xml/"
    },
    {
-      "branches": [
-         "master"
-      ],
       "channels": [
          [
             "freenode",
@@ -444,9 +333,6 @@
       "url": "https://github.com/hinrik/grok/"
    },
    {
-      "branches": [
-         "master"
-      ],
       "channels": [
          [
             "freenode",
@@ -456,9 +342,6 @@
       "url": "https://github.com/jnthn/6model"
    },
    {
-      "branches": [
-         "master"
-      ],
       "channels": [
          [
             "magnet",
@@ -468,9 +351,6 @@
       "url": "https://github.com/jnthn/blizkost/"
    },
    {
-      "branches": [
-         "master"
-      ],
       "channels": [
          [
             "magnet",
@@ -480,9 +360,6 @@
       "url": "https://github.com/leto/kea"
    },
    {
-      "branches": [
-         "master"
-      ],
       "channels": [
          [
             "magnet",
@@ -492,9 +369,6 @@
       "url": "https://github.com/leto/nqptap"
    },
    {
-      "branches": [
-         "master"
-      ],
       "channels": [
          [
             "magnet",
@@ -504,9 +378,6 @@
       "url": "https://github.com/leto/plparrot"
    },
    {
-      "branches": [
-         "master"
-      ],
       "channels": [
          [
             "magnet",
@@ -516,9 +387,6 @@
       "url": "https://github.com/leto/tapir"
    },
    {
-      "branches": [
-         "master"
-      ],
       "channels": [
          [
             "freenode",
@@ -528,9 +396,6 @@
       "url": "https://github.com/masak/yapsi"
    },
    {
-      "branches": [
-         "master"
-      ],
       "channels": [
          [
             "magnet",
@@ -540,9 +405,6 @@
       "url": "https://github.com/parrot/ecmascript"
    },
    {
-      "branches": [
-         "master"
-      ],
       "channels": [
          [
             "magnet",
@@ -552,9 +414,6 @@
       "url": "https://github.com/parrot/parrot"
    },
    {
-      "branches": [
-         "master"
-      ],
       "channels": [
          [
             "magnet",
@@ -564,9 +423,6 @@
       "url": "https://github.com/parrot/pir"
    },
    {
-      "branches": [
-         "master"
-      ],
       "channels": [
          [
             "magnet",
@@ -576,9 +432,6 @@
       "url": "https://github.com/partcl/partcl"
    },
    {
-      "branches": [
-         "master"
-      ],
       "channels": [
          [
             "magnet",
@@ -588,9 +441,6 @@
       "url": "https://github.com/partcl/partcl-nqp"
    },
    {
-      "branches": [
-         "master"
-      ],
       "channels": [
          [
             "freenode",
@@ -600,9 +450,6 @@
       "url": "https://github.com/perl6/bench-scripts"
    },
    {
-      "branches": [
-         "master"
-      ],
       "channels": [
          [
             "freenode",
@@ -612,9 +459,6 @@
       "url": "https://github.com/perl6/book"
    },
    {
-      "branches": [
-         "master"
-      ],
       "channels": [
          [
             "freenode",
@@ -624,9 +468,6 @@
       "url": "https://github.com/perl6/book"
    },
    {
-      "branches": [
-         "master"
-      ],
       "channels": [
          [
             "freenode",
@@ -636,9 +477,6 @@
       "url": "https://github.com/perl6/ecosystem"
    },
    {
-      "branches": [
-         "master"
-      ],
       "channels": [
          [
             "freenode",
@@ -648,9 +486,6 @@
       "url": "https://github.com/perl6/ecosystem/"
    },
    {
-      "branches": [
-         "master"
-      ],
       "channels": [
          [
             "freenode",
@@ -660,9 +495,6 @@
       "url": "https://github.com/perl6/evalbot/"
    },
    {
-      "branches": [
-         "master"
-      ],
       "channels": [
          [
             "freenode",
@@ -672,9 +504,6 @@
       "url": "https://github.com/perl6/misc"
    },
    {
-      "branches": [
-         "master"
-      ],
       "channels": [
          [
             "freenode",
@@ -684,9 +513,6 @@
       "url": "https://github.com/perl6/modules"
    },
    {
-      "branches": [
-         "master"
-      ],
       "channels": [
          [
             "freenode",
@@ -696,9 +522,6 @@
       "url": "https://github.com/perl6/modules.perl6.org/"
    },
    {
-      "branches": [
-         "master"
-      ],
       "channels": [
          [
             "freenode",
@@ -708,9 +531,6 @@
       "url": "https://github.com/perl6/mu"
    },
    {
-      "branches": [
-         "master"
-      ],
       "channels": [
          [
             "freenode",
@@ -720,9 +540,6 @@
       "url": "https://github.com/perl6/mu/"
    },
    {
-      "branches": [
-         "master"
-      ],
       "channels": [
          [
             "magnet",
@@ -732,9 +549,6 @@
       "url": "https://github.com/perl6/nqp-rx"
    },
    {
-      "branches": [
-         "master"
-      ],
       "channels": [
          [
             "freenode",
@@ -744,9 +558,6 @@
       "url": "https://github.com/perl6/nqp-rx"
    },
    {
-      "branches": [
-         "master"
-      ],
       "channels": [
          [
             "magnet",
@@ -768,9 +579,6 @@
       "url": "https://github.com/perl6/nqp-rx/"
    },
    {
-      "branches": [
-         "master"
-      ],
       "channels": [
          [
             "freenode",
@@ -780,9 +588,6 @@
       "url": "https://github.com/perl6/perl6.org"
    },
    {
-      "branches": [
-         "master"
-      ],
       "channels": [
          [
             "freenode",
@@ -792,9 +597,6 @@
       "url": "https://github.com/perl6/perl6.org/"
    },
    {
-      "branches": [
-         "master"
-      ],
       "channels": [
          [
             "freenode",
@@ -804,9 +606,6 @@
       "url": "https://github.com/perl6/roast"
    },
    {
-      "branches": [
-         "master"
-      ],
       "channels": [
          [
             "magnet",
@@ -816,9 +615,6 @@
       "url": "https://github.com/perl6/roast"
    },
    {
-      "branches": [
-         "master"
-      ],
       "channels": [
          [
             "freenode",
@@ -828,9 +624,6 @@
       "url": "https://github.com/perl6/roast/"
    },
    {
-      "branches": [
-         "master"
-      ],
       "channels": [
          [
             "freenode",
@@ -840,9 +633,6 @@
       "url": "https://github.com/perl6/specs"
    },
    {
-      "branches": [
-         "master"
-      ],
       "channels": [
          [
             "freenode",
@@ -852,9 +642,6 @@
       "url": "https://github.com/perl6/specs/"
    },
    {
-      "branches": [
-         "master"
-      ],
       "channels": [
          [
             "freenode",
@@ -864,9 +651,6 @@
       "url": "https://github.com/perl6/std"
    },
    {
-      "branches": [
-         "master"
-      ],
       "channels": [
          [
             "freenode",
@@ -876,9 +660,6 @@
       "url": "https://github.com/rakudo/rakudo"
    },
    {
-      "branches": [
-         "master"
-      ],
       "channels": [
          [
             "magnet",
@@ -888,9 +669,6 @@
       "url": "https://github.com/rakudo/rakudo"
    },
    {
-      "branches": [
-         "master"
-      ],
       "channels": [
          [
             "freenode",
@@ -900,9 +678,6 @@
       "url": "https://github.com/rakudo/rakudo/tree/buf"
    },
    {
-      "branches": [
-         "master"
-      ],
       "channels": [
          [
             "freenode",
@@ -912,9 +687,6 @@
       "url": "https://github.com/rakudo/star/"
    },
    {
-      "branches": [
-         "master"
-      ],
       "channels": [
          [
             "freenode",
@@ -934,9 +706,6 @@
       "url": "https://github.com/sorear/niecza/"
    },
    {
-      "branches": [
-         "master"
-      ],
       "channels": [
          [
             "magnet",
@@ -946,9 +715,6 @@
       "url": "https://github.com/stefano/primitivearc/"
    },
    {
-      "branches": [
-         "master"
-      ],
       "channels": [
          [
             "magnet",
@@ -958,9 +724,6 @@
       "url": "https://github.com/tene/gil/"
    },
    {
-      "branches": [
-         "master"
-      ],
       "channels": [
          [
             "freenode",
@@ -970,9 +733,6 @@
       "url": "https://github.com/viklund/november"
    },
    {
-      "branches": [
-         "master"
-      ],
       "channels": [
          [
             "freenode",
