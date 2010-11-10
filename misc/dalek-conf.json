@@ -657,18 +657,6 @@
             "#perl6"
          ]
       ],
-      "url": "https://github.com/perl6/evalbot"
-   },
-   {
-      "branches": [
-         "master"
-      ],
-      "channels": [
-         [
-            "freenode",
-            "#perl6"
-         ]
-      ],
       "url": "https://github.com/perl6/evalbot/"
    },
    {
