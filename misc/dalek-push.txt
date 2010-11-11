@@ -19,7 +19,7 @@ less resources, and do not require listing branches.
    diakopter.
 
    If you want announcements in more than one channel, use a link such
-   as http://host04.appflux.net:5000/dalek?t=freenode,perl6&t=magnet,parrot .
+   as http://host04.appflux.net:5000/dalek?t=freenode,perl6+magnet,parrot .
 
 6. Use the test function.
 
