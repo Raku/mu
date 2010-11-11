@@ -1,0 +1,26 @@
+dalek now supports push notifications for github repositories.  All
+users who can are encouraged to switch to them; they are faster, use
+less resources, and do not require listing branches.
+
+1. Open your repository GitHub page.
+
+2. Click the "Admin" button.
+
+3. Select "Service Hooks".
+
+4. Select "Post-Receive URLs".
+
+5. Enter http://host04.appflux.net:5000/dalek?t=freenode,perl6 into the
+   "URL" box and click "Update Settings".
+
+   For other channels, adjust the URL correspondingly, for instance
+   magnet,parrot .  Note that you cannot just enter any channel; dalek
+   must be configured to join the channel first - contact sorear or
+   diakopter.
+
+   If you want announcements in more than one channel, use a link such
+   as http://host04.appflux.net:5000/dalek?t=freenode,perl6&t=magnet,parrot .
+
+6. Use the test function.
+
+7. Remove your entry from dalek-conf.json, if needed.
