@@ -135,15 +135,6 @@
       "url": "https://github.com/hinrik/grok/"
    },
    {
-      "channels": [
-         [
-            "freenode",
-            "#perl6"
-         ]
-      ],
-      "url": "https://github.com/jnthn/6model"
-   },
-   {
       "url": "https://github.com/jnthn/blizkost/"
    },
    {
