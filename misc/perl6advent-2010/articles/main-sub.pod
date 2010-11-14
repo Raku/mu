@@ -1,0 +1,82 @@
+=head1 Interacting easily with the command line with MAIN subs
+
+In Unix environment, many scripts take arguments and options from the command
+line. With Perl 6 it's very easy to accept those:
+
+    $ cat add.pl
+    sub MAIN($x, $y) {
+        say $x + $y
+    }
+    $ perl6 add.pl
+    7
+    $ perl6 add.pl too many arguments
+    Usage:
+    add.pl x y
+
+By just writing a subroutine called C<MAIN> with a signature, you
+automatically get a command line parser, binding from the command line
+arguments into the signature variables C<$x> and C<$y>, and a usage message if
+the command line arguments don't fit.
+
+The usage message is customizable by adding another sub called C<USAGE>:
+
+    $ cat add2.pl
+    sub MAIN($x, $y) {
+        say $x + $y
+    }
+    sub USAGE() {
+        say "Usage: add.pl <num1> <num2>";
+    }
+    $ perl6 add2.pl too many arguments
+    Usage: add.pl <num1> <num2>
+
+Declaring the C<MAIN> sub as C<multi> allows declaring several alternative
+syntaxes, or dispatch based on some constant:
+
+    $ cat calc
+    #!/usr/bin/env perl6
+    multi MAIN('add', $x, $y)  { say $x + $y }
+    multi MAIN('div', $x, $y)  { say $x / $y }
+    multi MAIN('mult', $x, $y) { say $x * $y }
+    $ ./calc add 3 5
+    8
+    $ ./calc mult 3 5
+    15
+    $ ./calc
+    Usage:
+    ./calc add x y
+    or
+    ./calc div x y
+    or
+    ./calc mult x y
+
+Named parameters correspond to options:
+    $ cat copy.pl
+    sub MAIN($source, $target, Bool :$verbose) {
+        say "Copying '$source' to '$target'" if $verbose;
+        run "cp $source $target";
+    }
+    $ perl6 copy.pl calc calc2
+    $ perl6 copy.pl  --verbose calc calc2
+    Copying 'calc' to 'calc2'
+
+Declaring the parameter as C<Bool> makes it accept no value; without a type
+constraint of Bool it will take an argument:
+
+    $ cat do-nothing.pl
+    sub MAIN(:$how = 'fast') {
+        say "Do nothing, but do it $how";
+    }
+
+    $ perl6 do-nothing.pl
+    Do nothing, but do it fast
+    $ perl6 do-nothing.pl --how=well
+    Do nothing, but do it well
+    $ perl6 do-nothing.pl what?
+    Usage:
+    do-nothing.pl [--how=value-of-how]
+
+In summary, Perl 6 offers you built-in command line parsing and usage
+messages, just by using subroutine signatures and multi subs.
+
+Writing good, declarative code has never been so easy before.
