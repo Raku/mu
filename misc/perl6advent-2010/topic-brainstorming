@@ -8,7 +8,7 @@
 
 Moritz's ideas:
  – MAIN and USAGE subs (moritz)
- – series operator
+ – sequence operator (colomon volunteers)
  – explaining one or more Perl 6 solutions on rosettacode
  – lexical subs and importing/exporting (moritz)
  – is everything a reference?
@@ -29,3 +29,8 @@ sorear's ideas:
  – gather and coroutines are equal in power
  – Binding and ties
  – Cool new feature: Builtin functions
+ 
+colomon's ideas:
+ - Feel very strongly we need a "How to get Rakudo * post" first (maybe combined with an update on the state of the p6 world)
+ - Christmas carol notation using the ABC module
+ 
