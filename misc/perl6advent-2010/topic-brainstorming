@@ -35,3 +35,10 @@ colomon's ideas:
  - Feel very strongly we need a "How to get Rakudo * post" first (maybe combined with an update on the state of the p6 world)
  - Christmas carol notation using the ABC module
  
+PerlJams' ideas:
+  - Feel very strongly that the first post should be a State of Perl 6
+    World  (State of the Butterfly?) and at the end a small section on
+    how to obtain Rakudo *
+  - writing modules--what tools to use; where to find them.
+  - How to debug grammars
+  - 
