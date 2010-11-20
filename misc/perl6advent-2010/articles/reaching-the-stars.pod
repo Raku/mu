@@ -1,0 +1,32 @@
+=head1 Reaching the Stars
+
+Coming from the Perl 5 world, or from some other background, you may
+think of the programming language and its implementation as the one
+thing, or at least things very strongly tied to each other. Perl 6 is
+different. The „official” part is the specification (the Synopses) and
+the tests suite. Perl 6 encourages multiple implementations. Any
+implementation passing the official test suite and fullfiling the
+Synopses may call itself „a Perl 6 implementation”. While there is still 
+no such implementation, there is alredy a few compilers in the ecosystem.
+Rakudo is targetting the Parrot virtual machine, and it's the most
+complete implementation so far. Niecza is targetting .NET and is aiming
+to study performance issues. There is also Yapsi, which „author has
+claimed that it's official for over half a year now, and not once been
+contradicted” :) We will be using Rakudo for our examples as it is the
+most complete implementation around and has the largest ecosystem built
+around itself.
+
+Like with Perl 6, there is no „one Rakudo to rule them all”. The Perl 6
+development team has decided to keep the compiler separate from the
+distribution. That means the Rakudo release is not a ready to use Perl 6
+tarball, with modules, documentation and a virtual machine. That's what
+Rakudo Star is. First released about half a year ago, Rakudo Star
+contains the toolbox with everything needed for Perl 6 hacking: a
+release of Parrot virtual machine, the Perl 6 Book, a bunch of modules
+and the Rakudo itself.
+
+=head2 Getting Rakudo Star
+
+The Rakudo Star tarballs are located at
+L<https://github.com/rakudo/star/downloads>. Go get one suitable for
+your system and become ready for Christmas... again!
