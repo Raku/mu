@@ -1,6 +1,6 @@
 1 (tadzik): What has changed since the last year (overview of Rakudo and Rakudo Star, how to get the compiler Now, etc)
 2 (moritz): The MAIN sub 
-3:
+3 (tadzik): File operations: opening, closing, IO, file tests
 4:
 5:
 6:
