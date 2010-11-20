@@ -10,7 +10,7 @@ Synopses may call itself „a Perl 6 implementation”. While there is still
 no such implementation, there is alredy a few compilers in the ecosystem.
 Rakudo is targetting the Parrot virtual machine, and it's the most
 complete implementation so far. Niecza is targetting .NET and is aiming
-to study performance issues. There is also Yapsi, which „author has
+to study performance issues. There is also Yapsi, whose „author has
 claimed that it's official for over half a year now, and not once been
 contradicted” :) We will be using Rakudo for our examples as it is the
 most complete implementation around and has the largest ecosystem built
