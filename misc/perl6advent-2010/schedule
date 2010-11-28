@@ -1,21 +1,21 @@
 1 (tadzik): What has changed since the last year (overview of Rakudo and Rakudo Star, how to get the compiler Now, etc)
 2 (moritz): The MAIN sub 
 3 (tadzik): File operations: opening, closing, IO, file tests
-4:
+4 (colomon): Sequences
 5:
 6:
 7:(masak): Lexical variables
 8:
 9:
 10:
-11:
+11 (colomon): TBA
 12:
 13:
 14:(masak): C<nextsame> and pals
 15:
 16:
 17:
-18:
+18 (colomon): ABC modules
 19:
 20:
 21:(masak): C<.trans>
