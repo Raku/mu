@@ -14,9 +14,9 @@ to study performance issues. There is also Yapsi, whose „author has
 claimed that it's official for over half a year now, and not once been
 contradicted” :) We will be using Rakudo for our examples as it is the
 most complete implementation around and has the largest ecosystem built
-around itself.
+around it.
 
-Like with Perl 6, there is no „one Rakudo to rule them all”. The Perl 6
+Like with Perl 6, there is no „one Rakudo to rule them all”. The Rakudo
 development team has decided to keep the compiler separate from the
 distribution. That means the Rakudo release is not a ready to use Perl 6
 tarball, with modules, documentation and a virtual machine. That's what
