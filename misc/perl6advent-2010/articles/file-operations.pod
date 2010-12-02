@@ -62,10 +62,11 @@ Easy peasy.
 =head2 File::Find
 
 When the standard features are not enough, modules come in handy.
-C<File::Find> (available in the C<File::Tools> package) traverses the
-directory tree looking for the files you need, and generates a lazy
-lists of the found ones. File::Find comes shipped with Rakudo Star,
-and can be easily installed with C<neutro> if you have just a
+L<File::Find|https://github.com/tadzik/perl6-File-Tools> (available
+in the C<File::Tools> package) traverses the directory tree looking
+for the files you need, and generates a lazy lists of the found ones.
+File::Find comes shipped with Rakudo Star, and can be easily installed
+with L<neutro|https://github.com/tadzik/neutro> if you have just a
 bare Rakudo.
 
 Example usage? Sure. C<<find(:dir<t/dir1>, :type<file>, :name(/foo/))>>
@@ -74,7 +75,7 @@ t/dir1 and with a name matching the regex C</foo/>. Notice how the
 elements of a list are not just plain strings: they're objects which
 strinigify to the full path, but also provide accessors for the directory
 they're in (C<dir>) and the filename itself (C<name>). For more info
-please refer to the C<documentation>.
+please refer to the L<documentation|https://github.com/tadzik/perl6-File-Tools/blob/master/lib/File/Find.pm#L65>.
 
 =head2 Useful idioms
 
