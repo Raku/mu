@@ -6,6 +6,7 @@
  – about the Perl 6 Itself: specification, not an implementation, this is Rakudo, this is Niecza, this is Parrot
  – The Perl 6 Way (we tend to use lazy lists quite often, in example)
  – file mangling: dir(), open(), close() (tadzik can write it)
+ – smart matching
 
 Moritz's ideas:
  – MAIN and USAGE subs (moritz)
