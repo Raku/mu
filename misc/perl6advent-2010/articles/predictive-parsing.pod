@@ -1,0 +1,39 @@
+=head1 Why Perl syntax does what you want
+
+Opening the fifth door of our advent calendar, we don't find a recipe of how
+to do something cool with Perl 6 - rather an explanation of how some of the
+intuitiveness of the language works.
+
+As an example, consider these two lines of code:
+
+    say 6 / 3;
+    say 'Price: 15 Euro' ~~ /\d+/;
+
+They print out C<2> and C<15>, respectively. For a Perl programmer this is not
+surprising. But look closer: the forward slash C</> serves two very different
+purposes, the numerical devision in the first line, and delimits a regex in
+the second line.
+
+How can Perl know when a C</> means what? It certainly doesn't look at the
+text after the slash to decide, because a regex can look just like normal
+code.
+
+The answer is that Perl keeps track of what it expects. Most important are
+two things to expects: I<terms> and I<operators>.
+
+A I<term> can be literal like C<23> or C<"a string">. After parser finds such
+a literal, there can either be the end of a statement (indicated by a
+semicolon), or an I<operator> like C<+>, C<*> or C</>. After an operator, the
+parser expects a term again.
+
+And that's already the answer: When the parser expects a term, a slash is
+recognized as the start of a regex. When it expects an operator, it counts as
+a numerical division operator.
+
+This has far reaching consequences. Subroutines can be called without
+parenthesis, and after a subroutine name an argument list is expected,
+which starts with a term. On the other hand type names are followed by
+operators, so at parse time all type names must be known.
+
+On the upside, many characters can be reused for two different syntaxes in a
+very convenient way.
