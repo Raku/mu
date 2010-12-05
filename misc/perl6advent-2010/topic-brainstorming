@@ -42,9 +42,13 @@ PerlJams' ideas:
     how to obtain Rakudo *
   - writing modules--what tools to use; where to find them.
   - How to debug grammars
-  -
 
 lue's ideas:
  – S32::Temporal
  – Phasers
  – (Possibly) Common problems with grammars [e.g. *,+,? are greedy by default, and other semi-common foibles. Maybe combine with other grammar related ideas?]
+
+masak's ideas:
+ - flip (Str), reverse (List), and invert (Hash), and why they were split in three
+ - multi subs and methods -- how the spec puts user-defined ones on equal footing with built-in ones
+ - take a rosetta code solution in some *other* language, rewrite it faithfully in Perl 6, and then show how to make it shorter/awesomer/more readable. attempted moral: Perl 6 supports many styles, and (as opposed to Perl 5) things tend to get more readable when you golf.
