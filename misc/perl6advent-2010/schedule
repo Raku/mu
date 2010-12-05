@@ -2,7 +2,7 @@
 2 (moritz): The MAIN sub 
 3 (tadzik): File operations: opening, closing, IO, file tests
 4 (colomon): Sequences
-5:
+5: (moritz): predictive parsing
 6: (mathw): X and Z meta operators
 7:(masak): Lexical variables
 8:
