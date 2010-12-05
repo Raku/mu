@@ -42,4 +42,9 @@ PerlJams' ideas:
     how to obtain Rakudo *
   - writing modules--what tools to use; where to find them.
   - How to debug grammars
-  - 
+  -
+
+lue's ideas:
+ – S32::Temporal
+ – Phasers
+ – (Possibly) Common problems with grammars [e.g. *,+,? are greedy by default, and other semi-common foibles. Maybe combine with other grammar related ideas?]
