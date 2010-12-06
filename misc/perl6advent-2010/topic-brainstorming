@@ -1,23 +1,26 @@
+Ideas that are already written up, or planned as a topic in the 'schedule' file
+ – about the Perl 6 Itself: specification, not an implementation, this is Rakudo, this is Niecza, this is Parrot
+ – file mangling: dir(), open(), close()
+ – MAIN and USAGE subs
+ – sequence operator (but can be continued/extended)
+ – Z and X meta operators
+ – The Perl 6 community
+ - writing modules--what tools to use; where to find them.
+ – basic parsing: what is a term, what is an operator? why is the distinction important?
+
  Tadzik's ideas:
  – compiler hacking
  – traits (sub foo is something(blah blah) {})
  – reference of types and its methods (something about gradual typing as well, or in another post?)
  – module system
- – about the Perl 6 Itself: specification, not an implementation, this is Rakudo, this is Niecza, this is Parrot
  – The Perl 6 Way (we tend to use lazy lists quite often, in example)
- – file mangling: dir(), open(), close() (tadzik can write it)
  – smart matching
 
 Moritz's ideas:
- – MAIN and USAGE subs (moritz)
- – sequence operator (colomon volunteers)
  – explaining one or more Perl 6 solutions on rosettacode
  – lexical subs and importing/exporting (moritz)
  – is everything a reference?
- – Z and X meta operators (moritz)
- – basic parsing: what is a term, what is an operator? why is the distinction important? (moritz)
  – MOP (moritz)
- – The Perl 6 community
  – infrastructure (what editors/IDEs are good for Perl 6 hacking/have syntax hilighting, tools used for hacking and presentations etc.)
 
  p6-users@ ideas:
@@ -40,7 +43,6 @@ PerlJams' ideas:
   - Feel very strongly that the first post should be a State of Perl 6
     World  (State of the Butterfly?) and at the end a small section on
     how to obtain Rakudo *
-  - writing modules--what tools to use; where to find them.
   - How to debug grammars
 
 lue's ideas:
