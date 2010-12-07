@@ -7,6 +7,7 @@ Ideas that are already written up, or planned as a topic in the 'schedule' file
  – The Perl 6 community
  - writing modules--what tools to use; where to find them.
  – basic parsing: what is a term, what is an operator? why is the distinction important?
+ - flip (Str), reverse (List), and invert (Hash), and why they were split in three
 
  Tadzik's ideas:
  – compiler hacking
@@ -51,7 +52,6 @@ lue's ideas:
  – (Possibly) Common problems with grammars [e.g. *,+,? are greedy by default, and other semi-common foibles. Maybe combine with other grammar related ideas?]
 
 masak's ideas:
- - flip (Str), reverse (List), and invert (Hash), and why they were split in three
  - multi subs and methods -- how the spec puts user-defined ones on equal footing with built-in ones
  - take a rosetta code solution in some *other* language, rewrite it faithfully in Perl 6, and then show how to make it shorter/awesomer/more readable. attempted moral: Perl 6 supports many styles, and (as opposed to Perl 5) things tend to get more readable when you golf.
  - roles, role conflicts, and disambiguators (DrunkenGymnast!)
