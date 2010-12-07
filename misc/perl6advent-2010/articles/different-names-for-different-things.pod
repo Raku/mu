@@ -41,15 +41,29 @@ have been split up into separate built-ins:
     ("Paris" => "France", "London" => "UK")
 
 Hash inversion differs from the other two operations in that the result is of
-a different type than the input. Since a hash can has only one item per key,
-but several values can be the same,
+a different type than the input. Since hash values need not be unique,
 inverting a hash and returning the result as a hash would either change the
-structure (by grouping multiple entries for the same new key), or lose
-information (by chosing just one of them, and throwing the result away).
+structure (by grouping the keys of non-unique values together somehow), or lose
+information (by having one value override the other ones).
 
 Instead hash inversion returns a list of pairs, and the user can decide which
 mode of operation they want for turning the result back into a hash, if that's
 necessary at all.
+
+Here's how you do it if you want the hash inversion operation to be
+non-destructive:
+
+    my %inverse;
+    %inverse.push( %original.invert );
+
+As pairs with already-seen keys get pushed onto the C<%inverse> hash, the
+original value isn't overriden but instead "promoted" to an array. Here's
+a small demonstration:
+
+    my %h;
+    %h.push('foo' => 1);    # foo => 1
+    %h.push('foo' => 2);    # foo => [1, 2]
+    %h.push('foo' => 3);    # foo => [1, 2, 3]
 
 All three (flip/reverse/invert) coerce their arguments to the expected type
 (if possible).  For example if you pass a list to C<flip>, it is coerced into
