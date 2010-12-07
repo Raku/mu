@@ -1,0 +1,56 @@
+=head1 Different Names of Different Things
+
+Newcomers to the Perl programming language, version 5, often complain that
+they can't reverse strings. There's a built-in 
+L<reverse|http://perldoc.perl.org/functions/reverse.html> function, but it
+doesn't seem to work at first glance:
+
+    $ perl -E "say reverse 'hello'"
+    hello
+
+When such programmers L<ask more experienced Perl programmers|http://use.perl.org/~masak/journal/40110>,
+the solution is quickly found: C<reverse> has actually two different operation
+modes. In list context it reverses lists, in scalar context it reverses
+strings.
+
+    $ perl -E "say scalar reverse 'hello'"
+    olleh
+
+Sadly this an exception from Perl's usual context model. For most operators
+or functions the operator determines the context, and the data is interpreted
+in that context. For example C<+> and C<*> work on numbers, and C<.> works on
+strings (concatenation). So a symbol (or function name, in the case of
+L<uc|http://perldoc.perl.org/function/uc.html>) stands for an operation, and
+provides context. Not so C<reverse>.
+
+In Perl 6, we try to learn from previous mistakes, and get rid of historical
+inconsistencies. This is why list reversal, string reversal and hash inversion
+have been split up into separate built-ins:
+
+    # string reversal, sorry, flipping:
+    $ perl6 -e 'say flip "hello"'
+    olleh
+
+    # reversing lists
+    # perl6 -e 'say join ", ", reverse <ab cd ef>'
+    ef, cd, ab
+
+    # hash inversion
+    perl6 -e 'my %capitals = France => "Paris", UK => "London";
+              say %capitals.invert.perl'
+    ("Paris" => "France", "London" => "UK")
+
+Hash inversion differs from the other two operations in that the result is of
+a different type than the input. Since a hash can has only one item per key,
+but several values can be the same,
+inverting a hash and returning the result as a hash would either change the
+structure (by grouping multiple entries for the same new key), or lose
+information (by chosing just one of them, and throwing the result away).
+
+Instead hash inversion returns a list of pairs, and the user can decide which
+mode of operation they want for turning the result back into a hash, if that's
+necessary at all.
+
+All three (flip/reverse/invert) coerce their arguments to the expected type
+(if possible).  For example if you pass a list to C<flip>, it is coerced into
+a string and then the string is rever^W flipped.
