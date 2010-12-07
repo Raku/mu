@@ -8,7 +8,7 @@ doesn't seem to work at first glance:
     $ perl -E "say reverse 'hello'"
     hello
 
-When such programmers L<ask more experienced Perl programmers|http://use.perl.org/~masak/journal/40110>,
+When such programmers L<ask more experienced Perl programmers|http://strangelyconsistent.org/blog/the-taming-of-the-newbie-a-comedy-on-irc>,
 the solution is quickly found: C<reverse> has actually two different operation
 modes. In list context it reverses lists, in scalar context it reverses
 strings.
