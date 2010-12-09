@@ -51,5 +51,7 @@ You can either send a pull request for your forked ecosystem repo,
 send a patch, or just ask some of the commiters or people on the #perl6
 channel of Freenode.
 
-TBD: Link to module writing guide, anything else?
-TODO for tadzik: remove the PERL6LIB warning in neutro
+How to write a module, what tools to use? If you're interested, look
+into the L<guide|http://ttjjss.wordpress.com/2010/08/09/so-you-want-to-write-a-perl-6-module/>.
+
+Happy hacking!
