@@ -52,8 +52,8 @@ feed operators:
 
     my @random-nums = (1..100).pick(*);
     my @odds-squared <== sort <== map { $_ ** 2 } <== grep { $_ % 2 } <== @random-nums;
-    say @odds-squared.join(" ");
+    say ~@odds-squared;
 
     my @rakudo-people = <scott patrick carl moritz jonathan jerry stephen>;
     @rakudo-people ==> grep { /at/ } ==> map { .ucfirst } ==> my @who-its-at;
-    say @who-its-at.join(" ");
+    say ~@who-its-at;
