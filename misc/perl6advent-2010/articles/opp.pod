@@ -1,0 +1,21 @@
+=head1 Operator precedence
+
+Today we get a wondrous gift: operator precedence parsing.  L<Last
+year|http://perl6advent.wordpress.com/2009/12/21/day-21-grammars-and-actions/>
+we got parsing, and OPP makes grammars even better.
+
+Ordinarily, when you call a subrule in your grammar, Perl 6 will find a match
+in a I<top-down> manner. That is, it will recursively try to match the various
+regexes for that rule, until it finds literals to match against the string.
+Most of the time this is an intuitive way for a parser to work, but sometimes
+it makes things harder; the classical example is parsing mathematical
+expressions. For extra credit, try writing a grammar that gets the precedence
+right in all cases without using operator precedence. It's not as easy as you
+think.
+
+This is obviously not a fun, or productive, way to solve this problem. A
+better way is to use operator precedence. There is a special rule, C<EXPR>,
+which invokes Perl 6's operator precedence parser. This rule reads in
+operators and terms, and finds the right parse in an efficient manner. 
+
+  # OPP four-function grammar goes here.
