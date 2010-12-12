@@ -65,3 +65,23 @@ way to match a regex, it has no special operator.
 While most smart matching cases return a Bool, matching against a regex
 returns a C<Match> object - which behaves appropriately in boolean context
 too.
+
+You have probably started wondering: a'right, that for built-in types,
+how do I use it in my own classes? You need to write a special ACCEPTS
+method for it. Say we have our good, old class Point:
+    
+    class Point {
+        has $.x;
+        has $.y;
+        method ACCEPTS(Positional $p2) {
+            return $.x == $p2[0] and $.y == $p2[1]
+        }
+    }
+
+Everything clear? Let's see how it works:
+
+    my $a = Point.new(x => 7, y => 9);
+    say [3, 5] ~~ $a; # Bool::False
+    say (7, 9) ~~ $a; # Bool::True
+
+# Further ideas -- why not symetric?
