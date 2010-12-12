@@ -8,12 +8,12 @@ Ideas that are already written up, or planned as a topic in the 'schedule' file
  - writing modules--what tools to use; where to find them.
  – basic parsing: what is a term, what is an operator? why is the distinction important?
  - flip (Str), reverse (List), and invert (Hash), and why they were split in three
+ – module system
 
  Tadzik's ideas:
  – compiler hacking
  – traits (sub foo is something(blah blah) {})
  – reference of types and its methods (something about gradual typing as well, or in another post?)
- – module system
  – The Perl 6 Way (we tend to use lazy lists quite often, in example)
  – smart matching
 
