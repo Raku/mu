@@ -41,11 +41,23 @@ C<m/.../> and C<.method_call>.
 Here is what the smart match operator does with some matchers on the
 right-hand side:
 
-    matcher         operation
-    --------------------------
-    type object     type check
-    Numeric         numeric equality
-    Str             string equality
-    Regex           $_ matches regex?
-    Range           $_ is inside the range
-    Code            closure is called with $_ as argument
+    # is it of type Str?
+    $foo ~~ Str
+    # is it equal to 6?
+    $foo ~~ 6
+    # or is it "bar"?
+    $foo ~~ "bar"
+    # does it match some pattern?
+    $foo ~~ / \w+ '-' \d+ /
+    # Is it between 15 and 25?
+    $foo ~~ (15..25)
+    # call a closure
+    $foo ~~ -> $x { say 'ok' if 5 < $x < 25 }
+    # is it an array of 6 elems in which every odd element is 1?
+    $foo ~~ [1, *, 1, *, 1, *]
+
+Notice how, unlikely in Perl 5, in Perl 6 smartmathing is the only way
+to match a regex, it has no special operator.
+
+TODO: Show how 'something foobar asd' ~~ /.oo.a./ does not return
+Bool::True and why
