@@ -1,4 +1,4 @@
-=head1 Smartmatching
+=head1 Smart matching
 
 Remember the
 L<http://perl6advent.wordpress.com/2010/12/04/the-sequence-operator/> sequence
@@ -56,8 +56,12 @@ right-hand side:
     # is it an array of 6 elems in which every odd element is 1?
     $foo ~~ [1, *, 1, *, 1, *]
 
-Notice how, unlikely in Perl 5, in Perl 6 smartmathing is the only way
-to match a regex, it has no special operator.
+The full table for smart matching behavior can be found at
+L<http://perlcabal.org/syn/S03.html#Smart_matching>.
 
-TODO: Show how 'something foobar asd' ~~ /.oo.a./ does not return
-Bool::True and why
+Notice how, unlikely in Perl 5, in Perl 6 smartmathing is the only syntactic
+way to match a regex, it has no special operator.
+
+While most smart matching cases return a Bool, matching against a regex
+returns a C<Match> object - which behaves appropriately in boolean context
+too.
