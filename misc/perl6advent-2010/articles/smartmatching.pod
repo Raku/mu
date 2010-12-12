@@ -1,0 +1,51 @@
+=head1 Smartmatching
+
+Remember the
+L<http://perl6advent.wordpress.com/2010/12/04/the-sequence-operator/> sequence
+operator? As the last argument it takes a limit, which makes the sequence
+generation stop. For example:
+
+    1, 2, 4 ... 32;         # 1 2 4 8 16 32
+    1, 2, 4 ... * > 10;     # 1 2 4 8 16
+
+You can see that in the first case, numerical equality is used. The second is
+a bit more interesting: C<< * > 10 >> is internally rewritten into
+a closure like C<< -> $x { $x > 10 } >> (through currying).
+
+The sequence operator then does some magic comparison, depending on the type
+of the matcher. This comparison is called "smartmatching", and is a concept
+that reappears in many places in Perl 6. Examples:
+
+    # after the 'when' keyword:
+    given $age {
+        when 100    { say "congratulations!"      }
+        when * < 18 { say "You're not of age yet" }
+    }
+
+    # after 'where':
+    subset Even of Int where * %% 2;
+
+    # with an explicit smartmatch operator:
+    if $input ~~ m/^\d+$/ {
+        say "$input is an integer";
+    }
+
+    # arguments to grep(), first() etc.:
+    my @even = @numbers.grep: Even;
+
+On the right-hand side of the C<~~> operator, and after C<when> and C<where>,
+the value to be matched against is set to the topic variable C<$_>. This
+allows us to use constructs that operate on C<$_>, like regexes created with
+C<m/.../> and C<.method_call>.
+
+Here is what the smart match operator does with some matchers on the
+right-hand side:
+
+    matcher         operation
+    --------------------------
+    type object     type check
+    Numeric         numeric equality
+    Str             string equality
+    Regex           $_ matches regex?
+    Range           $_ is inside the range
+    Code            closure is called with $_ as argument
