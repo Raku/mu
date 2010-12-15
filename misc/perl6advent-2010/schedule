@@ -1,25 +1,25 @@
-1 (tadzik): What has changed since the last year (overview of Rakudo and Rakudo Star, how to get the compiler Now, etc)
-2 (moritz): The MAIN sub 
-3 (tadzik): File operations: opening, closing, IO, file tests
-4 (colomon): Sequences
-5: (moritz): predictive parsing
-6: (mathw): X and Z meta operators
-7:(masak): Lexical variables
-8: (masak&moritz): flip/reverse/invert
-9: (tadzik): the module ecosystem, writing modules
-10:(PerlJam): feed operators
+ 1 (tadzik): What has changed since the last year (overview of Rakudo and Rakudo Star, how to get the compiler Now, etc)
+ 2 (moritz): The MAIN sub 
+ 3 (tadzik): File operations: opening, closing, IO, file tests
+ 4 (colomon): Sequences
+ 5 (moritz): predictive parsing
+ 6 (mathw): X and Z meta operators
+ 7 (masak): Lexical variables
+ 8 (masak&moritz): flip/reverse/invert
+ 9 (tadzik): the module ecosystem, writing modules
+10 (PerlJam): feed operators
 11 (colomon): Markov Chains
 12 (tadzik&moritz): Smart matching
 13 (lue): The Perl 6 Community
-14:(masak): C<nextsame> and pals
-15:
+14 (masak): C<nextsame> and pals
+15
 16 (lue): Temporal Perl 6
-17:
+17
 18 (colomon): ABC modules
-19:
-20:(PerlJam): TBA
-21:(masak): C<.trans>
-22:
-23:
-24:
-25:
+19
+20 (PerlJam): TBA
+21 (masak): C<.trans>
+22
+23
+24
+25
