@@ -41,13 +41,15 @@ colomon's ideas:
  - Christmas carol notation using the ABC module
  
 PerlJam's ideas:
-  - I think each advent should start off with a post on the State of the
-    Perl 6 World  (State of the Butterfly?) and at the end a small
-    section on how to obtain implementations of Perl 6
-  - How to debug grammars
-  - Tour of the minor syntax variability from Perl 5
-  - Overview of some of the modules from Rakudo Star (with examples)
-  - Using zavolaj
+    - I think each advent should start off with a post on the State of
+      the Perl 6 World  (State of the Butterfly?) and at the end a small
+      section on how to obtain implementations of Perl 6
+    - How to debug grammars
+    - Tour of the minor syntax variability from Perl 5
+    - Overview of Rakudo Star  (what is it, what comes with it,
+      why?  etc)
+    - Overview of some of the modules from Rakudo Star (with examples)
+    - Using zavolaj
 
 
 lue's ideas:
