@@ -1,0 +1,39 @@
+=head1 Wibbly-Wobbly Timey-Wimey
+
+It's the 0x10th day of Christmas, and it's time for you to learn of time. The synopsis S32::Temporal has been heavily revised in the past year, and today's post details some of the basics of time as it is implemented in Perl 6.
+
+=head2 time and now
+
+The two terms that give the current time (at least what your system thinks is the current time) are C<time> and C<now>. Here's a quick example:
+
+    > say time; say now;
+    1292460064
+    Instant:2010-12-16T00:41:4.873248Z
+
+The first (obvious) difference is that C<time> returns POSIX time, as an integer. C<now> returns an object known as an C<Instant>. Use C<now> if  you want fractions of a second and recognition of leap seconds. C<time> won't give you fractions of a second or leap seconds, because it returns POSIX time. Which one you use all depends on what you need.
+
+=head2 DateTime and friend
+
+Most of the time, you will want to store dates other than now. For this, the C<DateTime> object is what you need. If you want to store the current time, you can use:
+
+    my $moment = DateTime.new(now); # or DateTime.new(time)
+
+Otherwise, there are two ways of creating a DateTime object:
+
+    my $dw = DateTime.new(:year(1963), :month(11), :day(23), :hour(17), :minute(15));
+
+This is in UTC, if you want to enter it in in another timezone, use the C<:timezone> adverb. Here, only C<:year> is required, the rest defaults to midnight on January 1 of the year.
+
+This way is also pretty tedious. You could instead create a DateTime object by inputting an ISO 8601 timestamp, as a string.
+
+    my $dw = DateTime.new("1963-11-23T17:15:00Z");
+
+The Z denotes UTC. To change that, replace Z with +hhmm or -hhmm, where 'hh' is the number of hours offset and 'mm' the number of minutes.
+
+There is also a Date object, which is created in a similar way, but without hours, minutes, or seconds. For example:
+
+    my $jfk = DateTime.new("1963-11-22"); # you can also use :year and so on
+
+=head2 Finally...
+
+That's about it for Time in P6. To see all the gritty details go to http://perlcabal.org/syn/S32/Temporal.html or ask about it in the community!

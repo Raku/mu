@@ -21,7 +21,3 @@ If you want to use something more instantaneous instead, or you hate the idea of
 =head2 Final Words
 
 These are the two ways of communication in the Perl 6 universe. There are also blogs, screencasts, and more. Go to A<http://perl6.org> to check it all out!
-
-And now, because I'm pretty sure it's legally required (in some contract somewhere), here's the obligatory Perl 6 code of the day:
-
-    TODO: Add obligatory Perl6 code (oneliner?)
