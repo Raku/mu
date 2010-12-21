@@ -10,6 +10,7 @@ Ideas that are already written up, or planned as a topic in the 'schedule' file
  - flip (Str), reverse (List), and invert (Hash), and why they were split in three
  – module system
  – smart matching
+ – MOP
 
  Tadzik's ideas:
  – compiler hacking
@@ -21,7 +22,6 @@ Moritz's ideas:
  – explaining one or more Perl 6 solutions on rosettacode
  – lexical subs and importing/exporting (moritz)
  – is everything a reference?
- – MOP (moritz)
  – infrastructure (what editors/IDEs are good for Perl 6 hacking/have syntax hilighting, tools used for hacking and presentations etc.)
 
  p6-users@ ideas:
