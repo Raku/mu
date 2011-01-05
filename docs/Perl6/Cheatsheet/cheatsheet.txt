@@ -2,7 +2,7 @@ Perl 6 cheat sheet v2                                                »ö«
 
 SIGILS    MAJOR/MINOR CONTEXTS         ACCESS ARRAYS      HASHES
 $scalar   item   list       sink       whole: @array[]    %hash{}
-@array     Str    flat/slice         element: @array[0]   %hash{'a'}
+@array     Str    flat/lol           element: @array[0]   %hash{'a'}
 %hash      Num    lazy/eager/hyper       (or)             %hash<a>
 &code      Bool                        slice: @array[0,2] %hash{'a','b'}
                        COMPOSERS         (or)             %hash<a b>
