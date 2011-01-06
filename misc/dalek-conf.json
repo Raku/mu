@@ -6,15 +6,6 @@
       "url": "http://code.google.com/p/close"
    },
    {
-      "channels": [
-         [
-            "freenode",
-            "#perl6"
-         ]
-      ],
-      "url": "http://code.google.com/p/csmeta/"
-   },
-   {
       "url": "http://code.google.com/p/decnum-dynpmcs/"
    },
    {
@@ -88,15 +79,6 @@
    },
    {
       "url": "https://github.com/cotto/github-trac"
-   },
-   {
-      "channels": [
-         [
-            "freenode",
-            "#perl6"
-         ]
-      ],
-      "url": "https://github.com/diakopter/sprixel/"
    },
    {
       "url": "https://github.com/ekiru/squaak-tutorial"
