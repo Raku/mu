@@ -185,6 +185,9 @@
       "url": "https://github.com/tene/gil/"
    },
    {
+       "url": "https://github.com/moritz/nqp-cl-parser/"
+   },
+   {
       "channels": [
          [
             "freenode",
