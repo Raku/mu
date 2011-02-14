@@ -188,19 +188,6 @@
       "channels": [
          [
             "freenode",
-            "#perl6"
-         ],
-         [
-             "magnet",
-             "#parrot"
-        ]
-      ],
-       "url": "https://github.com/perl6/nqp/"
-   },
-   {
-      "channels": [
-         [
-            "freenode",
             "#november-wiki"
          ]
       ],
