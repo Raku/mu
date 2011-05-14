@@ -485,8 +485,8 @@ then it must have space before it. The normal autoincrementing
 C<< postfix:<++> >> operator may never have space before it, but may
 be written in any of these forms:
 
-例如：如果你添加你自己的 C<< infix:<++> >> 操作符，那么它之前必须有个空白。标准
-自动增加 C<< postfix:<++> >> 操作符之前可能从来没有空白，但是可以以任何这些形
+例如：如果你添加自己的 C<< infix:<++> >> 操作符，那么它之前必须有个空白。标准的
+自增 C<< postfix:<++> >> 操作符之前可能从来没有空白，但是可以以任何这些形
 式编写：
 
 
@@ -536,7 +536,7 @@ C<< infix:<.EQ.> >> if the fit took you.  But you'll have to be sure to
 always put whitespace in front of it, or it would be interpreted as
 a postfix method call instead.)
 
-一个后缀规则的后果是（除非划分引用界限或者终止非空白），点之前的空白常常被认
+一个后缀规则的推论是（除非划分引用界限或者终止非空白），点之前的空白常常被认
 为 C<$_> 的上面的一个方法调用，在这个地方常常需要一个术语。如果这时候没有一个
 术语，那么这是语法错误。（当然，除非点开始之前有这个名称的中缀操作符，举个例子，
 如果合适的话，你可以定义一个公式翻译器 C<< infix:<.EQ.> >>。但你不得不保证常常在
@@ -698,7 +698,7 @@ variable may contain.  More precisely, it's a promise that the object
 or objects contained in the variable are capable of responding to the
 methods of the indicated "role".  See S12 for more about roles.
 
-变量类型是一种约束，它说明了变量可能包含什么类型的值。更准确地说，它承诺变量中
+变量类型是一种约束，它说明了变量可能包含什么类型的值。更确切地说，它承诺变量中
 包含的一个或者多个对象能够响应指定“role”中的方法。参考 S12 以获得更多关
 于 role 的信息。 
 
@@ -756,7 +756,7 @@ C<my Dog $spot> 本身不会自动调用 C<Dog> 构造函数。它仅仅赋值�
 Any type name used as a value is an undefined instance ofthat type's 
 prototype object, or I<type object> for short.  See S12 for more on that.
 
-任何作为值使用的类型名称是该类型原型对象的未定义实例化，简称“类型对象”。参
+任何作为值使用的类型名称是该类型原型对象的未定义实例化，或简称“类型对象”。参
 考 S12 以获得更多那方面的信息。
 
 Any type name in rvalue context is parsed as a single type value and
