@@ -386,7 +386,7 @@ Since Pod chunks count as whitespace to the language, they are also
 swallowed up by unspace.  Heredoc boundaries are suppressed, however,
 so you can split excessively long heredoc intro lines like this:
 
-尽管我们说虚空白从语法分析器中隐藏了空白，但它没有从词法分析器中隐藏。因此，反
+尽管我们说虚空白从语法分析器中隐藏了空白，但它没有从词法分析器中隐藏。因此，虚
 空白不允许在标记里面。此外，如果虚空白包含一个以上的新行，行数仍然会被统计。既
 然对于该语言 Pod 块被视为空白，它们也被虚空白吞噬。然而 Heredoc 分界线是抑制的，
 所以你可以像这样极大地分离冗长的 heredoc 引入线：
@@ -476,7 +476,7 @@ as no whitespace occurs outside the unspace or embedded comment.
 面分歧改变了，正如我们期待的发生，因为 Perl 6 被设计为可变语言。特别地，中缀操作
 符与后缀操作符之间有个自然冲突，它们任何一个都会出现在术语后面。如果给定的标记
 被解释成后缀操作符或中缀操作符，那么中缀操作符之前需要一个空格。后缀操作符应该
-决没有介于中间的空格，尽管它们可能有一个介于中间的点。如果进一步要求分离，反
+决没有介于中间的空格，尽管它们可能有一个介于中间的点。如果进一步要求分离，虚
 空白或者嵌入式注释应该正如上描述的那样使用，只要没有空白出现在虚空白或者嵌入式
 注释之外。
 
