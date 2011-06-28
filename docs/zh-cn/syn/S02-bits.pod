@@ -103,8 +103,8 @@ a single token.  On the other hand, Perl doesn't use indentation as syntax,
 so you are free to use any amount of whitespace anywhere that whitespace
 makes sense. Comments always count as whitespace.
 
-Unicode 横向空白被视为空白，但最好不要在使毗邻标记看起来像单一标记的时候使用紧
-间距。另一方面，Perl 不使用缩进作为语法，所以你可以在任何空白有意义的地方自由使
+Unicode 横向空白被视为空白，但最好不要在使邻近标记看起来像单一标记的地方使用窄
+空格。另一方面，Perl 不使用缩进作为语法，所以你可以在任何空白有意义的地方自由使
 用任意数量的空白。注释常常被视为空白。
 
 =item *
@@ -252,7 +252,7 @@ There must be no space between the C<#`> and the opening bracket character.
 (There may be the I<visual appearance> of space for some double-wide
 characters, however, such as the corner quotes above.)
 
-C<#`> 与开括号字符之间必须不能有空白。（不过双宽度字符可能有空白视觉出现，比
+C<#`> 与开括号字符之间必须不能有空格。（不过双宽度字符可能有空格I<视觉呈现>，比
 如上面的角引号。）
 
 For multiline comments it is recommended (but not required) to use two or
@@ -309,10 +309,10 @@ Perl requires an absence of whitespace between a noun and a postfix
 operator, using unspace lets you line up postfix operators:
 
 有些语言比如 C 运行使用转义换行符来合并行。由于各种原因，其它语言（比如正则表达
-式）允许反斜杠空白字符。Per 6 概括这种观念为任何种类的空白字符。通过使用前
-缀 C<\>，任何连续的空白（包括注释）都会从语法分析器中隐藏。这称为“非空白”。
-在 Perl 中，非空白可以阻止任意若干个空白关联。举个例子，既然 Perl 需要在名词
-和后缀操作符之间缺席，使用非空白让你与后缀操作符排成行。
+式）允许反斜杠空格字符。Per 6 概括这种观念为任何种类的空白字符。通过使用前
+缀 C<\>，任何连续的空白（包括注释）都会从语法分析器中隐藏。这称为“虚空白”。
+在 Perl 中，虚空白可以阻止任意若干个空白关联。举个例子，既然 Perl 需要在名词
+和后缀操作符之间缺席，使用虚空白让你与后缀操作符排成行。
 
     %hash\  {$key}
     @array\ [$ix]
@@ -322,7 +322,7 @@ As a special case to support the use above, a backslash where
 a postfix is expected is considered a degenerate form of unspace.
 Note that whitespace is not allowed before that, hence
 
-作为支持上面使用方式的特例，后缀操作符要求有反斜杠的地方被认为是非空白的退化。
+作为支持上面使用方式的特例，后缀操作符要求有反斜杠的地方被认为是虚空白的退化。
 注意在反斜杠之前是不允许有空白，因此：
 
     $subref \($arg)
@@ -343,12 +343,12 @@ However, other forms of unspace may usefully be preceded by whitespace.
 (Unary uses of backslash may therefore never be followed by whitespace
 or they would be taken as an unspace.)
 
-然而，空白实际上可以紧跟着其它形式的非空白。（因此反斜杠的单一使用后面绝不可
-能有空白或它们将被视为非空白。）
+然而，空白实际上可以紧跟着其它形式的虚空白。（因此反斜杠的单一使用后面绝不可
+能有空白或它们将被视为虚空白。）
 
 Other postfix operators may also make use of unspace:
 
-其它后缀操作符也可以使用非空白：
+其它后缀操作符也可以使用虚空白：
 
     $number\  ++;
     $number\  --;
@@ -375,8 +375,8 @@ the line in any situation where a newline might confuse the parser,
 regardless of your currently installed parser.  (Unless, of course,
 you override the unspace rule itself...)
 
-但非空白主要是语言的扩展性：它让你在任何可能搞混语法分析器的地方继续该行，不管
-你现在安装的语法分析器。（当然，除非你覆盖了它自己的非空白规则……）
+但虚空白主要是语言的扩展性：它让你在任何可能搞混语法分析器的地方继续该行，不管
+你现在安装的语法分析器。（当然，除非你覆盖了它自己的虚空白规则……）
 
 Although we say that the unspace hides the whitespace from the parser,
 it does not hide whitespace from the lexer.  As a result, unspace is not
@@ -386,9 +386,9 @@ Since Pod chunks count as whitespace to the language, they are also
 swallowed up by unspace.  Heredoc boundaries are suppressed, however,
 so you can split excessively long heredoc intro lines like this:
 
-尽管我们说非空白从语法分析器中隐藏了空白，但它没有从词法分析器中隐藏。因此，反
-空白不允许在标记里面。此外，如果非空白包含一个以上的新行，行数仍然会被统计。既
-然对于该语言 Pod 块被视为空白，它们也被非空白吞噬。然而 Heredoc 分界线是抑制的，
+尽管我们说虚空白从语法分析器中隐藏了空白，但它没有从词法分析器中隐藏。因此，反
+空白不允许在标记里面。此外，如果虚空白包含一个以上的新行，行数仍然会被统计。既
+然对于该语言 Pod 块被视为空白，它们也被虚空白吞噬。然而 Heredoc 分界线是抑制的，
 所以你可以像这样极大地分离冗长的 heredoc 引入线：
 
     ok(q:to'CODE', q:to'OUTPUT', \
@@ -415,7 +415,7 @@ the newline transition, not all whitespace as in the case of postfix
 parsing.  (Note also that the example above is not meant to spec how
 the test suite works. )
 
-注意这是可以让空白放在非空白之前的其中一个例子，因为我们只是尝试抑制新行转换，
+注意这是可以让空白放在虚空白之前的其中一个例子，因为我们只是尝试抑制新行转换，
 不是所有的空白和这个后缀解析情况一样。（还有注意，上面的例子并不意味着说明测试
 套件是如何工作的。）
 
@@ -425,7 +425,7 @@ An unspace may contain a comment, but a comment may not contain an unspace.
 In particular, end-of-line comments do not treat backslash as significant.
 If you say:
 
-非空白可以包含注释，但注释不可以包含非空白，特别地，行尾注释认为反斜杠符号没有意义。
+虚空白可以包含注释，但注释不可以包含虚空白，特别地，行尾注释认为反斜杠符号没有意义。
 如果你写：
 
     #`\ (...
@@ -474,10 +474,10 @@ as no whitespace occurs outside the unspace or embedded comment.
 
 这是一个不变的底层原则，但随着大量的操作符或者宏从语言中被添加或者删除，它的表
 面分歧改变了，正如我们期待的发生，因为 Perl 6 被设计为可变语言。特别地，中缀操作
-符与后缀操作符之间有个天然冲突，它们任何一个都会出现在术语后面。如果给定的标记
-被解释成后缀操作符或中缀操作符，那么中缀操作符之前需要一个空白。后缀操作符应该
-决没有介于中间的空白，尽管它们可能有一个介于中间的点。如果进一步要求分离，反
-空白或者嵌入式注释应该正如上描述的那样使用，只要没有空白出现在非空白或者嵌入式
+符与后缀操作符之间有个自然冲突，它们任何一个都会出现在术语后面。如果给定的标记
+被解释成后缀操作符或中缀操作符，那么中缀操作符之前需要一个空格。后缀操作符应该
+决没有介于中间的空格，尽管它们可能有一个介于中间的点。如果进一步要求分离，反
+空白或者嵌入式注释应该正如上描述的那样使用，只要没有空白出现在虚空白或者嵌入式
 注释之外。
 
 For instance, if you were to add your own C<< infix:<++> >> operator,
@@ -485,8 +485,8 @@ then it must have space before it. The normal autoincrementing
 C<< postfix:<++> >> operator may never have space before it, but may
 be written in any of these forms:
 
-例如：如果你添加自己的 C<< infix:<++> >> 操作符，那么它之前必须有个空白。标准的
-自增 C<< postfix:<++> >> 操作符之前可能从来没有空白，但是可以以任何这些形
+例如：如果你添加自己的 C<< infix:<++> >> 操作符，那么它之前必须有个空格。标准的
+自增 C<< postfix:<++> >> 操作符之前可能从来没有空格，但是可以以任何这些形
 式编写：
 
 
@@ -536,7 +536,7 @@ C<< infix:<.EQ.> >> if the fit took you.  But you'll have to be sure to
 always put whitespace in front of it, or it would be interpreted as
 a postfix method call instead.)
 
-一个后缀规则的推论是（除非划分引用界限或者终止非空白），点之前的空白常常被认
+一个后缀规则的推论是（除非划分引用界限或者终止虚空白），点之前的空白常常被认
 为 C<$_> 的上面的一个方法调用，在这个地方常常需要一个术语。如果这时候没有一个
 术语，那么这是语法错误。（当然，除非点开始之前有这个名称的中缀操作符，举个例子，
 如果合适的话，你可以定义一个公式翻译器 C<< infix:<.EQ.> >>。但你不得不保证常常在
