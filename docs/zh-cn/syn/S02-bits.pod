@@ -607,7 +607,7 @@ B<P6opaque>.  External access to opaque objects is always through method
 calls, even for attributes.
 
 为了支持 OO 封装，这里有个基本数据类型：B<P6opaque>。外部通常通过方法调用处
-理 opaque 对象，即使是对 attributes 进行处理。
+理 opaque 对象，即使是对 attribute 进行处理。
 
 =item *
 
@@ -649,7 +649,7 @@ considered equivalent even if they have the same attributes because
 classes are not considered immutable.
 
 参数类型的名称等价仅适用于被认为不可变的参数（或者它们之间只少有一个不可变快
-照）。即使两个不同的类有同样的 attributes，也从来不认为等价，因为它们不认为是可
+照）。即使两个不同的类有同样的 attribute，也从来不认为等价，因为它们不认为是可
 变类型。
 
 =item *
@@ -658,7 +658,7 @@ Perl 6 supports the notion of B<properties> on various kinds of
 objects.  Properties are like object attributes, except that they're
 managed by the individual object rather than by the object's class.
 
-Perl 6 对各种对象支持 B<properties> 概念。Properties 与对象 attributes
+Perl 6 对各种对象支持 B<property> 概念。Property 与对象 attribute
 类似，除了它们被独立的对象管理，而不是被对象的类管理。
 
 According to S12, properties are actually implemented by a
@@ -666,7 +666,7 @@ kind of mixin mechanism, and such mixins are accomplished by the
 generation of an individual anonymous class for the object (unless
 an identical anonymous class already exists and can safely be shared).
 
-根据 S12，properties 实际上是通 1 种混合机制实现，这样的混合体是为对象通过一个
+根据 S12，property 实际上是通 1 种混合机制实现，这样的混合体是为对象通过一个
 独特匿名类的衍生而实现的（除非一个完全相同的匿名类已经存在并可以被安全共享）。
 
 =item *
@@ -676,8 +676,8 @@ variables and classes, are also called B<traits>.  Traits cannot be
 changed at run-time.  Changes to run-time properties are done via
 mixin instead, so that the compiler can optimize based on declared traits.
 
-Properties 适用于对象在编译时构建，比如变量和类，也被称为 B<特性>。特性不能在运
-行时被改变。运行时 properties 的改变是经过混合体代替完成，所以编译器可以基于声
+Property 适用于对象在编译时构建，比如变量和类，也被称为 B<trait>。trait 不能在运
+行时被改变。运行时 property 的改变是经过混合体代替完成，所以编译器可以基于声
 明特性优化。
 
 =item *
