@@ -150,23 +150,6 @@
       "url": "https://github.com/partcl/partcl-nqp"
    },
    {
-      "branches": [
-          "master",
-          "nom"
-       ],
-      "channels": [
-         [
-            "magnet",
-            "parrot"
-         ],
-         [
-            "freenode",
-            "#perl6"
-         ]
-      ],
-      "url": "https://github.com/rakudo/rakudo"
-   },
-   {
       "channels": [
          [
             "freenode",
