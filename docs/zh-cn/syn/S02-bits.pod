@@ -666,7 +666,7 @@ kind of mixin mechanism, and such mixins are accomplished by the
 generation of an individual anonymous class for the object (unless
 an identical anonymous class already exists and can safely be shared).
 
-根据 S12，property 实际上是通 1 种混合机制实现，这样的混合体是为对象通过一个
+根据 S12，property 实际上是通过一种混合机制实现，这样的混合机制是为对象通过一个
 独特匿名类的衍生而实现的（除非一个完全相同的匿名类已经存在并可以被安全共享）。
 
 =item *
