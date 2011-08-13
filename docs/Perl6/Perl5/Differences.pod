@@ -476,7 +476,7 @@ Hash elements no longer auto-quote:
 
 The curly-bracket forms still work, but curly-brackets are more
 distinctly block-related now, so in fact what you've got there is a
-block that returns the value "February".  The C<<>> and C<<<>>> forms
+block that returns the value "February".  The C<< <> >> and C<< <<>> >> forms
 are in fact just quoting mechanisms being used as subscripts (see below).
 
 =head2 Built-in functions are now methods
