@@ -417,7 +417,7 @@ For details, see L<S03/"Changes to Perl 5 operators"/"The filetest operators now
 
 A number of builtins have been removed. For details, see:
 
-L<S29/"Obsolete">
+L<S29/"Obsolete Functions">
 
 =head2 References are gone (or: everything is a reference)
 
