@@ -384,7 +384,7 @@ You should override these to provide meaningful semantics.
         multi method postcircumfix:<{ }>(Int $index) {
             # code for accessing single hash elements here
         }
-        multi method postcircumfix:<{ }>(*@@slice) {
+        multi method postcircumfix:<{ }>(**@slice) {
             # code for accessing hash slices here
         }
         ...
