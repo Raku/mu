@@ -384,7 +384,7 @@ You should override these to provide meaningful semantics.
         multi method postcircumfix:<{ }>(Int $index) {
             # code for accessing single hash elements here
         }
-        multi method postcircumfix:<{ }>(*@@slice) {
+        multi method postcircumfix:<{ }>(**@slice) {
             # code for accessing hash slices here
         }
         ...
@@ -417,7 +417,7 @@ For details, see L<S03/"Changes to Perl 5 operators"/"The filetest operators now
 
 A number of builtins have been removed. For details, see:
 
-L<S29/"Obsolete">
+L<S29/"Obsolete Functions">
 
 =head2 References are gone (or: everything is a reference)
 
@@ -476,7 +476,7 @@ Hash elements no longer auto-quote:
 
 The curly-bracket forms still work, but curly-brackets are more
 distinctly block-related now, so in fact what you've got there is a
-block that returns the value "February".  The C<<>> and C<<<>>> forms
+block that returns the value "February".  The C<< <> >> and C<< <<>> >> forms
 are in fact just quoting mechanisms being used as subscripts (see below).
 
 =head2 Built-in functions are now methods
