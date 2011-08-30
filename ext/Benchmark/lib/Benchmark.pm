@@ -1,5 +1,5 @@
 use v6;
-module Benchmark-0.1;
+module Benchmark:ver<0.1>;
 
 sub timeit ($count, $code is copy) is export {
     $code = eval "sub \{ $code \}" unless $code.isa("Code");
@@ -30,14 +30,13 @@ sub timethese ($count, %hash) is export {
     }
 }
 
-=pod
+=begin pod
 
-=head1 NAME
-
+=begin NAME
 Benchmark - Benchmark running time of Perl 6 code
+=end NAME
 
-=head1 SYNOPSIS
-
+=begin SYNOPSIS
     use v6;
     use Benchmark;
 
@@ -51,24 +50,23 @@ Benchmark - Benchmark running time of Perl 6 code
                           }
                          }
                        });
+=end SYNOPSIS
 
 =head1 TODO
 
 many
 
-=cut
+=begin AUTHOR
+Chia-liang Kao, L<clkao@clkao.org|mailto:clkao@clkao.org>
+=end AUTHOR
 
-=head1 AUTHOR
-
-Chia-liang Kao, E<lt>clkao@clkao.orgE<gt>
-
-=head1 COPYRIGHT
-
+=begin COPYRIGHT
 Copyright (c) 2005. Chia-liang Kao. All rights reserved.
 
 This program is free software; you can redistribute it and/or modify
 it under the same terms as Perl itself.
 
-See http://www.perl.com/perl/misc/Artistic.html
+See L<http://www.perl.com/perl/misc/Artistic.html>
+=end COPYRIGHT
 
-=cut
+=end pod
