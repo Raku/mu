@@ -35,8 +35,8 @@ say sum(1 .. 10);
 say sum(1 .. 5);
 say sum(2, 2, 2, 2);
 
-sub is_even (Int $val) returns Bool { ($val <= 0) ?? 1 !! is_odd($val - 1)  }
-sub is_odd  (Int $val) returns Bool { ($val <= 0) ?? 0 !! is_even($val - 1) }
+sub is_even (Int $val) returns Bool { ?(($val <= 0) ?? 1 !! is_odd($val - 1)) }
+sub is_odd  (Int $val) returns Bool { ?(($val <= 0) ?? 0 !! is_even($val - 1)) }
 
 say "... mutually recursive even and odd predicates";
 say is_even(4);
@@ -49,36 +49,36 @@ multi rev (*$x, *@xs) { (rev(|@xs), $x) }
 
 say "... reverse";
 my @result = rev(1, 'foo', 3, 4, 'bar');
-say join ", ", @result; 
+say join ", ", @result;
 
-my @result = rev('foo');            
-say join ", ", @result; 
+@result = rev('foo');
+say join ", ", @result;
 
 # my @result = reverse();
-# say join ", ", @result; 
+# say join ", ", @result;
 
-multi member (*$val)            returns Bool { 0 }
-multi member (*$val, *$x, *@xs) returns Bool { ($val eq $x) || member($val, |@xs) }
+multi member (*$val)            returns Bool { ?0 }
+multi member (*$val, *$x, *@xs) returns Bool { ?(($val eq $x) || member($val, |@xs)) }
 
 say "... member";
-say member('foo', 1, 'foo', 3, 4, 'bar'); 
+say member('foo', 1, 'foo', 3, 4, 'bar');
 say member('baz', 1, 'foo', 3, 4, 'bar');
-say member('bar', 1, 'foo', 3, 4, 'bar');           
+say member('bar', 1, 'foo', 3, 4, 'bar');
 
 multi unique ()          { () }
 multi unique (*$x, *@xs) { member($x, |@xs) ?? unique(|@xs) !! ($x, unique(|@xs)) }
 
 say "... unique";
-my @result = unique('foo', 5, 4, 3, 3, 3, 3, 1, 'foo', 3, 4, 'bar'); 
+ @result = unique('foo', 5, 4, 3, 3, 3, 3, 1, 'foo', 3, 4, 'bar');
 say join ", ", @result;
 
-my @result = unique(1, 2, 3, 4, 1, 2, 3, 2, 2, 1, 1, 1, 1, 2, 4, 1, 1); 
+@result = unique(1, 2, 3, 4, 1, 2, 3, 2, 2, 1, 1, 1, 1, 2, 4, 1, 1);
 say join ", ", @result;
 
-my @result = unique(1, 1, 1, 1, 1, 1, 1, 1); 
+@result = unique(1, 1, 1, 1, 1, 1, 1, 1);
 say join ", ", @result;
 
-my @result = unique('foo'); 
+@result = unique('foo');
 say join ", ", @result;
 
 # my @result = unique(); 

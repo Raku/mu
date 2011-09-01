@@ -1,12 +1,12 @@
 
 
 multi sub length ()          returns Int { 0               }
-multi sub length (*$x, *@xs) returns Int { 1 + length(@xs) }
+multi sub length (*$x, *@xs) returns Int { 1 + length(|@xs) }
 
 sub length2(*@x) returns Int{
     multi sub iter(*$curr) returns Int{ $curr }
     multi sub iter(*$curr, *$x, *@xs) returns Int{
-        iter($curr + 1, @xs);
+        iter($curr + 1, |@xs);
     }
     iter(0, @x);
 }
