@@ -15,7 +15,7 @@ body {
 }
 /* Add Copyright TPF message, licence text, whatever */
 html:after {
-    content: "This page is generated from the files in the pugs repository at http://svn.pugscode.org/pugs/docs/u4x/. You may use it under the terms of the Artistic License 2.0.";
+    content: "This page is generated from the files in the mu repository at http:s//github.com/perl6/mu directory docs/u4x/. You may use it under the terms of the Artistic License 2.0.";
     font-family: "Arial,Helvetica, Sans serif";
     font-size: 10px;
     color:#FFF ;
