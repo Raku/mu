@@ -1,0 +1,16 @@
+(partially taken from last year)
+
+- traits
+- native types
+- is everything a reference?
+- Buf and binary IO
+- gather and coroutines are equal in power
+- show off some nice modules
+- sockets
+- show off Date/DateTime
+- lexical imports
+- multi subs and methods -- how the spec puts user-defined ones on equal footing with built-in ones
+- roles, role conflicts, and disambiguators (DrunkenGymnast!)
+- cool things you can do with bigints and/or rats
+- pod6
+- neat tricks for working with lazy lists
