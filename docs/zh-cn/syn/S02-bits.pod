@@ -63,7 +63,7 @@ and might or might not end with brackets.
 
 Recognize that a reduce operator is not really beginning a C<[...]> composer.
 
-确定不是真正以 C<[...]> 中括号开头组成的减法元操作符。
+识别不是真正以 C<[...]> 中括号开头组成的减法元操作符。
 
 =back
 
