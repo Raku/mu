@@ -3,7 +3,6 @@
 - traits
 - native types
 - is everything a reference?
-- Buf and binary IO
 - gather and coroutines are equal in power
 - show off some nice modules
 - sockets
@@ -22,7 +21,10 @@
   differences.  Rosettacode?)
 - idiomatic Perl 6 (useful, common idioms)
 - A look at Niecza 
-- Grammar::Debugger
 - meta-programming
 - nci
 - nom-based Rakudo Star!
+
+Already planned or written about:
+- Grammar::Debugger
+- Buf and binary IO
