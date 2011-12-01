@@ -24,6 +24,8 @@
 - meta-programming
 - nci
 - nom-based Rakudo Star!
+- operator precedence
+- dynamic subs: perfect for DSL-y things
 
 Already planned or written about:
 - Grammar::Debugger
