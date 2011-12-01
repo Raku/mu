@@ -28,7 +28,6 @@
 - dynamic subs: perfect for DSL-y things
 - stuff Niecza does that Rakudo will do
     - library interfacing
-    - flip flop operator
     - ENTER/LEAVE phasers
     - Pseudo packages (MY, OUR, CORE, GLOBAL, etc.)
 - Tetris in Niecza
@@ -37,3 +36,4 @@
 Already planned or written about:
 - Grammar::Debugger
 - Buf and binary IO
+- flip flop operator
