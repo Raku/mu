@@ -1,6 +1,5 @@
 (partially taken from last year)
 
-- traits
 - native types
 - is everything a reference?
 - gather and coroutines are equal in power
@@ -37,3 +36,4 @@ Already planned or written about:
 - Buf and binary IO
 - flip flop operator
 - Tetris in Niecza
+- Traits
