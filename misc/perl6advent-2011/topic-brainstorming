@@ -13,14 +13,12 @@
 - pod6
 - neat tricks for working with lazy lists
 - overview of available, useful modules with small example programs
-- ecosystem update (panda, feature matrix, etc. What didn't exist last year?)
 - learning resources (where do people find help?)
 - review where we're at with Perl 6 (not just Rakudo)
 - Perl 5/Perl 6 comparison (pick a nice problem or two and hilight the
   differences.  Rosettacode?)
 - idiomatic Perl 6 (useful, common idioms)
 - A look at Niecza 
-- meta-programming
 - nci
 - nom-based Rakudo Star!
 - operator precedence
@@ -38,3 +36,6 @@ Already planned or written about:
 - Tetris in Niecza
 - Traits
 - Grammar::Profiler riff off of Grammar::Debugger
+- ecosystem update (panda, feature matrix, etc. What didn't exist last year?)
+- meta-programming
+- Modelbrot & Gtk
