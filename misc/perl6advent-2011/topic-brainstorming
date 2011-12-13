@@ -10,7 +10,6 @@
 - multi subs and methods -- how the spec puts user-defined ones on equal footing with built-in ones
 - roles, role conflicts, and disambiguators (DrunkenGymnast!)
 - cool things you can do with bigints and/or rats
-- pod6
 - neat tricks for working with lazy lists
 - overview of available, useful modules with small example programs
 - learning resources (where do people find help?)
@@ -39,3 +38,5 @@ Already planned or written about:
 - ecosystem update (panda, feature matrix, etc. What didn't exist last year?)
 - meta-programming
 - Modelbrot & Gtk
+- pod6
+- Bailador (Dancer port)
