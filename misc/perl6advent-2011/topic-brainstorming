@@ -16,7 +16,6 @@
 - review where we're at with Perl 6 (not just Rakudo)
 - Perl 5/Perl 6 comparison (pick a nice problem or two and hilight the
   differences.  Rosettacode?)
-- idiomatic Perl 6 (useful, common idioms)
 - A look at Niecza 
 - nci
 - nom-based Rakudo Star!
@@ -40,3 +39,4 @@ Already planned or written about:
 - Modelbrot & Gtk
 - pod6
 - Bailador (Dancer port)
+- idiomatic Perl 6 (useful, common idioms)
