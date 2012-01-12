@@ -71,6 +71,13 @@ Perl 6 Bible (Perl6::Bible)                                - Various Authors
 
 MinCaml: A Simple and Efficient Compiler                      - Eijiro Sumii
     http://min-caml.sourceforge.net/paper.pdf
+Let's Build a Compiler!                            - Jack W. Crenshaw, Ph.D.
+    http://www.compilers.iecc.com/crenshaw/tutor1.txt
+
+== Regexes
+
+Regular Expression Matching Can Be Simple And Fast                - Russ Cox
+    http://swtch.com/~rsc/regexp/regexp1.html
 
 = Databases - Books
 
@@ -90,12 +97,14 @@ A Relational Model of Data for Large Shared Data Banks
     Vol. 13, No. 6, June 1970, pp. 377-387.
     Copyright © 1970, Association for Computing Machinery, Inc.
 
-= Non-Haskell books
+= General programming
 
 Types and Programming Languages                         - Benjamin C. Pierce
 Advanced Topics in Types and Programming Languages      - Benjamin C. Pierce
 Higher Order Perl                                       - Mark Jason Dominus
 The Art of the MetaObject Protocol                         - Gregor Kiczales
+How to Think About Algorithms                                 - Jeff Edmonds
+    http://www.mat.unb.br/clausahm/area/AnAlg-07.2d/Referencias/HowToThinkAboutAlgorithms-Edmonds.pdf
 
 = None of the above
 
