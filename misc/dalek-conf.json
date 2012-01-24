@@ -150,15 +150,6 @@
       "url": "https://github.com/partcl/partcl-nqp"
    },
    {
-      "channels": [
-         [
-            "freenode",
-            "#perl6"
-         ]
-      ],
-      "url": "https://github.com/rakudo/star/"
-   },
-   {
       "url": "https://github.com/stefano/primitivearc/"
    },
    {
