@@ -1,0 +1,17 @@
+What you need for developing web stuff:
+
+* HTTP::Request
+* HTTP::Response
+* A HTTP server, or an interface to one (CGI/FastCGI/PSGI/...). Preferably both.
+* Cookies
+* Sessions
+* HTML template
+* URI handling
+* DB connectivity
+* A MVC-ish framework
+* Caching
+
+low priority:
+
+* a paging helper
+* form helper
