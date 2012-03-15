@@ -9,6 +9,7 @@ What you need for developing web stuff:
 * HTML template
   - There is Ratel, living in Bailador's repo as for now. Not perfect, but working and doing its job.
 * URI handling
+  - The URI module is in a good shape, aside from not working on nom.
 * DB connectivity
 * A MVC-ish framework
 * Caching
