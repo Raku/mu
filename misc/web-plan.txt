@@ -3,9 +3,11 @@ What you need for developing web stuff:
 * HTTP::Request
 * HTTP::Response
 * A HTTP server, or an interface to one (CGI/FastCGI/PSGI/...). Preferably both.
+  - HTTP::Easy works quite well, and the code is simple and hackable
 * Cookies
 * Sessions
 * HTML template
+  - There is Ratel, living in Bailador's repo as for now. Not perfect, but working and doing its job.
 * URI handling
 * DB connectivity
 * A MVC-ish framework
