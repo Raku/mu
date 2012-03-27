@@ -7,7 +7,9 @@ Perl6::Perl5::Differences -- Differences between Perl 5 and Perl 6
 This document is intended to be used by Perl 5 programmers who are new to Perl
 6 and just want a quick overview of the main differences.  More detail on
 everything can be found in the language reference, which have been linked to
-throughout.
+throughout. In certain cases, you can also just use Perl 5 code in Perl 6 and
+compiler may say what's wrong. Note that it cannot recognize every difference,
+as sometimes old syntax actually means something else in Perl 6.
 
 This list is currently known to be incomplete.
 
@@ -36,16 +38,23 @@ Or even use the C<< <> >> operator, which replaces C<qw()>:
 Note that the sigil for fetching a single element has changed from C<$>
 to C<@>; perhaps a better way to think of it is that the sigil of a
 variable is now a part of its name, so it never changes in subscripting.
-
-The same applies to hashes:
-
-    say "There are %days{'February'} days in February";
-
-Again, there is a shorter form:
-
-    say "There are %days<February> days in February";
+This also applies to hashes.
 
 For details, see L<S02/"Names and Variables">.
+
+=head2 Hash elements no longer auto-quote
+
+Hash elements no longer auto-quote:
+
+    Was:    $days{February}
+    Now:    %days{'February'}
+    Or:     %days<February>
+    Or:     %days<<February>>
+
+The curly-bracket forms still work, but curly-brackets are more
+distinctly block-related now, so in fact what you've got there is a
+block that returns the value "February".  The C<< <> >> and C<< <<>> >> forms
+are in fact just quoting mechanisms being used as subscripts (see below).
 
 =head2 Global variables have a twigil
 
@@ -56,6 +65,11 @@ it's a C<*>
     Now:    %*ENV<FOO>
 
 For details, see L<S02/"Names and Variables">.
+
+=head2 Command-line arguments
+
+The command-line arguments are now in C<@*ARGS>, not C<@ARGV>.  Note the
+C<*> twigil because C<@*ARGS> is a global.
 
 =head2 New ways of referring to array and hash elements
 
@@ -129,7 +143,7 @@ Some highlights:
     Was:    qw(foo)
     Now:    <foo>
 
-    Was:    ("foo", (split ' ', $bar), "bat")
+    Was:    split ' ', "foo $bar bat"
     Now:    <<foo $bar bat>>
 
 Quoting operators now have modifiers that can be used with them (much like
@@ -258,6 +272,8 @@ C<loop> can also be used for infinite loops:
 
 =head1 Regexes and Rules
 
+=head2 New regex syntax
+
 Here's a simple translation of a Perl5 regular expression to Perl6:
 
     Was:    $str =~ m/^\d{2,5}\s/i
@@ -271,6 +287,22 @@ different, and 'P5' notes a Perl5 compatibility syntax.  For a substitution:
 
 Notice that C<$1> starts at C<$0> now, and C</e> is gone
 in favor of the embedded closure notation.
+
+=head2 Anonymous regexpes are now default
+
+Anonymous regexpes are now default, unless used in boolean context.
+
+    Was:    my @regexpes = (
+                qr/abc/,
+                qr/def/,
+            );
+    Now:    my @regexpes = (
+                /abc/,
+                /def/,
+            );
+
+Also, if you still want to mark regexp as anonymous, the C<qr//> operator is
+now called C<rx//> (Mnemonic: B<r>egeB<x>) or C<regex { }>.
 
 For the full specification, see L<S05>. See also:
 
@@ -339,6 +371,20 @@ twigil.
   Now: $self.$method()      # hard ref
   Now: $self."$method"()    # symbolic ref
 
+=head2 Built-in functions are now methods
+
+Most built-in functions are now methods of built-in classes such
+as C<String>, C<Array>, etc.
+
+    Was:    my $len = length($string);
+    Now:    my $len = $string.chars;
+
+    Was:    print sort(@array);
+    Now:    print @array.sort;
+            @array.sort.print;
+
+You can still say C<sort(@array)> if you prefer the non-OO idiom.
+  
 =cut
 
 #S13
@@ -454,7 +500,8 @@ This is a version of C<print> that auto-appends a newline:
     Now:    say   "Hello, world!";
 
 Since you want to do that so often anyway, it seemed like a handy thing
-to make part of the language.
+to make part of the language. This change was backported to Perl 5, so you can
+use C<say> after you will C<use v5.10> or better. 
 
 =head2 wantarray() is gone
 
@@ -462,45 +509,6 @@ C<wantarray> is gone. In Perl 6, context flows outwards, which means that a
 routine does not know which context it is in.
 
 Instead you should return objects that do the right thing in every context.
-
-=head1 Unfiled
-
-=head2 Hash elements no longer auto-quote
-
-Hash elements no longer auto-quote:
-
-    Was:    $days{February}
-    Now:    %days{'February'}
-    Or:     %days<February>
-    Or:     %days<<February>>
-
-The curly-bracket forms still work, but curly-brackets are more
-distinctly block-related now, so in fact what you've got there is a
-block that returns the value "February".  The C<< <> >> and C<< <<>> >> forms
-are in fact just quoting mechanisms being used as subscripts (see below).
-
-=head2 Built-in functions are now methods
-
-Most built-in functions are now methods of built-in classes such
-as C<String>, C<Array>, etc.
-
-    Was:    my $len = length($string);
-    Now:    my $len = $string.chars;
-
-    Was:    print sort(@array);
-    Now:    print @array.sort;
-            @array.sort.print;
-
-You can still say C<sort(@array)> if you prefer the non-OO idiom.
-
-=head1 MISCELLANEOUS
-
-Bits that can be file elsewhere.
-
-=head2 Command-line arguments
-
-The command-line arguments are now in C<@*ARGS>, not C<@ARGV>.  Note the
-C<*> twigil because C<@*ARGS> is a global.
 
 =head1 AUTHORS
 
