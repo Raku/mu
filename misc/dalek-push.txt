@@ -10,7 +10,7 @@ less resources, and do not require listing branches.
 
 4. Select "Post-Receive URLs".
 
-5. Enter http://host04.appflux.net:5000/dalek?t=freenode,perl6 into the
+5. Enter http://feather3.perl6.nl:5000/dalek?t=freenode,perl6 into the
    "URL" box and click "Update Settings".
 
    For other channels, adjust the URL correspondingly, for instance
@@ -19,7 +19,7 @@ less resources, and do not require listing branches.
    diakopter.
 
    If you want announcements in more than one channel, use a link such
-   as http://host04.appflux.net:5000/dalek?t=freenode,perl6+magnet,parrot .
+   as http://feather3.perl6.nl:5000/dalek?t=freenode,perl6+magnet,parrot .
 
 6. Use the test function.
 
