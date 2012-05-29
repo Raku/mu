@@ -8,7 +8,7 @@ less resources, and do not require listing branches.
 
 3. Select "Service Hooks".
 
-4. Select "Post-Receive URLs".
+4. Select "WebHook URLs"
 
 5. Enter http://feather3.perl6.nl:5000/dalek?t=freenode,perl6 into the
    "URL" box and click "Update Settings".
