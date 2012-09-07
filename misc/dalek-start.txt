@@ -1,0 +1,20 @@
+So you want to start up dalek?  Ok.
+
+1. Log into feather3.perl6.nl under account p6eval.  I like sudo -iu for this,
+   but it's up to you.
+
+2. 'tmux attach' or 'tmux', whichever works.  'screen' would work too, but I
+   prefer tmux.
+
+3. Start the 3 parts of dalek in separate windows:
+
+3a: The IRC component:
+    cd ~/dalek; perl botnix --debug
+
+3b: The HTTP stub for receiving push notifications:
+    cd ~/dalek/dalek-poller; plackup push.psgi
+
+3c: The pull component:
+    cd ~/dalek/dalek-poller; perl poll
+
+4. Detach and log out.
