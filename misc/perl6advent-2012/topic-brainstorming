@@ -1,7 +1,11 @@
-(partially taken from last year)
+(seeded taken from last year)
+
+= Unused topics
 
 - review where we're at with Perl 6 (not just Rakudo)
 - A look at what Perl 6 borrows from other languages
+- Perl 6 culture
+- What has changed with Rakudo since last year?
 - native types
 - is everything a reference?
 - gather and coroutines are equal in power
@@ -23,3 +27,8 @@
 - "porting" a module from one implementation to another
 - Unary sort
     - see http://irclog.perlgeek.de/perl6/2011-12-14#i_4833227
+
+= Topics already covered
+- A Perl 6 debugger -- jnthn
+- All you never wanted to know about quoting -- jnthn
+- Phasers set to stun: some neat use cases -- jnthn
