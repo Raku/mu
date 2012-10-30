@@ -1,0 +1,25 @@
+(partially taken from last year)
+
+- review where we're at with Perl 6 (not just Rakudo)
+- A look at what Perl 6 borrows from other languages
+- native types
+- is everything a reference?
+- gather and coroutines are equal in power
+- show off some nice modules
+- sockets
+- show off Date/DateTime
+- lexical imports
+- roles, role conflicts, and disambiguators (DrunkenGymnast!)
+- cool things you can do with bigints and/or rats
+- neat tricks for working with lazy lists
+- overview of available, useful modules with small example programs
+- learning resources (where do people find help?)
+- Perl 5/Perl 6 comparison (pick a nice problem or two and hilight the
+  differences.  Rosettacode?)
+- A look at Niecza 
+- nci
+- operator precedence
+- dynamic subs: perfect for DSL-y things
+- "porting" a module from one implementation to another
+- Unary sort
+    - see http://irclog.perlgeek.de/perl6/2011-12-14#i_4833227
