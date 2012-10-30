@@ -27,6 +27,10 @@
 - "porting" a module from one implementation to another
 - Unary sort
     - see http://irclog.perlgeek.de/perl6/2011-12-14#i_4833227
+- doc.perl6.org
+- port a small piece of code from imperative to functional or OO style
+- macros
+- typed exceptions
 
 = Topics already covered
 - A Perl 6 debugger -- jnthn
