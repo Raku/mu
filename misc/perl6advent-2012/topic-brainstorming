@@ -31,6 +31,8 @@
 - port a small piece of code from imperative to functional or OO style
 - macros
 - typed exceptions
+- Obtaining and installing
+    - for each current implementation
 
 = Topics already covered
 - A Perl 6 debugger -- jnthn
