@@ -2,6 +2,11 @@
 
 = Unused topics
 
+- Perlito
+- Query RC's API to get a list of all the pages with Perl 6 examples.
+- Heredocs
+- Who's who?
+- Panda
 - review where we're at with Perl 6 (not just Rakudo)
 - A look at what Perl 6 borrows from other languages
 - Perl 6 culture
