@@ -22,14 +22,11 @@
   differences.  Rosetta Code?)
 - A look at Niecza 
 - nci
-- operator precedence
-- dynamic subs: perfect for DSL-y things
 - "porting" a module from one implementation to another
 - Unary sort
     - see http://irclog.perlgeek.de/perl6/2011-12-14#i_4833227
 - doc.perl6.org
 - port a small piece of code from imperative to functional or OO style
-- macros
 - typed exceptions
 - Obtaining and installing
     - for each current implementation
@@ -38,3 +35,6 @@
 - A Perl 6 debugger -- jnthn
 - All you never wanted to know about quoting -- jnthn
 - Phasers set to stun: some neat use cases -- jnthn
+- Operator precedence -- masak
+- Dynamic subs and DSL-y things -- masak
+- Macros -- masak
