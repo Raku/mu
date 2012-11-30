@@ -1,25 +1,25 @@
 Please add your topic and name after each day that you plan to take
  1 State of Perl 6 -- ???
- 2 -- masak
+ 2 Anonymous Functions -- masak
  3 Whatever the layout manager is -- cedrvint
  4
  5 A Perl 6 debugger -- jnthn
  6
  7
  8 -- duff
- 9 -- masak
+ 9 Longest Token Matching -- masak
 10 All you never wanted to know about quoting -- jnthn
 11
 12
 13
 14 -- duff
 15 Phasers set to stun: some neat use cases -- jnthn
-16 -- masak
+16 Operator precedence -- masak
 17
 18
 19
-20
+20 Dynamic subs and DSL-y things -- masak
 21
 22 -- duff
-23 -- masak
+23 Macros -- masak
 24
