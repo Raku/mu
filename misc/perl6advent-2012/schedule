@@ -6,11 +6,11 @@ Please add your topic and name after each day that you plan to take
  5 A Perl 6 debugger -- jnthn
  6 Lexical imports -- moritz
  7 MIME::Base64 - Why encoded strings are better -- rurban
- 8 is-prime -- duff
+ 8 Panda package manager -- GlitchMr
  9 Longest Token Matching -- masak
 10 All you never wanted to know about quoting -- jnthn
 11 Parrot threads -- nine, whiteknight, or rurban
-12 Panda package manager -- GlitchMr
+12 is-prime -- duff
 13 Collatz variations -- colomon
 14 -- duff
 15 Phasers set to stun: some neat use cases -- jnthn
