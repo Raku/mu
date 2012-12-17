@@ -11,7 +11,7 @@ Please add your topic and name after each day that you plan to take
 10 All you never wanted to know about quoting -- jnthn
 11 Parrot threads -- nine, whiteknight, or rurban
 12 Exceptions -- moritz
-13 Collatz variations -- colomon
+13 Bags & Sets -- colomon
 14 is-prime -- duff
 15 Phasers set to stun: some neat use cases -- jnthn
 16 Operator precedence -- masak
@@ -19,7 +19,7 @@ Please add your topic and name after each day that you plan to take
 18 Transliterating Mathematical equations into Perl 6 -- cedrvint
 19 Gather and coroutines being equal in power, hopefully -- tadzik
 20 Dynamic subs and DSL-y things -- masak
-21 Sets & Bags -- colomon
+21 Collatz variations -- colomon
 22 -- duff
 23 Macros -- masak
 24
