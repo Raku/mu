@@ -2,16 +2,16 @@
 <HTML>
 <HEAD>
   <TITLE>
-		Perl 6 Cheat Sheet v2
+		Perl 6 Cheat Sheet v3
   </TITLE>
-  <META NAME="Description" CONTENT="Perl 6 Cheat Sheet v2">
+  <META NAME="Description" CONTENT="Perl 6 Cheat Sheet v3">
   <LINK REL="StyleSheet" HREF="cheatsheet.css" TYPE="text/css" MEDIA="screen">
   <META HTTP-EQUIV="Content-Type" CONTENT="text/html; charset=UTF-8">
 </HEAD>
 <BODY>
 
 <H1>
-Perl 6 cheat sheet v2
+Perl 6 cheat sheet v3
 </H1>
 
 <DIV id="container">
@@ -31,7 +31,7 @@ $scalar
 <P>
 item   list    sink
 Str    flat/lol
-Num    lazy/eager/hyper
+Num    lazy/eager/hyper/race
 Bool
 </P>
 </DIV>
@@ -119,7 +119,7 @@ x xx
 ~
 &amp;
 | ^
-sleep abs sin temp
+temp let
 &lt;=&gt; leg cmp .. but
 ~~ &gt; == gt eq === eqv !op
 &amp;&amp;
@@ -156,14 +156,14 @@ supersede  deadly parasitic
 <P>
 Bool Bit Int Rat FatRat UInt Num Complex int32, complex64 etc.
 Str Cat Blob Char Byte Codepoint Grapheme Buf buf8 buf32 utf8
-IO Mu Any Cool Junction Whatever Match
+IO Mu Any Cool Junction Whatever Match Nil
 Parcel Capture Signature
 Pair Range Set Bag
 KeyHash KeySet KeyBag
 Scalar Array Hash Code
 Enum Order TrigBase
 Block Routine Sub
-Method Regex
+Method Regex Cursor
 Failure Exception
 Instant Duration
 Date DateTime
