@@ -11,7 +11,6 @@
 - What has changed with Rakudo since last year?
 - native types
 - is everything a reference? (compare https://perl6advent.wordpress.com/2011/12/16/where-have-all-the-references-gone/)
-- gather and coroutines are equal in power
 - show off some nice modules
 - sockets
 - show off Date/DateTime
