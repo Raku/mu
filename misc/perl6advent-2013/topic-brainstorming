@@ -9,7 +9,6 @@
 - NativeCall on JVM
 - Mandelbrot in parallel on JVM
 - Shaped variables.
-- show off Date/DateTime
 - cool things you can do with bigints and/or rats
 - Sets/Bags
 - Query RC's API to get a list of all the pages with Perl 6 examples.
