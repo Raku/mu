@@ -3,14 +3,14 @@ Please add your topic and name after each day that you plan to take
  2 Undefined things - masak
  3 Rakudo Perl 6 on the JVM - jnthn
  4 Heredocs, Theredocs Everywheredocs docs - lue
- 5 Spec changes and operational fallout - lizmat
+ 5 Changes in specification and operational fallout - lizmat
  6 Date (and maybe DateTime) - moritz
  7
  8 Array-based objects - raydiak
  9 Hashes and pairs - masak
 10 Adverbly Adverby Adverbs (it's an post on adverbs) - lue
 11 Module Versioning - FROGGS
-12
+12 Bagging the changes in the Set specification - lizmat
 13
 14 Asynchronous Programming: Promises and Channels - jnthn
 15 Numbers and ways of writing them - masak
