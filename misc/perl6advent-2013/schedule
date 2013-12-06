@@ -1,10 +1,10 @@
 Please add your topic and name after each day that you plan to take
  1 State of Perl 6 - moritz
- 2 Undefined things - masak
+ 2 The humble type object - masak
  3 Rakudo Perl 6 on the JVM - jnthn
  4 Heredocs, Theredocs Everywheredocs docs - lue
  5 Changes in specification and operational fallout - lizmat
- 6 Date (and maybe DateTime) - moritz
+ 6 Parsing and generating recurring dates - moritz
  7
  8 Array-based objects - raydiak
  9 Hashes and pairs - masak
