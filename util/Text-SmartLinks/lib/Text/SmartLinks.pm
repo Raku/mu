@@ -1094,30 +1094,7 @@ sub process_perl5_file {
 
 sub process_perl6_file {
     my ($self, $pod, $outfile) = @_;
-
-    return if $self->check;
-    eval "use Perl6::Perldoc 0.000005; use Perl6::Perldoc::Parser; use Perl6::Perldoc::To::Xhtml;";
-    if ($@) {
-        warn "Please install Perl6::Perldoc v0.0.5 from the CPAN to generate $outfile";
-        return;
-    }
-
-    my $toc = "=TOC\nP<toc:head1 head2 head3>\n\n";
-    my $pod6 = $toc . join "", @$pod;
-
-    my $perldochtml = Perl6::Perldoc::Parser->parse(
-        \$pod6, {all_pod => 1}
-    )->report_errors()->to_xhtml(
-        {full_doc => {title => basename($outfile)}}
-    );
-    my $css = $self->cssfile;
-    $perldochtml =~ s{</head>}{<link rel="stylesheet" type="text/css" title="pod_stylesheet" href="$css">\n$&};
-    my $preamble = $self->gen_preamble();
-    $perldochtml =~ s{<body>}{$&$preamble};
-    $self->add_footer(\$perldochtml);
-
-    warn "info: generating $outfile...\n";
-    write_file($outfile, $perldochtml);
+    warn "This module cannot process this Pod6 file. Please use the appropriate Perl 6-based tools to generate $outfile.";
     return;
 }
 
