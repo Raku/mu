@@ -5,7 +5,7 @@
 "               Moritz Lenz <moritz@faui2k3.org>
 "               Hinrik Örn Sigurðsson <hinrik.sig@gmail.com>
 "
-" XXX: This file is now maintained at http://github.com/hinrik/vim-perl
+" XXX: This file is now maintained at https://github.com/hinrik/vim-perl
 "                
 " This is a big undertaking. Perl 6 is the sort of language that only Perl
 " can parse. But I'll do my best to get vim to.
@@ -2199,4 +2199,4 @@ setlocal foldmethod=syntax
 let b:current_syntax = "perl6"
 
 " deprecation notice
-redraw | echo "perl6.vim development has moved to http://github.com/hinrik/vim-perl"
+redraw | echo "perl6.vim development has moved to https://github.com/hinrik/vim-perl"

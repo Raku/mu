@@ -116,7 +116,7 @@ test-reporter.pl -f '<emailaddr>' -d <dir>
 =head1 DESCRIPTION
 
 This is meant to be run as a cron job.  It assumes there's a checkout of
-the roast repository (http://github.com/perl6/roast).
+the L<roast repository|https://github.com/perl6/roast>.
 Specify the location of this repo
 with the B<-d> option.  It will go there, update the repo, and look through
 recent commits for commit messages of a form that indicates a test was
@@ -148,8 +148,8 @@ Print the full documentation and exit.
 
 =item B<-d>
 
-This specifies the directory in which to find a checkout of the roast
-repository (http://github.com/perl6/roast).
+This specifies the directory in which to find a checkout of the
+L<roast repository|https://github.com/perl6/roast>.
 
 =item B<--from>
 

@@ -29,7 +29,7 @@ LTA
   
 proto
   The beginnings of a solution to the problem of distributing Perl 6 modules.
-  http://github.com/masak/proto/
+  https://github.com/masak/proto/
 
 rakudo *
   The planned release of Rakudo (a Perl 6 compiler targeting the Parrot VM) in

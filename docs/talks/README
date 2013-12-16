@@ -57,8 +57,8 @@ extraction.xul: "Practical Extraction with Perl 6" (English):
 
 whats_going_on_in_Perl6_pl.tex: "What's going on in Perl 6 (Polish)":
   Talk by Tadeusz Sośnierz for Warszawa.pm workshop in July 2010
-  PDF Version: http://github.com/tadzik/Perl6-slides/blob/master/perl6.pdf
+  PDF Version: https://github.com/tadzik/Perl6-slides/blob/master/perl6.pdf
 
 whats_going_on_in_Perl6_ca.tex: "What's going on in Perl 6 (Catalan)":
   Catalan translation of Polish Warszawa.pm worshop talk, presented on Rakudo Star celebration on Barcelona.pm July 2010
-  PDF Version: http://github.com/tadzik/Perl6-slides/blob/master/perl6_ca.pdf
+  PDF Version: https://github.com/tadzik/Perl6-slides/blob/master/perl6_ca.pdf
