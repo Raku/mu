@@ -41,4 +41,7 @@ Your ideas here
 
 Implement a testing framework that works with perl6's roast that tests all existing rosetta code examples to verify they still work.
 
+Possible mentors: Coke, ???
+
+
 ## Ecosystem
