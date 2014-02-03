@@ -37,6 +37,8 @@ Your ideas here
 
 ## Test suite
 
-Your ideas here
+### test rosetta code
+
+Implement a testing framework that works with perl6's roast that tests all existing rosetta code examples to verify they still work.
 
 ## Ecosystem
