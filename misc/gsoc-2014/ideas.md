@@ -1,5 +1,6 @@
 # Ideas for Perl 6 Google Summer of Code projects
 
+
 ## Rakudo
 
 ### Implement missing regex/grammar features
@@ -31,16 +32,61 @@ backend.
 
 Possible mentors: moritz, ???
 
+
 ## MoarVM
 
-Your ideas here
+### Break the VM
+
+MoarVM has an existing GC torture test which allowed us to significantly
+reduce the number of stability/correctness bugs in the memory management
+systems.  However, we need similar torture testing (and fuzzers, etc.) for
+other MoarVM subsystems, such as IO, concurrency, and native code interop.
+
+Implement one (or more!) such torture tools and diagnose and/or fix the
+issues it uncovers.
+
+Possible mentors: ???
+
+### JIT
+
+MoarVM has a relatively efficient bytecode interpreter, but as yet no JIT.
+Create a working (though not necessarily complete) JIT for at least one
+CPU on at least one supported OS, refactoring the interpreter as needed to
+allow the JIT to work seemlessly, efficiently, and correctly. 
+
+Possible mentors: ???
+
 
 ## Test suite
 
-### test rosetta code
+### Test Rosetta Code
 
-Implement a testing framework that works with perl6's roast that tests all existing rosetta code examples to verify they still work.
+Implement a testing framework that works with Perl 6's roast that tests all
+existing Rosetta Code examples to verify they still work.
 
 Possible mentors: Coke, moritz, ???
 
+
+## Native library bindings
+
+### SSL/TLS bindings
+
+Create a complete NativeCall binding for an existing SSL/TLS library.
+Provide working example code (or better yet, modules) for HTTPS and one or
+more other secure protocols.  Test that it works with at least the JVM or
+MoarVM backend.
+
+Possible mentors: ???
+
+### OpenGL bindings
+
+Create a complete (or mostly complete) NativeCall binding for OpenGL and/or
+OpenGL ES.  Create or translate example code for at least 2.x-style GL.
+Test that it works for at least the JVM or MoarVM backend.
+
+Possible mentors: ???
+
+
 ## Ecosystem
+
+XXX: Ideas here!
