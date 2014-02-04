@@ -17,6 +17,10 @@ features.
 
 Possible mentors: ???
 
+### Make rakudo manage precompilation of modules
+
+Possible mentors: ???
+
 ### NFG Strings
 
 The Perl 6 specification contains a feature that hasn't been implemented in
@@ -112,5 +116,9 @@ featuring colorful plots, possibly utilizing the
 [perl6/bench-scripts](https://github.com/perl6/bench-scripts)
 and/or [japhb/perl6-bench](https://github.com/japhb/perl6-bench).
 Would track performance of the major Perl 6 implementations.
+
+Possible mentors: ???
+
+### Create a rock-solid HTTP client and server modules
 
 Possible mentors: ???
