@@ -60,7 +60,7 @@ Possible mentors: ???
 MoarVM has a relatively efficient bytecode interpreter, but as yet no JIT.
 Create a working (though not necessarily complete) JIT for at least one
 CPU on at least one supported OS, refactoring the interpreter as needed to
-allow the JIT to work seemlessly, efficiently, and correctly. 
+allow the JIT to work seamlessly, efficiently, and correctly. 
 
 Possible mentors: ???
 
