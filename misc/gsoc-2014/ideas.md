@@ -32,6 +32,14 @@ backend.
 
 Possible mentors: moritz, ???
 
+### Allomorphic Types
+
+Implement allomorphic types (IntStr, RatStr, etc.), val(), proper handling
+in MAIN(), and fix everywhere that assumes a single value cannot be both a
+Numeric type and a Stringy type at the same time.
+
+Possible mentors: ???
+
 
 ## MoarVM
 
@@ -83,6 +91,15 @@ Possible mentors: ???
 Create a complete (or mostly complete) NativeCall binding for OpenGL and/or
 OpenGL ES.  Create or translate example code for at least 2.x-style GL.
 Test that it works for at least the JVM or MoarVM backend.
+
+Possible mentors: ???
+
+### GUI toolkit bindings
+
+Create NativeCall bindings for a cross-platform windowing toolkit such as Qt
+or GTK+.  Create or translate example code for a simple program that can be
+easily extended by programmers learning how to use the toolkit for their own
+applications.  Test that it works for at least the JVM or MoarVM backend.
 
 Possible mentors: ???
 
