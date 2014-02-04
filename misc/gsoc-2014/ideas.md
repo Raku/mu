@@ -68,6 +68,21 @@ allow the JIT to work seamlessly, efficiently, and correctly.
 
 Possible mentors: ???
 
+### Peephole Optimizer
+
+After the bytecode has been created, no further post-processing is done so
+far, even though there's most probably lots of redundancy and unnecessary
+complexity. Peephole Optimizers operate on small sections of bytecode,
+usually any amount of code between jump instructions, and apply pattern
+matching to the bytecode to find common cases of unoptimal bytecode and
+replacing them.
+
+Since MoarVM is, at heart, a register VM, many common peephole optimizations
+such as turning redundant loads into load + dup are not applicable. There are
+still optimizations that can definitely be worth it, such as strength
+reduction of arithmetic operations.
+
+Possible mentors: ???
 
 ## Test suite
 
