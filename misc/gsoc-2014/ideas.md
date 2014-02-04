@@ -106,8 +106,11 @@ Possible mentors: ???
 
 ## Ecosystem
 
-Create an "are we fast yet?" site for Perl 6, featuring colorful plots,
-possibly utilizing the [perl6/bench-scripts](https://github.com/perl6/bench-scripts).
+Create an "are we fast yet?" site for Perl 6, similar to
+[arewefastyet.com](http://arewefastyet.com/) or [speed.pypy.org](http://speed.pypy.org/)
+featuring colorful plots, possibly utilizing the
+[perl6/bench-scripts](https://github.com/perl6/bench-scripts)
+and/or [japhb/perl6-bench](https://github.com/japhb/perl6-bench).
 Would track performance of the major Perl 6 implementations.
 
 Possible mentors: ???
