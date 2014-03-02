@@ -9,10 +9,12 @@ ulimit -v $(( 1 * 10 ** 6 ))
 ulimit -t $(( 10 * 60 ))
 
 ROOT_DIR=/home/pugscode
-DEST_DIR=$ROOT_DIR/syn
+DEST_DIR=$ROOT_DIR/html/syn
 MU_DIR=$ROOT_DIR/mu
 TEST_DIR=$ROOT_DIR/roast
 POD_DIR="$ROOT_DIR/specs"
+
+mkdir -p $DEST_DIR;
 
 for i in $MU_DIR $TEST_DIR $POD_DIR
 do
