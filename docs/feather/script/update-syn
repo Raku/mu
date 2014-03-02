@@ -15,7 +15,8 @@ TEST_DIR=$ROOT_DIR/roast
 POD_DIR="$ROOT_DIR/specs"
 
 mkdir -p $DEST_DIR;
-cp $MU_DIR/docs/feather/{index.html,*.css} $ROOT_DIR/html/
+cp $MU_DIR/docs/feather/syn_index.html $ROOT_DIR/html/index.html
+cp $MU_DIR/docs/feather/*.css $ROOT_DIR/html/
 
 for i in $MU_DIR $TEST_DIR $POD_DIR
 do
