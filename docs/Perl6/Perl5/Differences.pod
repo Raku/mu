@@ -427,18 +427,19 @@ C<Callable>.
 The roles provides the operators C<< postcircumfix:<[ ]> >> (Positional; for
 array indexing), C<< postcircumfix:<{ }> >>
 (Associative) and C<< postcircumfix:<()> >> (Callable). The are technically
-just methods with a fancy syntax.
-You should override these to provide meaningful semantics.
+just functions with a fancy syntax.
+You can override these to provide the desired semantics.
 
     class OrderedHash does Associative {
-        multi method postcircumfix:<{ }>(Int $index) {
+        multi sub postcircumfix:<{ }>(Int $index) is export {
             # code for accessing single hash elements here
         }
-        multi method postcircumfix:<{ }>(**@slice) {
+        multi sub postcircumfix:<{ }>(**@slice) is export {
             # code for accessing hash slices here
         }
         ...
     }
+    import OrderedHash;
 
     my %orderedHash = OrderedHash.new();
     say %orderedHash{'a'};
@@ -520,4 +521,5 @@ Kirrily "Skud" Robert, C<< <skud@cpan.org> >>,
 Mark Stosberg,
 Moritz Lenz,
 Trey Harris,
-Andy Lester
+Andy Lester,
+Larry Wall
