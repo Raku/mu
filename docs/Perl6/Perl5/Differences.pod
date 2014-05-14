@@ -431,10 +431,10 @@ just functions with a fancy syntax.
 You can override these to provide the desired semantics.
 
     class OrderedHash does Associative {
-        multi sub postcircumfix:<{ }>(Int $index) is export {
+        multi sub postcircumfix:<{ }>(%h, Int $index) is export {
             # code for accessing single hash elements here
         }
-        multi sub postcircumfix:<{ }>(**@slice) is export {
+        multi sub postcircumfix:<{ }>(%h, **@slice) is export {
             # code for accessing hash slices here
         }
         ...
