@@ -125,7 +125,8 @@ context.
     my $is-nonempty = ?@array;
 
 Apostrophes C<'> and dashes C<-> are allowed as part of identifiers, as long as
-they appear between two letters.
+the next character is alphabetic.  In other words, any two valid identifiers
+may be joined with a single C<'> or C<-> character to form a longer identifier.
 
 =cut
 
