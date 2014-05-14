@@ -395,12 +395,15 @@ You can still say C<sort(@array)> if you prefer the non-OO idiom.
 Since both builtin functions and operators are multi subs and methods,
 changing their behaviour for particular types is a simple as adding the
 appropriate multi subs and methods. If you want these to be globally
-available, you have to put them into the C<GLOBAL> namespace:
+available, well, you can't, because everything lexically scoped in Perl 6.
+You can, however, export multi definitions to any code that wishes to import it.
 
-    multi sub GLOBAL::uc(TurkishStr $str) { ... }
+    class TurkishStr {
+	multi sub uc(TurkishStr $str) is export { ... }
 
-    # "overload" the string concatenation:
-    multi sub infix:<~>(TurkishStr $us, TurkishStr $them) { ... }
+	# overload the string concatenation:
+	multi sub infix:<~>(TurkishStr $us, TurkishStr $them) is export { ... }
+    }
 
 If you want to offer a type cast to a particular type, just provide a method
 with the same name as the type you want to cast to.
@@ -412,7 +415,7 @@ with the same name as the type you want to cast to.
         method Bar { ... }
     }
 
-    needs_bar(Foo.new);         # coerces to Bar
+    needs_bar(Foo.new.Bar);         # coerces to Bar
 
 =head2 Offering Hash and List semantics
 
