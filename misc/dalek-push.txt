@@ -4,14 +4,14 @@ less resources, and do not require listing branches.
 
 1. Open your repository GitHub page.
 
-2. Click the "Admin" button.
+2. Click the "Settings" button.
 
-3. Select "Service Hooks".
+3. Select "Webhooks & Services".
 
-4. Select "WebHook URLs"
+4. Select "Add webhook"
 
 5. Enter http://feather3.perl6.nl:5000/dalek?t=freenode,perl6 into the
-   "URL" box and click "Update Settings".
+   "Payload URL" box, choose "application/x-www-form-urlencoded" from "Content type" box and click "Add webhook".
 
    For other channels, adjust the URL correspondingly, for instance
    magnet,parrot .  Note that you cannot just enter any channel; dalek
