@@ -36,29 +36,18 @@ $(document).ready(function() {
 </table>
 
 
-<h2><a name="Feather">Official Perl 6 Documentation</a></h2>
+<h2><a name="Feather">Perl 6 Design Documents</a></h2>
 
-<p><b>The Synopsis documents are to be taken as the formal 
-specification for Perl 6 implementations</b>, while still 
-being reference documentation for Perl 6, like 
-<i>Programming Perl</i> is for Perl 5. Note that while 
-these documents are considered ``formal
-specifications'', they are still being subjected to the
-rigors of cross-examination through implementation.
-In other words, they may change slightly or radically. 
-But the expectation is that they are ``very close'' to 
-the final shape of Perl 6.
+<p>The Synopsis documents are the design documents used to guide Perl 6 language, compiler, and test development.  As design documents, they're frequently subjected to the rigors of cross-examination through implementation and use in practice.  In other words, they may change slightly or radically, but the expectation is that they are ``very close`` to the final shape of Perl 6.</p>
+
+<p>In the past the Synopses have often been referred to as "the formal Perl 6 specification" and "specs", but this usage is being deprecated in favor of treating tests from the "<a href='http://github.com/perl6/roast'>roast</a>" test suite as official specifications.  This is consistent with Synopsis 1, which says "Perl 6 is anything that passes the official test suite."
 <a href="#" id="read-more">[Read more...]</a></p>
 
 <div id="intro-text">
-<p>However, this HTML version of Synopses is slightly
-different in that it contains code snippets from
-the offiical test suite. In other words, We have divided the .t files in the
-test suite into pieces and inserted every resulting 
-snippet after the corresponding paragraph of the Synopses.
-Furthermore, the embedded tests are also marked by <code>√</code> and <code>×</code>
-according to the results of daily auto-smoking on feather.
-The job is done by the Perl 5 script util/smartlinks.pl
+<p>The HTML version of Synopses contains code snippets from the offiical 
+ test suite. In other words, the .t files from the test suite are 
+divided into pieces and inserted after corresponding paragraph of 
+the Synopses.  The job is done by the Perl 5 script util/smartlinks.pl
 living in the <a href="https://github.com/perl6/mu/"
 title="Perl6 mu repository on Github">mu repository</a>.</p>
 
@@ -66,11 +55,9 @@ title="Perl6 mu repository on Github">mu repository</a>.</p>
 below are updated every <i>one</i> hour from the mu, roast and specs
 repositories.</p>
 
-<p>When we say ``S05'', we mean ``spec'' as well as ``synopsis''.</p>
-
 <p>Note that documents marked DRAFT are really just that.  They are often
-written by random people, and have not been approved of as part of the 
-official spec.  </p>
+written by random people, and may be speculative as much or more than
+"official specification". </p>
 
 <p>The documents here mostly correspond with the chapters in the Camel Book, 
 that is, &quot;Programming Perl, 3rd Edition&quot;.  However, a few chapters
