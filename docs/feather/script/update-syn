@@ -4,9 +4,9 @@
 # the Synopsis pages in http://perlcabal.org/syn/
 
 # virtual mem: 1 GB
-ulimit -v $(( 1 * 10 ** 6 ))
+ulimit -v 1048576
 # cpu-time: 10 min
-ulimit -t $(( 10 * 60 ))
+ulimit -t 600
 
 ROOT_DIR=/home/pugscode
 DEST_DIR=$ROOT_DIR/html/syn
