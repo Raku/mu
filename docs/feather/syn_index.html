@@ -44,16 +44,6 @@ $(document).ready(function() {
 <a href="#" id="read-more">[Read more...]</a></p>
 
 <div id="intro-text">
-<p>The HTML version of Synopses contains code snippets from the official 
- test suite. In other words, the .t files from the test suite are 
-divided into pieces and inserted after corresponding paragraph of 
-the Synopses.  The job is done by the Perl 5 script util/smartlinks.pl
-living in the <a href="https://github.com/perl6/mu/"
-title="Perl6 mu repository on Github">mu repository</a>.</p>
-
-<p>All the web pages for Synopses listed
-below are updated every <i>one</i> hour from the mu, roast and specs
-repositories.</p>
 
 <p>Note that documents marked DRAFT are really just that.  They are often
 written by random people, and may be speculative as much or more than
@@ -422,10 +412,12 @@ homepage</a>.</p>
 
 <h2>About this page</h2>
 
-<p>
-The page you're currently looking at lives in the mu repo as
-<code>docs/feather/syn_index.html</code>, and is resync'd every 1 hour.
-</p>
+<p>The HTML version of Synopses contains code snippets from the official 
+ test suite. In other words, the .t files from the test suite are 
+divided into pieces and inserted after corresponding paragraph of 
+the Synopses.  The job is done by the Perl 5 script util/smartlinks.pl
+living in the <a href="https://github.com/perl6/mu/"
+    title="Perl6 mu repository on Github">mu repository</a>. It runs once every hour, and is triggered by the file <code>docs/feather/script/update-syn</code> in the mu repository. It runs as user <code>pugscode</code> on feather1.</p>
 
 </body>
 
