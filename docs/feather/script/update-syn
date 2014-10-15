@@ -24,7 +24,8 @@ do
         git clone https://github.com/perl6/$(basename $i).git $i
     fi
     cd $i
-    git pull
+    git fetch
+    git reset --hard origin/master
     git log --pretty=%h -1 > .revision
 done
 
