@@ -1,4 +1,0 @@
-=head1 NAME
-
-Perl6::Spec -- Perl 6 Language Specification
-

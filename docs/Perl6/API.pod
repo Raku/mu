@@ -1,4 +1,0 @@
-=head1 NAME
-
-Perl6::API -- Interfaces to Perl 6 core language objects
-
