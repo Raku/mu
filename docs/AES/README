@@ -1,5 +1,0 @@
-The community-maintained Perl 6 Spec drafts no longer lives in this
-directory, as they are now part of the Perl6::Doc tree at docs/Perl6/Spec/.
-
-The few draft PODs here should probably be cleaned up into Spec-like
-formats and moved to Perl6::Spec space.
