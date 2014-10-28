@@ -395,7 +395,7 @@ You can still say C<sort(@array)> if you prefer the non-OO idiom.
 Since both builtin functions and operators are multi subs and methods,
 changing their behaviour for particular types is a simple as adding the
 appropriate multi subs and methods. If you want these to be globally
-available, well, you can't, because everything is lexically scoped in Perl 6.
+available, well, you can't, because everything is lexically scoped in Perl 6.
 You can, however, export multi definitions to any code that wishes to import it.
 
     class TurkishStr {
