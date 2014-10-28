@@ -1,8 +1,0 @@
-=head1 Variables
-
-=head2 Obsolete variables
-
-=head3 C<$.>
-
-No longer used for giving the current line number of the last file handle
-accessed. Instead, use C<$fh.ins>, often enough C<$*IN.ins>.
