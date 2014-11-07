@@ -38,7 +38,7 @@ cp -ufp docs/feather/hilite-*.png $DEST_DIR/
 # And the css file
 cp -ufp docs/feather/perl.css     $DEST_DIR/
 
-perl util/podhtm.pl --url-prefix http://perlcabal.org/syn/ --url-postfix .html --index --charset=UTF-8 --out $DEST_DIR/Differences.html docs/Perl6/Perl5/Differences.pod
+perl util/podhtm.pl --css /syn/perl.css --url-prefix http://perlcabal.org/syn/ --url-postfix .html --index --charset=UTF-8 --out $DEST_DIR/Differences.html docs/Perl6/Perl5/Differences.pod
 
 # Probably outdated, builds the Chinese version of Syn 1
 #cd $DEST_DIR/zh-cn
