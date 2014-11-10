@@ -1,0 +1,35 @@
+(seeded from last year's topics)
+
+= Unused topics (in no particular order)
+
+- Who's who?
+- What has changed with Rakudo since last year?
+- MoarVM
+- benchmarks!
+- asynchronicity
+- Promise, Channel, Supply
+- NativeCall on JVM
+- Shaped variables.  (someone want to implement that real quick? :)
+- cool things you can do with bigints and/or rats
+- Sets/Bags
+- Query RC's API to get a list of all the pages with Perl 6 examples.
+- v5
+- slangs
+- Inline::Perl5
+- Perl 5/Perl 6 comparison (pick a nice problem or two and hilight the
+  differences.  Rosetta Code?)
+- A look at what Perl 6 borrows from other languages
+- Perl 6 culture
+- native types
+- show off some nice modules
+- sockets
+- typed exceptions
+- neat tricks for working with lazy lists
+- overview of available, useful modules with small example programs
+- learning resources (where do people find help?)
+- doc.perl6.org
+- is everything a reference? (compare https://perl6advent.wordpress.com/2011/12/16/where-have-all-the-references-gone/)
+- nci (compare https://perl6advent.wordpress.com/2010/12/15/day-15-calling-native-libraries-from-perl-6/)
+- port a small piece of code from imperative to functional or OO style
+- Perlito
+- How to do before/after/around ala Moose
