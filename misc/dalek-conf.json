@@ -9,15 +9,6 @@
       "url": "http://code.google.com/p/decnum-dynpmcs/"
    },
    {
-      "channels": [
-         [
-            "freenode",
-            "#dbdi"
-         ]
-      ],
-      "url": "http://code.google.com/p/java2perl6/"
-   },
-   {
       "url": "http://code.google.com/p/paraplegic/"
    },
    {
@@ -139,24 +130,6 @@
    },
    {
       "url": "https://github.com/parrot/ecmascript"
-   },
-   {
-      "url": "https://github.com/plobsing/parrot-pirc"
-   },
-   {
-      "url": "https://github.com/stefano/primitivearc/"
-   },
-   {
-      "url": "https://github.com/tene/gil/"
-   },
-   {
-      "channels": [
-         [
-            "freenode",
-            "#november-wiki"
-         ]
-      ],
-      "url": "https://github.com/viklund/november"
    },
    {
       "channels": [
