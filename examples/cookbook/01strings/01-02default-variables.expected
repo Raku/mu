@@ -1,6 +1,0 @@
-Default for undefined: 0
-Default if false: string
-Default to first defined value of a list: 0
-Default to first True value of a list: string
-Default to last defined value of a list: 0
-Default to last defined value of a list: 0

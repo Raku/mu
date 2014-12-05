@@ -1,9 +1,1 @@
-This is PLEAC, from http://pleac.sourceforge.net/.
-
-PLEAC stands for "Programming Language Examples Alike Cookbook."  Think "Perl6
-Cookbook."  This is our attempt to recreate the Perl5 Cookbook but with proper
-Perl6 idioms.  Naturally, it's an evolving process.
-
-Note the naming of the directories and the files are done in such a way as to
-mirror the Cookbook (2nd Edition) and to ease sorting.  Please do not use the
-1st edition sections names.
+This has been moved to perl6/perl6-examples/cookbook at https://github.com/perl6/perl6-examples
