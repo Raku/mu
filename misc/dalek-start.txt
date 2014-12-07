@@ -9,7 +9,7 @@ So you want to start up dalek?  Ok.
 3. Start the 3 parts of dalek in separate windows:
 
 3a: The IRC component:
-    cd ~/dalek; perl botnix --debug
+    cd ~/dalek; while true; do perl botnix --debug; sleep 30; done
 
 3b: The HTTP stub for receiving push notifications:
     cd ~/dalek/dalek-poller; plackup push.psgi
