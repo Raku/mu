@@ -1,8 +1,0 @@
-#!/usr/local/bin/perl
-
-use lib '../lib';
-
-my $gram = shift;
-
-eval "use Perl6in5::Grammar::$gram;";
-print $@ if $@;

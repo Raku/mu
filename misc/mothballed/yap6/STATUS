@@ -1,9 +1,0 @@
-The lexing engine is stable/reliable.  It's a standard recursive descent
-parser, with Packrat additions and additions to enable intelligent/correct
-handling of both direct and indirect left recursion.
-
-Currently STD.pm is being converted (mangled) into the Perl6in5::Grammar syntax.
-
-At some point, Perl6in5::Compiler::Parser and probably much of Perl6in5::Grammar
-will be refactored out and packaged for the CPAN as Parse::Packrat.  A prereq to
-this is to solve the "can't have both memoizing and lookbehind" problem.

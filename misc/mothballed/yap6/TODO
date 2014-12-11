@@ -1,7 +1,0 @@
-
-yap6 TODO:
-
- - come up with a generalized way for patterns to automatically
-   make the parser success-handlers generate an AST
- - implement Test.pm and related harness/prove
- - fix copyright notices & license(s)

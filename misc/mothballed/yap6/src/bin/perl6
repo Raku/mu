@@ -1,5 +1,0 @@
-#!/usr/local/bin/perl
-
-use lib '../lib';
-
-use Perl6in5::Grammar::STD_hand;

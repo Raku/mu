@@ -1,3 +1,0 @@
-you cannot yet install yap6, but when the Makefile.PL is ready, you'll be able to install it using that.  Or when the debian directory is fleshed out.  Or when the .spec file is completed (redhat and derivatives).
-
-but don't use the Makefile.PL until then.  Check out the pugs/misc/evalbot/evalbot.pl if you want to see an example of how to run yap6.
