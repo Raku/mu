@@ -10,7 +10,7 @@ less resources, and do not require listing branches.
 
 4. Select "Add webhook"
 
-5. Enter http://hack.p6c.org:80880/dalek?t=freenode,perl6 into the
+5. Enter http://hack.p6c.org:8088/dalek?t=freenode,perl6 into the
    "Payload URL" box, choose "application/x-www-form-urlencoded" from "Content type" box and click "Add webhook".
 
    For other channels, adjust the URL correspondingly, for instance
@@ -19,7 +19,7 @@ less resources, and do not require listing branches.
    diakopter.
 
    If you want announcements in more than one channel, use a link such
-   as http://hack.p6c.org:80880/dalek?t=freenode,perl6+magnet,parrot .
+   as http://hack.p6c.org:8088/dalek?t=freenode,perl6+magnet,parrot .
 
 6. Use the test function.
 
