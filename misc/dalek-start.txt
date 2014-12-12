@@ -11,7 +11,7 @@ So you want to start up dalek?  Ok.
 3a: The IRC component:
     cd ~/dalek; while true; do perl botnix --debug; sleep 30; done
 
-3c: The pull component:
-    cd ~/dalek/dalek-poller; perl poll
+3b: The HTTP stub for receiving push notifications:
+    cd ~/dalek/dalek-poller; plackup push.psgi
 
 4. Detach and log out.
