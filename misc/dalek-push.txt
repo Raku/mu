@@ -20,13 +20,3 @@ less resources, and do not require listing branches.
 
    If you want announcements in more than one channel, use a link such
    as http://hack.p6c.org:8088/dalek?t=freenode,perl6+magnet,parrot .
-
-6. Use the test function.
-
-7. Remove your entry from dalek-conf.json, if needed.
-
-   The post-receive script for dalek and the timed poll script do not
-   communicate to prevent duplicate reports.  If both of them are set
-   up to watch the same repository, all commits will be reported twice.
-   Therefore, if there is an existing entry for the poll, it needs to
-   be removed after post-receive is configured.
