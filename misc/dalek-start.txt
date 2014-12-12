@@ -1,7 +1,7 @@
 So you want to start up dalek?  Ok.
 
-1. Log into feather3.perl6.nl under account p6eval.  I like sudo -iu for this,
-   but it's up to you.
+1. Log into hack.p6c.org under account dalek.  moritz will add your ssh key
+   there if you ask.
 
 2. 'tmux attach' or 'tmux', whichever works.  'screen' would work too, but I
    prefer tmux.
@@ -12,6 +12,6 @@ So you want to start up dalek?  Ok.
     cd ~/dalek; while true; do perl botnix --debug; sleep 30; done
 
 3b: The HTTP stub for receiving push notifications:
-    cd ~/dalek/dalek-poller; plackup push.psgi
+    cd ~/dalek/dalek-poller; starman --listen :8088 push.psgi
 
 4. Detach and log out.
