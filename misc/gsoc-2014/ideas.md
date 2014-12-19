@@ -10,7 +10,7 @@ implementation is fairly complete, but some features are still missing,
 most notably various backtracking control constructs (`::`, `:::`, `<cut>`
 `<commit>`) and a few more esoteric features, like `<*foo>` and recursion
 into rules associated with submatches (`<~~0>` and the likes).
-[S05](http://perlcabal.org/syn/S05.html) has the gory details.
+[S05](http://design.perl6.org/S05.html) has the gory details.
 
 A student interested in regex compilers could implement those missing
 features.

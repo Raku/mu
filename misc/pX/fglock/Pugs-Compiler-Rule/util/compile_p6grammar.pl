@@ -105,7 +105,7 @@ L<http://pugs.blogs.com/pugs/2007/10/a-graphical-tra.html>.
 
 L<Pugs::Compiler::Grammar>, L<Pugs::Compiler::Rule>,
 L<Pugs::Compiler::Regex>,
-L<http://perlcabal.org/syn/S05.html>.
+L<http://design.perl6.org/S05.html>.
 
 =cut
 

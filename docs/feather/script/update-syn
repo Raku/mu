@@ -1,7 +1,7 @@
 #!/bin/sh
 
 # This script is used by feather's cron to update
-# the Synopsis pages in http://perlcabal.org/syn/
+# the Synopsis pages in http://design.perl6.org/
 
 # virtual mem: 1 GB
 ulimit -v 1048576
@@ -38,7 +38,7 @@ cp -ufp docs/feather/hilite-*.png $DEST_DIR/
 # And the css file
 cp -ufp docs/feather/perl.css     $DEST_DIR/
 
-perl util/podhtm.pl --css /syn/perl.css --url-prefix http://perlcabal.org/syn/ --url-postfix .html --index --charset=UTF-8 --out $DEST_DIR/Differences.html docs/Perl6/Perl5/Differences.pod
+perl util/podhtm.pl --css /syn/perl.css --url-prefix http://design.perl6.org/ --url-postfix .html --index --charset=UTF-8 --out $DEST_DIR/Differences.html docs/Perl6/Perl5/Differences.pod
 
 # Probably outdated, builds the Chinese version of Syn 1
 #cd $DEST_DIR/zh-cn

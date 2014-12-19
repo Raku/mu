@@ -63,7 +63,7 @@ fits.
 
 The typical file name of a test is C<t/spec/S29-list/map.t>. C<S29> is
 the synopsis where the feature is described, it can be found at
-L<http://perlcabal.org/syn/S29.html>. C<list> is the section within S29 where
+L<http://design.perl6.org/S29.html>. C<list> is the section within S29 where
 the feature is described, and C<map> is the feature being tested.
 
 Please adhere to this style as good as possible, when you are in doubt, ask on
@@ -130,7 +130,7 @@ to the operator we just tested, because C<Rule.pod> describes regular
 expressions, and C<**> has a different meaning there.
 
 The best match seems to be C<Operator.pod>. Looking at
-L<http://perlcabal.org/syn/> reveals that it's also called S03 for short. So
+L<http://design.perl6.org/> reveals that it's also called S03 for short. So
 we know that our smartlink will start with C<< L<S03/> >>. Next we find out
 which section the best match is. That's C<Exponentiation precedence> in our
 case, so our smartlink looks like this:

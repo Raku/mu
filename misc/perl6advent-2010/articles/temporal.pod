@@ -36,4 +36,4 @@ There is also a Date object, which is created in a similar way, but without hour
 
 =head2 Finally...
 
-That's about it for Time in P6. To see all the gritty details go to http://perlcabal.org/syn/S32/Temporal.html or ask about it in the community!
+That's about it for Time in P6. To see all the gritty details go to http://design.perl6.org/S32/Temporal.html or ask about it in the community!

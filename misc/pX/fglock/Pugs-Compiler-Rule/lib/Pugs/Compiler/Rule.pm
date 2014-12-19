@@ -202,7 +202,7 @@ L<compile_p6grammar.pl>
 
 =item *
 
-The Perl 6 Rules Spec: L<http://perlcabal.org/syn/S05.html>
+The Perl 6 Rules Spec: L<http://design.perl6.org/S05.html>
 
 =back
 

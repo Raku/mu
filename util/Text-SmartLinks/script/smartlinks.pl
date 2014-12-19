@@ -12,7 +12,7 @@
 # modifying the source.
 #
 # CAUTION: please make sure your changes don't break anything, because
-# breakage of this script will also break http://perlcabal.org/syn/
+# breakage of this script will also break http://design.perl6.org/
 # immediately. Running the tests of Text::SmartLinks and trying the script
 # using (from the current directory):
 #

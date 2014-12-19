@@ -57,7 +57,7 @@ right-hand side:
     $foo ~~ [1, *, 1, *, 1, *]
 
 The full table for smart matching behavior can be found at
-L<http://perlcabal.org/syn/S03.html#Smart_matching>.
+L<http://design.perl6.org/S03.html#Smart_matching>.
 
 Notice how, unlikely in Perl 5, in Perl 6 smartmathing is the only syntactic
 way to match a regex, it has no special operator.
