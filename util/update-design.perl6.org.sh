@@ -29,9 +29,7 @@ do
     git log --pretty=%h -1 > .revision
 done
 
-if [ -z "$UPDATED" ]
-then exit 0
-fi
+[ "$UPDATED" ] || exit
 
 cd $MU_DIR
 
