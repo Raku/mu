@@ -10,17 +10,28 @@ DEST_DIR=/var/www/design.perl6.org
 MU_DIR=$ROOT_DIR/mu
 TEST_DIR=$ROOT_DIR/roast
 POD_DIR="$ROOT_DIR/specs"
+UPDATED=''
 
 for i in $MU_DIR $TEST_DIR $POD_DIR
 do
     if [ ! -d $i ]; then
         git clone https://github.com/perl6/$(basename $i).git $i
+        UPDATED=1
     fi
     cd $i
     git fetch
+    before=$(git rev-parse HEAD)
     git reset --hard origin/master
+    after=$(git rev-parse HEAD)
+    if [ "$before" != "$after" ]
+    then UPDATED=1
+    fi
     git log --pretty=%h -1 > .revision
 done
+
+if [ -z "$UPDATED" ]
+then exit 0
+fi
 
 cd $MU_DIR
 
