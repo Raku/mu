@@ -17,6 +17,9 @@ end users' systems needs to be installed.
 
 ## Native library bindings
 
+An automatic binding generator for gobject based libraries
+
+An OpenGL binding based on the API description XML file
 
 
 ## Ecosystem
