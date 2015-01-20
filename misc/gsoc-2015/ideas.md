@@ -7,7 +7,9 @@
 
 ## MoarVM
 
-
+A tool for bundling MoarVM with bytecode, preferably a general one, but at least giving a way to provide
+Perl 6 fakexecutables, to be able to distribute your code along with all its dependencies so nothing on the
+end users' systems needs to be installed.
 
 ## Test suite
 
