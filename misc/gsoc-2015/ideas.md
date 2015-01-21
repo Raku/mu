@@ -3,6 +3,9 @@
 
 ## Rakudo
 
+* An improved REPL (read-eval-print-loop). I.e. one that supports breaking up a statement into several lines
+  and executing it only at a 'safe point'. The history support also needs improvements or implementation
+  depending on the platform. Finally, there are a bunch of bug reports, that need to be addresses.
 
 
 ## MoarVM
