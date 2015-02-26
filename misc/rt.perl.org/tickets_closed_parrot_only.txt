@@ -1,0 +1,6 @@
+This file contains a list of tickets (bug reports) from rt.perl.org which were
+closed after suspending support for Parrot in 2015-02. At the time when those
+tickets where closed, they where only relevant for Rakudo on Parrot.
+
+In case support for Parrot will be restored in some future release the listed
+tickets can be checked and re-opened as appropriate.
