@@ -4,3 +4,13 @@ tickets where closed, they where only relevant for Rakudo on Parrot.
 
 In case support for Parrot will be restored in some future release the listed
 tickets can be checked and re-opened as appropriate.
+
+
+https://rt.perl.org/Ticket/Display.html?id=120561 [BUG] use lib "double-quoted string" Null PMC
+https://rt.perl.org/Ticket/Display.html?id=119749 [BUG] Null PMC access when looping over SomeEnum.enums in a blockless BEGIN in Rakudo
+https://rt.perl.org/Ticket/Display.html?id=123234 [Parrot] Failing test in S12-subset/subtypes.t: get_bool() not implemented in class 'Int::Even'
+https://rt.perl.org/Ticket/Display.html?id=115500 [BUG] Addition of two quasis with arithmetical expressions sometimes adds only the second quasi twice, sometimes fails, in Rakudo
+https://rt.perl.org/Ticket/Display.html?id=121833 [BUG] Calling a regex with an argument gives "unmarshallable" error on Parrot in Rakudo
+https://rt.perl.org/Ticket/Display.html?id=116597 [BUG] Something internal happens when using <rule 'param'> form of rule invocation syntax in Rakduo
+https://rt.perl.org/Ticket/Display.html?id=118387 [BUG] LEAVE doesn't trigger when an exception is thrown
+https://rt.perl.org/Ticket/Display.html?id=114526 substr-rw() doesn't handle short strings
