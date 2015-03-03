@@ -26,3 +26,7 @@ https://rt.perl.org/Ticket/Display.html?id=120484 SEGV from coercion error
 https://rt.perl.org/Ticket/Display.html?id=76808 Searching for libraries under MacOS X
 https://rt.perl.org/Ticket/Display.html?id=112492 Mac OS X warning: request for implicit conversion from 'void *'
 https://rt.perl.org/Ticket/Display.html?id=112740 cygwin: rebase steps
+https://rt.perl.org/Ticket/Display.html?id=122765 Parrot resets lexicals initialized in INIT blocks
+https://rt.perl.org/Ticket/Display.html?id=120908 [Parrot] Null PMC access with is DEPRECATED
+https://rt.perl.org/Ticket/Display.html?id=122218 Strange segfault on MMD / pair / named parameter ambiguity
+https://rt.perl.org/Ticket/Display.html?id=123864 [BUG] Compiling rakudo using gcc-4.9 (gcc (GCC) 4.9.2 20150212 (Red Hat 4.9.2-6)) is failing
