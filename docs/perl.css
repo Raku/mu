@@ -15,6 +15,10 @@ UL{
   list-style-type: square;
 }
 
+P, LI, PRE {
+  line-height:22.6524758px;
+}
+
 A {
   color: #003399;
   /* color: #0055BB; */
