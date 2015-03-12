@@ -30,3 +30,7 @@ https://rt.perl.org/Ticket/Display.html?id=122765 Parrot resets lexicals initial
 https://rt.perl.org/Ticket/Display.html?id=120908 [Parrot] Null PMC access with is DEPRECATED
 https://rt.perl.org/Ticket/Display.html?id=122218 Strange segfault on MMD / pair / named parameter ambiguity
 https://rt.perl.org/Ticket/Display.html?id=123864 [BUG] Compiling rakudo using gcc-4.9 (gcc (GCC) 4.9.2 20150212 (Red Hat 4.9.2-6)) is failing
+https://rt.perl.org/Ticket/Display.html?id=121071 [BUG] [parrot] my int gets confused with goldilocks number
+https://rt.perl.org/Ticket/Display.html?id=104794 qx{} captures stderr
+https://rt.perl.org/Ticket/Display.html?id=122313 [BUG] segfault when calling a Proxy with FETCH being an anonymous sub in Rakudo
+https://rt.perl.org/Ticket/Display.html?id=117825 [BUG] Internals leaking out with series operator used wrongly
