@@ -34,3 +34,4 @@ https://rt.perl.org/Ticket/Display.html?id=121071 [BUG] [parrot] my int gets con
 https://rt.perl.org/Ticket/Display.html?id=104794 qx{} captures stderr
 https://rt.perl.org/Ticket/Display.html?id=122313 [BUG] segfault when calling a Proxy with FETCH being an anonymous sub in Rakudo
 https://rt.perl.org/Ticket/Display.html?id=117825 [BUG] Internals leaking out with series operator used wrongly
+https://rt.perl.org/Ticket/Display.html?id=77406 duplicated before-regexp modifier allowed in STD but not in Rakudo
