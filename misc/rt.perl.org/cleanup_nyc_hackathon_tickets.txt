@@ -201,47 +201,6 @@
     124691  Roast rakudo skip/todo test:./S32-str/numeric.t line:151 reason: complex Str.Numeric
     124692  Roast rakudo skip/todo test:./S32-str/substr.t line:43 reason: 'java.nio.charset.MalformedInputException'
     124695  Roast rakudo skip/todo test:./S32-str/substr.t line:134 reason: This seems unneccessarily restrictive
-    124696  Roast rakudo skip/todo test:./S32-str/sprintf-b.t line:23 reason: '%b with flag plus not correct'
-    124697  Roast rakudo skip/todo test:./S32-str/sprintf-b.t line:29 reason: '%b with flag space not correct'
-    124698  Roast rakudo skip/todo test:./S32-str/sprintf-b.t line:35 reason: '%b with flag hash and negative argument not correct'
-    124699  Roast rakudo skip/todo test:./S32-str/sprintf-b.t line:45 reason: '%b with flags zero and plus not correct'
-    124700  Roast rakudo skip/todo test:./S32-str/sprintf-b.t line:50 reason: '%b with flags zero and plus not correct'
-    124701  Roast rakudo skip/todo test:./S32-str/sprintf-b.t line:53 reason: '%b with flags zero and space not correct'
-    124702  Roast rakudo skip/todo test:./S32-str/sprintf-b.t line:58 reason: '%b with flags zero and space not correct'
-    124703  Roast rakudo skip/todo test:./S32-str/sprintf-b.t line:61 reason: '%b with flags zero and hash not correct'
-    124704  Roast rakudo skip/todo test:./S32-str/sprintf-b.t line:64 reason: '%b with flags zero and hash not correct'
-    124705  Roast rakudo skip/todo test:./S32-str/sprintf-b.t line:69 reason: '%b with flags minus and plus and positiv argument not correct'
-    124706  Roast rakudo skip/todo test:./S32-str/sprintf-b.t line:76 reason: '%b with flags minus and space and positiv argument not correct'
-    124707  Roast rakudo skip/todo test:./S32-str/sprintf-b.t line:81 reason: '%- 10b dies with Unsupported use of %- variable;'
-    124708  Roast rakudo skip/todo test:./S32-str/sprintf-b.t line:86 reason: '%b with flags minus and hash and negative argument not correct'
-    124709  Roast rakudo skip/todo test:./S32-str/sprintf-b.t line:91 reason: '%b with flags plus and space and positive argument not correct'
-    124710  Roast rakudo skip/todo test:./S32-str/sprintf-b.t line:96 reason: '%+ 10b dies with Unsupported use of %+ variable;'
-    124711  Roast rakudo skip/todo test:./S32-str/sprintf-b.t line:99 reason: '%b with flags hash and plus not correct'
-    124712  Roast rakudo skip/todo test:./S32-str/sprintf-b.t line:107 reason: '%b with flags hash and space not correct'
-    124713  Roast rakudo skip/todo test:./S32-str/sprintf-b.t line:113 reason: '%b with flags zero, minus and plus not correct'
-    124714  Roast rakudo skip/todo test:./S32-str/sprintf-b.t line:120 reason: '%b with flags zero, minus and space not correct'
-    124715  Roast rakudo skip/todo test:./S32-str/sprintf-b.t line:125 reason: '%- 10b dies with unsupported use of %- variable;'
-    124716  Roast rakudo skip/todo test:./S32-str/sprintf-b.t line:130 reason: '%b with flags zero, minus and hash not correct'
-    124717  Roast rakudo skip/todo test:./S32-str/sprintf-b.t line:135 reason: '%b with flags zero, plus and space not correct'
-    124718  Roast rakudo skip/todo test:./S32-str/sprintf-b.t line:140 reason: '%+ 010b dies with unsupported use of %+ variable;'
-    124719  Roast rakudo skip/todo test:./S32-str/sprintf-b.t line:143 reason: '%b with flags zero, plus and hash not correct'
-    124720  Roast rakudo skip/todo test:./S32-str/sprintf-b.t line:149 reason: '%b with flags zero, space and hash not correct'
-    124721  Roast rakudo skip/todo test:./S32-str/sprintf-b.t line:155 reason: '%b with flags minus, plus and space and positive argument not correct'
-    124722  Roast rakudo skip/todo test:./S32-str/sprintf-b.t line:160 reason: '%- +10b dies with unsupported use of %- variable;'
-    124723  Roast rakudo skip/todo test:./S32-str/sprintf-b.t line:163 reason: '%b with flags minus, plus and hash not correct'
-    124724  Roast rakudo skip/todo test:./S32-str/sprintf-b.t line:169 reason: '%b with flags minus, space and hash not correct'
-    124725  Roast rakudo skip/todo test:./S32-str/sprintf-b.t line:174 reason: '%- #10b dies with unsupported use of %- variable;'
-    124726  Roast rakudo skip/todo test:./S32-str/sprintf-b.t line:177 reason: '%b with flags plus, space and hash not correct'
-    124727  Roast rakudo skip/todo test:./S32-str/sprintf-b.t line:182 reason: '%+ #10b dies with unsupported use of %+ variable;'
-    124728  Roast rakudo skip/todo test:./S32-str/sprintf-b.t line:185 reason: '%b with flags zero, minus, plus and space not correct'
-    124729  Roast rakudo skip/todo test:./S32-str/sprintf-b.t line:191 reason: '%b with flags zero, minus, plus and hash not correct'
-    124730  Roast rakudo skip/todo test:./S32-str/sprintf-b.t line:197 reason: '%b with flags zero, minus, space and hash not correct'
-    124731  Roast rakudo skip/todo test:./S32-str/sprintf-b.t line:203 reason: '%b with flags zero, plus, space and hash not correct'
-    124732  Roast rakudo skip/todo test:./S32-str/sprintf-b.t line:209 reason: '%b with flags minus, plus, space and hash not correct'
-    124733  Roast rakudo skip/todo test:./S32-str/sprintf-b.t line:215 reason: '%b with flags zero, minus, plus, space and hash not correct'
-    124734  Roast rakudo skip/todo test:./S32-str/sprintf-b.t line:236 reason: '%b with precision and negative argument not correct'
-    124735  Roast rakudo skip/todo test:./S32-str/sprintf-b.t line:240 reason: '%b with precision and negative argument not correct'
-    124736  Roast rakudo skip/todo test:./S32-str/sprintf-b.t line:243 reason: '%b with precision and negative argument not correct'
     124738  Roast rakudo skip/todo test:./S32-str/comb.t line:59 reason: 'cannot call match, no signature matches'
     124740  Roast rakudo skip/todo test:./S32-str/tclc.t line:13 reason: 'unknown tclc problem'
     124742  Roast rakudo skip/todo test:./S32-str/length.t line:62 reason: '.codes weirdness on JVM, possibly NYI?'
@@ -642,3 +601,44 @@
     124510  Roast rakudo skip/todo test:./S02-types/baghash.t line:428 reason: 'is ObjectType' NYI # MERGED 124490
     124511  Roast rakudo skip/todo test:./S02-types/baghash.t line:443 reason: 'is ObjectType' NYI # MERGED 124490
     124512  Roast rakudo skip/todo test:./S02-types/baghash.t line:461 reason: 'is ObjectType' NYI # MERGED 124490
+    124696  Roast rakudo skip/todo test:./S32-str/sprintf-b.t line:23 reason: '%b with flag plus not correct' # OK
+    124697  Roast rakudo skip/todo test:./S32-str/sprintf-b.t line:29 reason: '%b with flag space not correct' # MERGED 124696
+    124698  Roast rakudo skip/todo test:./S32-str/sprintf-b.t line:35 reason: '%b with flag hash and negative argument not correct' # MERGED 124696
+    124699  Roast rakudo skip/todo test:./S32-str/sprintf-b.t line:45 reason: '%b with flags zero and plus not correct' # MERGED 124696
+    124700  Roast rakudo skip/todo test:./S32-str/sprintf-b.t line:50 reason: '%b with flags zero and plus not correct' # MERGED 124696
+    124701  Roast rakudo skip/todo test:./S32-str/sprintf-b.t line:53 reason: '%b with flags zero and space not correct' # MERGED 124696
+    124702  Roast rakudo skip/todo test:./S32-str/sprintf-b.t line:58 reason: '%b with flags zero and space not correct' # MERGED 124696
+    124703  Roast rakudo skip/todo test:./S32-str/sprintf-b.t line:61 reason: '%b with flags zero and hash not correct' # MERGED 124696
+    124704  Roast rakudo skip/todo test:./S32-str/sprintf-b.t line:64 reason: '%b with flags zero and hash not correct' # MERGED 124696
+    124705  Roast rakudo skip/todo test:./S32-str/sprintf-b.t line:69 reason: '%b with flags minus and plus and positiv argument not correct' # MERGED 124696
+    124706  Roast rakudo skip/todo test:./S32-str/sprintf-b.t line:76 reason: '%b with flags minus and space and positiv argument not correct' # MERGED 124696
+    124707  Roast rakudo skip/todo test:./S32-str/sprintf-b.t line:81 reason: '%- 10b dies with Unsupported use of %- variable;' # MERGED 124696
+    124708  Roast rakudo skip/todo test:./S32-str/sprintf-b.t line:86 reason: '%b with flags minus and hash and negative argument not correct' # MERGED 124696
+    124709  Roast rakudo skip/todo test:./S32-str/sprintf-b.t line:91 reason: '%b with flags plus and space and positive argument not correct' # MERGED 124696
+    124710  Roast rakudo skip/todo test:./S32-str/sprintf-b.t line:96 reason: '%+ 10b dies with Unsupported use of %+ variable;' # MERGED 124696
+    124711  Roast rakudo skip/todo test:./S32-str/sprintf-b.t line:99 reason: '%b with flags hash and plus not correct' # MERGED 124696
+    124712  Roast rakudo skip/todo test:./S32-str/sprintf-b.t line:107 reason: '%b with flags hash and space not correct' # MERGED 124696
+    124713  Roast rakudo skip/todo test:./S32-str/sprintf-b.t line:113 reason: '%b with flags zero, minus and plus not correct' # MERGED 124696
+    124714  Roast rakudo skip/todo test:./S32-str/sprintf-b.t line:120 reason: '%b with flags zero, minus and space not correct' # MERGED 124696
+    124715  Roast rakudo skip/todo test:./S32-str/sprintf-b.t line:125 reason: '%- 10b dies with unsupported use of %- variable;' # MERGED 124696
+    124716  Roast rakudo skip/todo test:./S32-str/sprintf-b.t line:130 reason: '%b with flags zero, minus and hash not correct' # MERGED 124696
+    124717  Roast rakudo skip/todo test:./S32-str/sprintf-b.t line:135 reason: '%b with flags zero, plus and space not correct' # MERGED 124696
+    124718  Roast rakudo skip/todo test:./S32-str/sprintf-b.t line:140 reason: '%+ 010b dies with unsupported use of %+ variable;' # MERGED 124696
+    124719  Roast rakudo skip/todo test:./S32-str/sprintf-b.t line:143 reason: '%b with flags zero, plus and hash not correct' # MERGED 124696
+    124720  Roast rakudo skip/todo test:./S32-str/sprintf-b.t line:149 reason: '%b with flags zero, space and hash not correct' # MERGED 124696
+    124721  Roast rakudo skip/todo test:./S32-str/sprintf-b.t line:155 reason: '%b with flags minus, plus and space and positive argument not correct' # MERGED 124696
+    124722  Roast rakudo skip/todo test:./S32-str/sprintf-b.t line:160 reason: '%- +10b dies with unsupported use of %- variable;' # MERGED 124696
+    124723  Roast rakudo skip/todo test:./S32-str/sprintf-b.t line:163 reason: '%b with flags minus, plus and hash not correct' # MERGED 124696
+    124724  Roast rakudo skip/todo test:./S32-str/sprintf-b.t line:169 reason: '%b with flags minus, space and hash not correct' # MERGED 124696
+    124725  Roast rakudo skip/todo test:./S32-str/sprintf-b.t line:174 reason: '%- #10b dies with unsupported use of %- variable;' # MERGED 124696
+    124726  Roast rakudo skip/todo test:./S32-str/sprintf-b.t line:177 reason: '%b with flags plus, space and hash not correct' # MERGED 124696
+    124727  Roast rakudo skip/todo test:./S32-str/sprintf-b.t line:182 reason: '%+ #10b dies with unsupported use of %+ variable;' # MERGED 124696
+    124728  Roast rakudo skip/todo test:./S32-str/sprintf-b.t line:185 reason: '%b with flags zero, minus, plus and space not correct' # MERGED 124696
+    124729  Roast rakudo skip/todo test:./S32-str/sprintf-b.t line:191 reason: '%b with flags zero, minus, plus and hash not correct' # MERGED 124696
+    124730  Roast rakudo skip/todo test:./S32-str/sprintf-b.t line:197 reason: '%b with flags zero, minus, space and hash not correct' # MERGED 124696
+    124731  Roast rakudo skip/todo test:./S32-str/sprintf-b.t line:203 reason: '%b with flags zero, plus, space and hash not correct' # MERGED 124696
+    124732  Roast rakudo skip/todo test:./S32-str/sprintf-b.t line:209 reason: '%b with flags minus, plus, space and hash not correct' # MERGED 124696
+    124733  Roast rakudo skip/todo test:./S32-str/sprintf-b.t line:215 reason: '%b with flags zero, minus, plus, space and hash not correct' # MERGED 124696
+    124734  Roast rakudo skip/todo test:./S32-str/sprintf-b.t line:236 reason: '%b with precision and negative argument not correct' # MERGED 124696
+    124735  Roast rakudo skip/todo test:./S32-str/sprintf-b.t line:240 reason: '%b with precision and negative argument not correct' # MERGED 124696
+    124736  Roast rakudo skip/todo test:./S32-str/sprintf-b.t line:243 reason: '%b with precision and negative argument not correct' # MERGED 124696
