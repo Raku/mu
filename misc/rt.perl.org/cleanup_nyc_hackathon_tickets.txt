@@ -36,7 +36,6 @@
     124523  Roast rakudo skip/todo test:./S05-metasyntax/angle-brackets.t line:200 reason: '<&foo()> NYI'
     124524  Roast rakudo skip/todo test:./S05-metasyntax/angle-brackets.t line:209 reason: '<> NYI'
     124525  Roast rakudo skip/todo test:./S05-metasyntax/angle-brackets.t line:269 reason: '<*literal>'
-    124526  Roast rakudo skip/todo test:./S05-metasyntax/longest-alternative.t line:82 reason: '::'
     124527  Roast rakudo skip/todo test:./S05-metasyntax/interpolating-closure.t line:28 reason: 'dunno'
     124528  Roast rakudo skip/todo test:./S03-operators/inplace.t line:32 reason: Method '' not found for invocant of class 'Str'
     124529  Roast rakudo skip/todo test:./S03-operators/bag.t line:69 reason: Rakudo update in progress, but not done yet
@@ -349,20 +348,12 @@
     124886  Roast rakudo skip/todo test:./S05-mass/properties-script.t line:18 reason: 'Unicode properties with arguments'
     124887  Roast rakudo skip/todo test:./S05-mass/stdrules.t line:171 reason: '<.graph>'
     124888  Roast rakudo skip/todo test:./S05-mass/stdrules.t line:212 reason: '<.print>'
-    124889  Roast rakudo skip/todo test:./S05-mass/rx.t line:36 reason: ':: NYI'
-    124890  Roast rakudo skip/todo test:./S05-mass/rx.t line:41 reason: ':: NYI'
-    124891  Roast rakudo skip/todo test:./S05-mass/rx.t line:49 reason: ':: NYI'
     124892  Roast rakudo skip/todo test:./S05-mass/rx.t line:57 reason: '::: NYI'
-    124893  Roast rakudo skip/todo test:./S05-mass/rx.t line:62 reason: ':: NYI'
     124894  Roast rakudo skip/todo test:./S05-mass/rx.t line:66 reason: ':: NYI'
-    124895  Roast rakudo skip/todo test:./S05-mass/rx.t line:71 reason: ':: NYI'
     124896  Roast rakudo skip/todo test:./S05-mass/rx.t line:75 reason: '::: NYI'
     124897  Roast rakudo skip/todo test:./S05-mass/rx.t line:88 reason: '<commit> NYI'
     124898  Roast rakudo skip/todo test:./S05-mass/rx.t line:503 reason: 'anchors and after'
     124899  Roast rakudo skip/todo test:./S05-mass/rx.t line:1481 reason: ':s()'
-    124900  Roast rakudo skip/todo test:./S05-mass/rx.t line:1493 reason: ':: NYI'
-    124901  Roast rakudo skip/todo test:./S05-mass/rx.t line:1497 reason: ':: NYI'
-    124902  Roast rakudo skip/todo test:./S05-mass/rx.t line:1501 reason: ':: NYI'
     124903  Roast rakudo skip/todo test:./S05-mass/rx.t line:1505 reason: 'parse error'
     124904  Roast rakudo skip/todo test:./S05-mass/rx.t line:2108 reason: 'regex <name>'
     124905  Roast rakudo skip/todo test:./S05-mass/rx.t line:2117 reason: 'regex <name>'
@@ -642,3 +633,12 @@
     124734  Roast rakudo skip/todo test:./S32-str/sprintf-b.t line:236 reason: '%b with precision and negative argument not correct' # MERGED 124696
     124735  Roast rakudo skip/todo test:./S32-str/sprintf-b.t line:240 reason: '%b with precision and negative argument not correct' # MERGED 124696
     124736  Roast rakudo skip/todo test:./S32-str/sprintf-b.t line:243 reason: '%b with precision and negative argument not correct' # MERGED 124696
+    124526  Roast rakudo skip/todo test:./S05-metasyntax/longest-alternative.t line:82 reason: '::' # MERGED 79424
+    124889  Roast rakudo skip/todo test:./S05-mass/rx.t line:36 reason: ':: NYI' # MERGED 79424
+    124890  Roast rakudo skip/todo test:./S05-mass/rx.t line:41 reason: ':: NYI' # MERGED 79424
+    124891  Roast rakudo skip/todo test:./S05-mass/rx.t line:49 reason: ':: NYI' # MERGED 79424
+    124893  Roast rakudo skip/todo test:./S05-mass/rx.t line:62 reason: ':: NYI' # MERGED 79424
+    124895  Roast rakudo skip/todo test:./S05-mass/rx.t line:71 reason: ':: NYI' # MERGED 79424
+    124900  Roast rakudo skip/todo test:./S05-mass/rx.t line:1493 reason: ':: NYI' # MERGED 79424
+    124901  Roast rakudo skip/todo test:./S05-mass/rx.t line:1497 reason: ':: NYI' # MERGED 79424
+    124902  Roast rakudo skip/todo test:./S05-mass/rx.t line:1501 reason: ':: NYI' # MERGED 79424
