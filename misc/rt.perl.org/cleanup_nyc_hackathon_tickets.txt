@@ -93,46 +93,31 @@
     124581  Roast rakudo skip/todo test:./S02-magicals/PERL.t line:8 reason: 'unimpl 0PERL'
     124582  Roast rakudo skip/todo test:./S02-magicals/PERL.t line:46 reason: 'no Perl.signature yet'
     124583  Roast rakudo skip/todo test:./S02-magicals/PERL.t line:47 reason: 'no Perl.signature yet'
-    124584  Roast rakudo skip/todo test:./S02-magicals/PERL.t line:48 reason: 'no Perl.signature yet'
     124585  Roast rakudo skip/todo test:./S02-magicals/PERL.t line:50 reason: 'no Perl.desc yet'
     124586  Roast rakudo skip/todo test:./S02-magicals/PERL.t line:51 reason: 'no Perl.desc yet'
-    124587  Roast rakudo skip/todo test:./S02-magicals/PERL.t line:52 reason: 'no Perl.desc yet'
     124588  Roast rakudo skip/todo test:./S02-magicals/PERL.t line:61 reason: 'no Perl.signature yet'
     124589  Roast rakudo skip/todo test:./S02-magicals/PERL.t line:62 reason: 'no Perl.signature yet'
-    124590  Roast rakudo skip/todo test:./S02-magicals/PERL.t line:63 reason: 'no Perl.signature yet'
     124591  Roast rakudo skip/todo test:./S02-magicals/PERL.t line:71 reason: 'no Perl.compiler.signature yet'
     124592  Roast rakudo skip/todo test:./S02-magicals/PERL.t line:72 reason: 'no Perl.compiler.signature yet'
-    124593  Roast rakudo skip/todo test:./S02-magicals/PERL.t line:73 reason: 'no Perl.compiler.signature yet'
     124594  Roast rakudo skip/todo test:./S02-magicals/PERL.t line:75 reason: 'no Perl.compiler.desc yet'
     124595  Roast rakudo skip/todo test:./S02-magicals/PERL.t line:76 reason: 'no Perl.compiler.desc yet'
-    124596  Roast rakudo skip/todo test:./S02-magicals/PERL.t line:77 reason: 'no Perl.compiler.desc yet'
     124597  Roast rakudo skip/todo test:./S02-magicals/PERL.t line:79 reason: 'no Perl.compiler.release yet'
     124598  Roast rakudo skip/todo test:./S02-magicals/PERL.t line:80 reason: 'no Perl.compiler.release yet'
-    124599  Roast rakudo skip/todo test:./S02-magicals/PERL.t line:81 reason: 'no Perl.compiler.release yet'
     124600  Roast rakudo skip/todo test:./S02-magicals/PERL.t line:84 reason: 'no Perl.compiler.codename yet'
     124601  Roast rakudo skip/todo test:./S02-magicals/PERL.t line:85 reason: 'no Perl.compiler.codename yet'
-    124602  Roast rakudo skip/todo test:./S02-magicals/PERL.t line:86 reason: 'no Perl.compiler.codename yet'
     124603  Roast rakudo skip/todo test:./S02-magicals/PERL.t line:93 reason: 'no Perl.compiler.signature yet'
     124604  Roast rakudo skip/todo test:./S02-magicals/PERL.t line:94 reason: 'no Perl.compiler.signature yet'
-    124605  Roast rakudo skip/todo test:./S02-magicals/PERL.t line:95 reason: 'no Perl.compiler.signature yet'
     124606  Roast rakudo skip/todo test:./S02-magicals/VM.t line:7 reason: 'VM.properties does not exist'
-    124607  Roast rakudo skip/todo test:./S02-magicals/VM.t line:8 reason: 'VM.properties does not exist'
     124608  Roast rakudo skip/todo test:./S02-magicals/VM.t line:16 reason: 'unimpl 0VM'
     124609  Roast rakudo skip/todo test:./S02-magicals/VM.t line:45 reason: 'no VM.signature yet'
     124610  Roast rakudo skip/todo test:./S02-magicals/VM.t line:46 reason: 'no VM.signature yet'
-    124611  Roast rakudo skip/todo test:./S02-magicals/VM.t line:47 reason: 'no VM.signature yet'
-    124612  Roast rakudo skip/todo test:./S02-magicals/VM.t line:49 reason: 'no VM.desc yet'
     124613  Roast rakudo skip/todo test:./S02-magicals/VM.t line:65 reason: 'no VM.signature yet'
     124614  Roast rakudo skip/todo test:./S02-magicals/VM.t line:66 reason: 'no VM.signature yet'
-    124615  Roast rakudo skip/todo test:./S02-magicals/VM.t line:67 reason: 'no VM.signature yet'
     124616  Roast rakudo skip/todo test:./S02-magicals/DISTRO.t line:18 reason: 'unimpl 0DISTRO'
     124617  Roast rakudo skip/todo test:./S02-magicals/DISTRO.t line:44 reason: 'no Distro.signature yet'
     124618  Roast rakudo skip/todo test:./S02-magicals/DISTRO.t line:45 reason: 'no Distro.signature yet'
-    124619  Roast rakudo skip/todo test:./S02-magicals/DISTRO.t line:46 reason: 'no Distro.signature yet'
-    124620  Roast rakudo skip/todo test:./S02-magicals/DISTRO.t line:48 reason: 'no Distro.desc yet'
     124621  Roast rakudo skip/todo test:./S02-magicals/DISTRO.t line:60 reason: 'no Distro.signature yet'
     124622  Roast rakudo skip/todo test:./S02-magicals/DISTRO.t line:61 reason: 'no Distro.signature yet'
-    124623  Roast rakudo skip/todo test:./S02-magicals/DISTRO.t line:62 reason: 'no Distro.signature yet'
     124624  Roast rakudo skip/todo test:./S02-magicals/KERNEL.t line:8 reason: 'unimpl 0KERNEL'
     124625  Roast rakudo skip/todo test:./S02-magicals/KERNEL.t line:36 reason: 'no Kernel.signature yet'
     124626  Roast rakudo skip/todo test:./S02-magicals/KERNEL.t line:38 reason: 'no Kernel.desc yet'
@@ -201,7 +186,6 @@
     124692  Roast rakudo skip/todo test:./S32-str/substr.t line:43 reason: 'java.nio.charset.MalformedInputException'
     124695  Roast rakudo skip/todo test:./S32-str/substr.t line:134 reason: This seems unneccessarily restrictive
     124738  Roast rakudo skip/todo test:./S32-str/comb.t line:59 reason: 'cannot call match, no signature matches'
-    124740  Roast rakudo skip/todo test:./S32-str/tclc.t line:13 reason: 'unknown tclc problem'
     124742  Roast rakudo skip/todo test:./S32-str/length.t line:62 reason: '.codes weirdness on JVM, possibly NYI?'
     124743  Roast rakudo skip/todo test:./S32-str/length.t line:65 reason: .graphs NYI
     124744  Roast rakudo skip/todo test:./S32-str/length.t line:70 reason: '.graphs NYI'
@@ -253,22 +237,15 @@
     124791  Roast rakudo skip/todo test:./S32-io/mkdir_rmdir.t line:48 reason: mkdir NYI
     124792  Roast rakudo skip/todo test:./S32-io/mkdir_rmdir.t line:57 reason: mkdir NYI
     124793  Roast rakudo skip/todo test:./S17-lowlevel/lock.t line:91 reason: 'not sure this test is valid'
-    124794  Roast rakudo skip/todo test:./S12-meta/primitives.t line:7 reason: 'Metamodel::Primitives NYI'
     124795  Roast rakudo skip/todo test:./S05-grammar/example.t line:55 reason: 'test error
     124796  Roast rakudo skip/todo test:./S32-num/stringify.t line:69 reason: 'big stuff'
-    124797  Roast rakudo skip/todo test:./S32-num/power.t line:19 reason: Simple bigint optimizations NYI
     124798  Roast rakudo skip/todo test:./S32-num/power.t line:20 reason: 'big exponents'
-    124799  Roast rakudo skip/todo test:./S32-num/power.t line:25 reason: Simple bigint optimizations NYI
     124800  Roast rakudo skip/todo test:./S32-num/power.t line:48 reason: 'NaN**1i should be NaN'
-    124801  Roast rakudo skip/todo test:./S32-num/power.t line:49 reason: 'NaN**1i should be NaN'
     124802  Roast rakudo skip/todo test:./S32-num/power.t line:50 reason: 'NaN**1i should be NaN'
     124803  Roast rakudo skip/todo test:./S32-num/power.t line:52 reason: '1i**NaN should be NaN'
-    124804  Roast rakudo skip/todo test:./S32-num/power.t line:53 reason: '1i**NaN should be NaN'
     124805  Roast rakudo skip/todo test:./S32-num/power.t line:54 reason: '1i**NaN should be NaN'
     124806  Roast rakudo skip/todo test:./S32-num/power.t line:56 reason: 'NaN**0 should be NaN'
-    124807  Roast rakudo skip/todo test:./S32-num/power.t line:57 reason: 'NaN**0 should be NaN'
     124808  Roast rakudo skip/todo test:./S32-num/power.t line:58 reason: 'NaN**0 should be NaN'
-    124809  Roast rakudo skip/todo test:./S32-num/power.t line:80 reason: 'i'
     124810  Roast rakudo skip/todo test:./S32-num/power.t line:81 reason: 'i'
     124811  Roast rakudo skip/todo test:./S32-num/power.t line:82 reason: 'i'
     124812  Roast rakudo skip/todo test:./S32-num/rand.t line:69 reason: 'Test is too slow; srand call incorrect'
@@ -295,7 +272,6 @@
     124833  Roast rakudo skip/todo test:./S12-enums/non-int.t line:14 reason: 'NYI'
     124834  Roast rakudo skip/todo test:./S29-conversions/ord_and_chr.t line:156 reason: 'chr surrogate'
     124835  Roast rakudo skip/todo test:./S29-conversions/ord_and_chr.t line:157 reason: 'chr surrogate'
-    124836  Roast rakudo skip/todo test:./S29-conversions/ord_and_chr.t line:159 reason: 'chr of noncharacter'
     124837  Roast rakudo skip/todo test:./S29-conversions/ord_and_chr.t line:162 reason: 'chr max'
     124838  Roast rakudo skip/todo test:./S29-conversions/ord_and_chr.t line:168 reason: 'high character name lookup'
     124839  Roast rakudo skip/todo test:./S12-coercion/coercion-types.t line:42 reason: 'dies'
@@ -313,38 +289,24 @@
     124851  Roast rakudo skip/todo test:./S12-methods/submethods.t line:85 reason: 'roles and submethods'
     124852  Roast rakudo skip/todo test:./S12-methods/syntax.t line:24 reason: 'switch-from-paren-to-listop form'
     124853  Roast rakudo skip/todo test:./S12-methods/syntax.t line:31 reason: 'adverbial closures'
-    124854  Roast rakudo skip/todo test:./S05-mass/properties-general.t line:28 reason: 'Invalid codepoint \x[FFFE]'
     124855  Roast rakudo skip/todo test:./S05-mass/properties-general.t line:29 reason: 'Invalid codepoint \x[FFFE]'
-    124856  Roast rakudo skip/todo test:./S05-mass/properties-general.t line:38 reason: 'Invalid codepoint \x[FFFE]'
     124857  Roast rakudo skip/todo test:./S05-mass/properties-general.t line:39 reason: 'Invalid codepoint \x[FFFE]'
-    124858  Roast rakudo skip/todo test:./S05-mass/properties-general.t line:153 reason: 'Invalid codepoint \x[FFFF]'
     124859  Roast rakudo skip/todo test:./S05-mass/properties-general.t line:154 reason: 'Invalid codepoint \x[FFFF]'
     124860  Roast rakudo skip/todo test:./S05-mass/properties-general.t line:163 reason: No [Lr] property defined
-    124861  Roast rakudo skip/todo test:./S05-mass/properties-general.t line:733 reason: Invalid codepoint \x[FFFE]
     124862  Roast rakudo skip/todo test:./S05-mass/properties-general.t line:734 reason: Invalid codepoint \x[FFFE]
     124863  Roast rakudo skip/todo test:./S05-mass/properties-general.t line:735 reason: Unions of properties of non-existent codepoints
-    124864  Roast rakudo skip/todo test:./S05-mass/properties-general.t line:742 reason: Invalid codepoint \x[FFFE]
     124865  Roast rakudo skip/todo test:./S05-mass/properties-general.t line:743 reason: Invalid codepoint \x[FFFE]
     124866  Roast rakudo skip/todo test:./S05-mass/properties-general.t line:744 reason: Unions of properties of non-existent codepoints
-    124867  Roast rakudo skip/todo test:./S05-mass/properties-general.t line:755 reason: Unicode spec change in v6.1
-    124868  Roast rakudo skip/todo test:./S05-mass/properties-general.t line:795 reason: Invalid codepoint \x[FFFE]
     124869  Roast rakudo skip/todo test:./S05-mass/properties-general.t line:796 reason: Invalid codepoint \x[FFFE]
-    124870  Roast rakudo skip/todo test:./S05-mass/properties-general.t line:800 reason: Invalid codepoint \x[FFFE]
     124871  Roast rakudo skip/todo test:./S05-mass/properties-general.t line:801 reason: Invalid codepoint \x[FFFE]
     124872  Roast rakudo skip/todo test:./S05-mass/properties-general.t line:816 reason: Unicode spec change in v6.1
-    124873  Roast rakudo skip/todo test:./S05-mass/properties-general.t line:817 reason: Unicode spec change in v6.1
     124874  Roast rakudo skip/todo test:./S05-mass/properties-derived.t line:67 reason: isGraphemeLink
     124875  Roast rakudo skip/todo test:./S05-mass/properties-derived.t line:167 reason: isOther* NYI
-    124876  Roast rakudo skip/todo test:./S05-mass/properties-derived.t line:168 reason: isOther* NYI
     124877  Roast rakudo skip/todo test:./S05-mass/properties-derived.t line:286 reason: 'icu'
-    124878  Roast rakudo skip/todo test:./S05-mass/properties-derived.t line:287 reason: 'icu'
     124879  Roast rakudo skip/todo test:./S05-mass/properties-derived.t line:379 reason: 'isAny NYI'
-    124880  Roast rakudo skip/todo test:./S05-mass/properties-derived.t line:380 reason: 'isAny NYI'
     124881  Roast rakudo skip/todo test:./S05-mass/properties-derived.t line:389 reason: 'isAssigned NYI'
-    124882  Roast rakudo skip/todo test:./S05-mass/properties-derived.t line:390 reason: 'isAssigned NYI'
     124883  Roast rakudo skip/todo test:./S05-mass/properties-derived.t line:402 reason: 'isUnassigned NYI'
     124884  Roast rakudo skip/todo test:./S05-mass/properties-derived.t line:416 reason: 'isCommon NYI'
-    124885  Roast rakudo skip/todo test:./S05-mass/properties-derived.t line:417 reason: 'isCommon NYI'
     124886  Roast rakudo skip/todo test:./S05-mass/properties-script.t line:18 reason: 'Unicode properties with arguments'
     124887  Roast rakudo skip/todo test:./S05-mass/stdrules.t line:171 reason: '<.graph>'
     124888  Roast rakudo skip/todo test:./S05-mass/stdrules.t line:212 reason: '<.print>'
@@ -366,12 +328,10 @@
     124915  Roast rakudo skip/todo test:./S02-names/pseudo.t line:36 reason: 'various issues, skipping all for now'
     124916  Roast rakudo skip/todo test:./S02-names/pseudo.t line:195 reason: 'CORE NYI'
     124917  Roast rakudo skip/todo test:./S02-names/pseudo.t line:263 reason: 'various issues to resolve'
-    124918  Roast rakudo skip/todo test:./S06-signature/positional-placeholders.t line:66 reason: 'throws Adhoc'
     124919  Roast rakudo skip/todo test:./S06-signature/sub-ref.t line:88 reason: 'macros, compile time binding'
     124920  Roast rakudo skip/todo test:./S06-signature/errors.t line:64 reason: unival NYI
     124921  Roast rakudo skip/todo test:./S06-signature/named-parameters.t line:101 reason: 'multiple same-named arguments NYI'
     124922  Roast rakudo skip/todo test:./S06-signature/named-parameters.t line:256 reason: 'where constraints'
-    124923  Roast rakudo skip/todo test:./S06-signature/unpack-array.t line:55 reason: ...
     124924  Roast rakudo skip/todo test:./S06-signature/caller-param.t line:12 reason: NYI
     124925  Roast rakudo skip/todo test:./S06-signature/caller-param.t line:15 reason: NYI
     124926  Roast rakudo skip/todo test:./S06-signature/caller-param.t line:25 reason: NYI
@@ -402,9 +362,7 @@
     124951  Roast rakudo skip/todo test:./S04-phasers/next.t line:67 reason: 'leave NYI'
     124952  Roast rakudo skip/todo test:./S04-phasers/next.t line:105 reason: 'NEXT/LEAVE ordering'
     124953  Roast rakudo skip/todo test:./S04-phasers/next.t line:116 reason: 'NEXT/LEAVE ordering'
-    124954  Roast rakudo skip/todo test:./S04-phasers/in-loop.t line:21 reason: unknown phasers issue
     124955  Roast rakudo skip/todo test:./S04-phasers/in-loop.t line:22 reason: unknown phasers issue
-    124956  Roast rakudo skip/todo test:./S04-phasers/in-loop.t line:46 reason: unknown phasers issue
     124957  Roast rakudo skip/todo test:./S04-phasers/in-loop.t line:47 reason: unknown phasers issue
     124958  Roast rakudo skip/todo test:./S04-phasers/in-eval.t line:55 reason: ?
     124959  Roast rakudo skip/todo test:./S04-phasers/in-eval.t line:71 reason: ?
@@ -511,7 +469,6 @@
     125062  Roast rakudo skip/todo test:./S04-declarations/will.t line:54 reason: will post NYI
     125063  Roast rakudo skip/todo test:./S04-declarations/will.t line:59 reason: 'declared variable not visible in block yet'
     125064  Roast rakudo skip/todo test:./S04-declarations/will.t line:71 reason: 'declared variable not visible in block yet'
-    125065  Roast rakudo skip/todo test:./S04-declarations/will.t line:89 reason: 'will variable not all blocks yet'
     125066  Roast rakudo skip/todo test:./S04-declarations/will.t line:94 reason: 'declared variable not visible in block yet'
     125067  Roast rakudo skip/todo test:./S04-declarations/will.t line:108 reason: 'declared variable not visible in block yet'
     125068  Roast rakudo skip/todo test:./S04-declarations/my.t line:257 reason: 'nom regression, OUR::'
@@ -642,3 +599,46 @@
     124892  Roast rakudo skip/todo test:./S05-mass/rx.t line:57 reason: '::: NYI' # OK
     124894  Roast rakudo skip/todo test:./S05-mass/rx.t line:66 reason: ':: NYI' # MERGED 124892
     124896  Roast rakudo skip/todo test:./S05-mass/rx.t line:75 reason: '::: NYI' # MERGED 124892
+    124619  Roast rakudo skip/todo test:./S02-magicals/DISTRO.t line:46 reason: 'no Distro.signature yet' # REJECTED
+    124620  Roast rakudo skip/todo test:./S02-magicals/DISTRO.t line:48 reason: 'no Distro.desc yet' # REJECTED
+    124623  Roast rakudo skip/todo test:./S02-magicals/DISTRO.t line:62 reason: 'no Distro.signature yet' # REJECTED
+    124584  Roast rakudo skip/todo test:./S02-magicals/PERL.t line:48 reason: 'no Perl.signature yet' # REJECTED
+    124587  Roast rakudo skip/todo test:./S02-magicals/PERL.t line:52 reason: 'no Perl.desc yet' # REJECTED
+    124590  Roast rakudo skip/todo test:./S02-magicals/PERL.t line:63 reason: 'no Perl.signature yet' # REJECTED
+    124593  Roast rakudo skip/todo test:./S02-magicals/PERL.t line:73 reason: 'no Perl.compiler.signature yet' # REJECTED
+    124596  Roast rakudo skip/todo test:./S02-magicals/PERL.t line:77 reason: 'no Perl.compiler.desc yet' # REJECTED
+    124599  Roast rakudo skip/todo test:./S02-magicals/PERL.t line:81 reason: 'no Perl.compiler.release yet' # REJECTED
+    124602  Roast rakudo skip/todo test:./S02-magicals/PERL.t line:86 reason: 'no Perl.compiler.codename yet' # REJECTED
+    124605  Roast rakudo skip/todo test:./S02-magicals/PERL.t line:95 reason: 'no Perl.compiler.signature yet' # REJECTED
+    124607  Roast rakudo skip/todo test:./S02-magicals/VM.t line:8 reason: 'VM.properties does not exist' # REJECTED
+    124611  Roast rakudo skip/todo test:./S02-magicals/VM.t line:47 reason: 'no VM.signature yet' # REJECTED
+    124612  Roast rakudo skip/todo test:./S02-magicals/VM.t line:49 reason: 'no VM.desc yet' # REJECTED
+    124615  Roast rakudo skip/todo test:./S02-magicals/VM.t line:67 reason: 'no VM.signature yet' # REJECTED
+    125065  Roast rakudo skip/todo test:./S04-declarations/will.t line:89 reason: 'will variable not all blocks yet' # REJECTED
+    124954  Roast rakudo skip/todo test:./S04-phasers/in-loop.t line:21 reason: unknown phasers issue # REJECTED
+    124956  Roast rakudo skip/todo test:./S04-phasers/in-loop.t line:46 reason: unknown phasers issue # REJECTED
+    124876  Roast rakudo skip/todo test:./S05-mass/properties-derived.t line:168 reason: isOther* NYI # REJECTED
+    124878  Roast rakudo skip/todo test:./S05-mass/properties-derived.t line:287 reason: 'icu' # REJECTED
+    124880  Roast rakudo skip/todo test:./S05-mass/properties-derived.t line:380 reason: 'isAny NYI' # REJECTED
+    124882  Roast rakudo skip/todo test:./S05-mass/properties-derived.t line:390 reason: 'isAssigned NYI' # REJECTED
+    124885  Roast rakudo skip/todo test:./S05-mass/properties-derived.t line:417 reason: 'isCommon NYI' # REJECTED
+    124854  Roast rakudo skip/todo test:./S05-mass/properties-general.t line:28 reason: 'Invalid codepoint \x[FFFE]' # REJECTED
+    124856  Roast rakudo skip/todo test:./S05-mass/properties-general.t line:38 reason: 'Invalid codepoint \x[FFFE]' # REJECTED
+    124858  Roast rakudo skip/todo test:./S05-mass/properties-general.t line:153 reason: 'Invalid codepoint \x[FFFF]' # REJECTED
+    124861  Roast rakudo skip/todo test:./S05-mass/properties-general.t line:733 reason: Invalid codepoint \x[FFFE] # REJECTED
+    124864  Roast rakudo skip/todo test:./S05-mass/properties-general.t line:742 reason: Invalid codepoint \x[FFFE] # REJECTED
+    124867  Roast rakudo skip/todo test:./S05-mass/properties-general.t line:755 reason: Unicode spec change in v6.1 # REJECTED
+    124868  Roast rakudo skip/todo test:./S05-mass/properties-general.t line:795 reason: Invalid codepoint \x[FFFE] # REJECTED
+    124870  Roast rakudo skip/todo test:./S05-mass/properties-general.t line:800 reason: Invalid codepoint \x[FFFE] # REJECTED
+    124873  Roast rakudo skip/todo test:./S05-mass/properties-general.t line:817 reason: Unicode spec change in v6.1 # REJECTED
+    124918  Roast rakudo skip/todo test:./S06-signature/positional-placeholders.t line:66 reason: 'throws Adhoc' # REJECTED
+    124923  Roast rakudo skip/todo test:./S06-signature/unpack-array.t line:55 reason: ... # REJECTED
+    124794  Roast rakudo skip/todo test:./S12-meta/primitives.t line:7 reason: 'Metamodel::Primitives NYI' # REJECTED
+    124836  Roast rakudo skip/todo test:./S29-conversions/ord_and_chr.t line:159 reason: 'chr of noncharacter' # REJECTED
+    124797  Roast rakudo skip/todo test:./S32-num/power.t line:19 reason: Simple bigint optimizations NYI # REJECTED
+    124799  Roast rakudo skip/todo test:./S32-num/power.t line:25 reason: Simple bigint optimizations NYI # REJECTED
+    124801  Roast rakudo skip/todo test:./S32-num/power.t line:49 reason: 'NaN**1i should be NaN' # REJECTED
+    124804  Roast rakudo skip/todo test:./S32-num/power.t line:53 reason: '1i**NaN should be NaN' # REJECTED
+    124807  Roast rakudo skip/todo test:./S32-num/power.t line:57 reason: 'NaN**0 should be NaN' # REJECTED
+    124809  Roast rakudo skip/todo test:./S32-num/power.t line:80 reason: 'i' # REJECTED
+    124740  Roast rakudo skip/todo test:./S32-str/tclc.t line:13 reason: 'unknown tclc problem' # REJECTED
