@@ -348,9 +348,6 @@
     124886  Roast rakudo skip/todo test:./S05-mass/properties-script.t line:18 reason: 'Unicode properties with arguments'
     124887  Roast rakudo skip/todo test:./S05-mass/stdrules.t line:171 reason: '<.graph>'
     124888  Roast rakudo skip/todo test:./S05-mass/stdrules.t line:212 reason: '<.print>'
-    124892  Roast rakudo skip/todo test:./S05-mass/rx.t line:57 reason: '::: NYI'
-    124894  Roast rakudo skip/todo test:./S05-mass/rx.t line:66 reason: ':: NYI'
-    124896  Roast rakudo skip/todo test:./S05-mass/rx.t line:75 reason: '::: NYI'
     124897  Roast rakudo skip/todo test:./S05-mass/rx.t line:88 reason: '<commit> NYI'
     124898  Roast rakudo skip/todo test:./S05-mass/rx.t line:503 reason: 'anchors and after'
     124899  Roast rakudo skip/todo test:./S05-mass/rx.t line:1481 reason: ':s()'
@@ -642,3 +639,6 @@
     124900  Roast rakudo skip/todo test:./S05-mass/rx.t line:1493 reason: ':: NYI' # MERGED 79424
     124901  Roast rakudo skip/todo test:./S05-mass/rx.t line:1497 reason: ':: NYI' # MERGED 79424
     124902  Roast rakudo skip/todo test:./S05-mass/rx.t line:1501 reason: ':: NYI' # MERGED 79424
+    124892  Roast rakudo skip/todo test:./S05-mass/rx.t line:57 reason: '::: NYI' # OK
+    124894  Roast rakudo skip/todo test:./S05-mass/rx.t line:66 reason: ':: NYI' # MERGED 124892
+    124896  Roast rakudo skip/todo test:./S05-mass/rx.t line:75 reason: '::: NYI' # MERGED 124892
