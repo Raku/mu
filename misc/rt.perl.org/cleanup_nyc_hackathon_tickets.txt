@@ -17,11 +17,6 @@
     124498  Roast rakudo skip/todo test:./S02-types/unicode.t line:11 reason: 'graphs NYI'
     124499  Roast rakudo skip/todo test:./S02-types/unicode.t line:14 reason: 'graphs NYI'
     124502  Roast rakudo skip/todo test:./S02-types/array-shapes.t line:7 reason: 'array shapes NYI'
-    124503  Roast rakudo skip/todo test:./S02-types/array-shapes.t line:14 reason: 'array shapes NYI'
-    124504  Roast rakudo skip/todo test:./S02-types/array-shapes.t line:27 reason: 'array shapes NYI'
-    124505  Roast rakudo skip/todo test:./S02-types/array-shapes.t line:62 reason: 'array shapes NYI'
-    124506  Roast rakudo skip/todo test:./S02-types/array-shapes.t line:79 reason: 'native arrays NYI'
-    124507  Roast rakudo skip/todo test:./S02-types/array-shapes.t line:92 reason: 'array shapes NYI'
     124509  Roast rakudo skip/todo test:./S02-types/array.t line:354 reason: regression to AdHoc exception
     124513  Roast rakudo skip/todo test:./S03-metaops/hyper.t line:410 reason: 'nom regression: possible spec change/improvement'
     124514  Roast rakudo skip/todo test:./S03-metaops/hyper.t line:704 reason: 'EVAL(Buf)'
@@ -425,8 +420,6 @@
     125035  Roast rakudo skip/todo test:./S05-modifier/perl5_8.t line:98 reason: '\G'
     125036  Roast rakudo skip/todo test:./S05-modifier/perl5_0.t line:55 reason: 'NYI'
     125037  Roast rakudo skip/todo test:./S05-modifier/ignorecase.t line:44 reason: 'ignorecase and SS/&szlig;'
-    125038  Roast rakudo skip/todo test:./S05-modifier/repetition.t line:8 reason: ':2x'
-    125039  Roast rakudo skip/todo test:./S05-modifier/repetition.t line:12 reason: ':x(2)'
     125040  Roast rakudo skip/todo test:./S05-modifier/my.t line:27 reason: Can't parse :state $z++
     125041  Roast rakudo skip/todo test:./S16-unfiled/rebindstdhandles.t line:11 reason: 'contextual rebinding regression'
     125042  Roast rakudo skip/todo test:./S16-unfiled/rebindstdhandles.t line:26 reason: 'contextual rebinding regression'
@@ -642,3 +635,10 @@
     124583  Roast rakudo skip/todo test:./S02-magicals/PERL.t line:47 reason: 'no Perl.signature yet' # MERGED 124582
     124622  Roast rakudo skip/todo test:./S02-magicals/DISTRO.t line:61 reason: 'no Distro.signature yet' # MERGED 124621
     124618  Roast rakudo skip/todo test:./S02-magicals/DISTRO.t line:45 reason: 'no Distro.signature yet' # MERGED 124617
+    125038  Roast rakudo skip/todo test:./S05-modifier/repetition.t line:8 reason: ':2x' # RESOLVED
+    125039  Roast rakudo skip/todo test:./S05-modifier/repetition.t line:12 reason: ':x(2)' # RESOLVED
+    124503  Roast rakudo skip/todo test:./S02-types/array-shapes.t line:14 reason: 'array shapes NYI' # MERGED 124502
+    124504  Roast rakudo skip/todo test:./S02-types/array-shapes.t line:27 reason: 'array shapes NYI' # MERGED 124502
+    124505  Roast rakudo skip/todo test:./S02-types/array-shapes.t line:62 reason: 'array shapes NYI' # MERGED 124502
+    124506  Roast rakudo skip/todo test:./S02-types/array-shapes.t line:79 reason: 'native arrays NYI' # MERGED 124502
+    124507  Roast rakudo skip/todo test:./S02-types/array-shapes.t line:92 reason: 'array shapes NYI' # MERGED 124502
