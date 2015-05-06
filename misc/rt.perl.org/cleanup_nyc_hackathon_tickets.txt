@@ -92,32 +92,20 @@
     124580  Roast rakudo skip/todo test:./S04-statements/gather.t line:205 reason: unwind
     124581  Roast rakudo skip/todo test:./S02-magicals/PERL.t line:8 reason: 'unimpl 0PERL'
     124582  Roast rakudo skip/todo test:./S02-magicals/PERL.t line:46 reason: 'no Perl.signature yet'
-    124583  Roast rakudo skip/todo test:./S02-magicals/PERL.t line:47 reason: 'no Perl.signature yet'
     124585  Roast rakudo skip/todo test:./S02-magicals/PERL.t line:50 reason: 'no Perl.desc yet'
-    124586  Roast rakudo skip/todo test:./S02-magicals/PERL.t line:51 reason: 'no Perl.desc yet'
     124588  Roast rakudo skip/todo test:./S02-magicals/PERL.t line:61 reason: 'no Perl.signature yet'
-    124589  Roast rakudo skip/todo test:./S02-magicals/PERL.t line:62 reason: 'no Perl.signature yet'
     124591  Roast rakudo skip/todo test:./S02-magicals/PERL.t line:71 reason: 'no Perl.compiler.signature yet'
-    124592  Roast rakudo skip/todo test:./S02-magicals/PERL.t line:72 reason: 'no Perl.compiler.signature yet'
     124594  Roast rakudo skip/todo test:./S02-magicals/PERL.t line:75 reason: 'no Perl.compiler.desc yet'
-    124595  Roast rakudo skip/todo test:./S02-magicals/PERL.t line:76 reason: 'no Perl.compiler.desc yet'
     124597  Roast rakudo skip/todo test:./S02-magicals/PERL.t line:79 reason: 'no Perl.compiler.release yet'
-    124598  Roast rakudo skip/todo test:./S02-magicals/PERL.t line:80 reason: 'no Perl.compiler.release yet'
     124600  Roast rakudo skip/todo test:./S02-magicals/PERL.t line:84 reason: 'no Perl.compiler.codename yet'
-    124601  Roast rakudo skip/todo test:./S02-magicals/PERL.t line:85 reason: 'no Perl.compiler.codename yet'
     124603  Roast rakudo skip/todo test:./S02-magicals/PERL.t line:93 reason: 'no Perl.compiler.signature yet'
-    124604  Roast rakudo skip/todo test:./S02-magicals/PERL.t line:94 reason: 'no Perl.compiler.signature yet'
     124606  Roast rakudo skip/todo test:./S02-magicals/VM.t line:7 reason: 'VM.properties does not exist'
     124608  Roast rakudo skip/todo test:./S02-magicals/VM.t line:16 reason: 'unimpl 0VM'
     124609  Roast rakudo skip/todo test:./S02-magicals/VM.t line:45 reason: 'no VM.signature yet'
-    124610  Roast rakudo skip/todo test:./S02-magicals/VM.t line:46 reason: 'no VM.signature yet'
     124613  Roast rakudo skip/todo test:./S02-magicals/VM.t line:65 reason: 'no VM.signature yet'
-    124614  Roast rakudo skip/todo test:./S02-magicals/VM.t line:66 reason: 'no VM.signature yet'
     124616  Roast rakudo skip/todo test:./S02-magicals/DISTRO.t line:18 reason: 'unimpl 0DISTRO'
     124617  Roast rakudo skip/todo test:./S02-magicals/DISTRO.t line:44 reason: 'no Distro.signature yet'
-    124618  Roast rakudo skip/todo test:./S02-magicals/DISTRO.t line:45 reason: 'no Distro.signature yet'
     124621  Roast rakudo skip/todo test:./S02-magicals/DISTRO.t line:60 reason: 'no Distro.signature yet'
-    124622  Roast rakudo skip/todo test:./S02-magicals/DISTRO.t line:61 reason: 'no Distro.signature yet'
     124624  Roast rakudo skip/todo test:./S02-magicals/KERNEL.t line:8 reason: 'unimpl 0KERNEL'
     124625  Roast rakudo skip/todo test:./S02-magicals/KERNEL.t line:36 reason: 'no Kernel.signature yet'
     124626  Roast rakudo skip/todo test:./S02-magicals/KERNEL.t line:38 reason: 'no Kernel.desc yet'
@@ -241,13 +229,9 @@
     124796  Roast rakudo skip/todo test:./S32-num/stringify.t line:69 reason: 'big stuff'
     124798  Roast rakudo skip/todo test:./S32-num/power.t line:20 reason: 'big exponents'
     124800  Roast rakudo skip/todo test:./S32-num/power.t line:48 reason: 'NaN**1i should be NaN'
-    124802  Roast rakudo skip/todo test:./S32-num/power.t line:50 reason: 'NaN**1i should be NaN'
     124803  Roast rakudo skip/todo test:./S32-num/power.t line:52 reason: '1i**NaN should be NaN'
-    124805  Roast rakudo skip/todo test:./S32-num/power.t line:54 reason: '1i**NaN should be NaN'
     124806  Roast rakudo skip/todo test:./S32-num/power.t line:56 reason: 'NaN**0 should be NaN'
-    124808  Roast rakudo skip/todo test:./S32-num/power.t line:58 reason: 'NaN**0 should be NaN'
     124810  Roast rakudo skip/todo test:./S32-num/power.t line:81 reason: 'i'
-    124811  Roast rakudo skip/todo test:./S32-num/power.t line:82 reason: 'i'
     124812  Roast rakudo skip/todo test:./S32-num/rand.t line:69 reason: 'Test is too slow; srand call incorrect'
     124813  Roast rakudo skip/todo test:./S32-num/sign.t line:49 reason: Nom does not yet have a NaN framework in place
     124814  Roast rakudo skip/todo test:./S32-num/fatrat.t line:181 reason: 'FatRat arith + type objects'
@@ -271,7 +255,6 @@
     124832  Roast rakudo skip/todo test:./S12-enums/basic.t line:24 reason: 'Cannot convert string to number'
     124833  Roast rakudo skip/todo test:./S12-enums/non-int.t line:14 reason: 'NYI'
     124834  Roast rakudo skip/todo test:./S29-conversions/ord_and_chr.t line:156 reason: 'chr surrogate'
-    124835  Roast rakudo skip/todo test:./S29-conversions/ord_and_chr.t line:157 reason: 'chr surrogate'
     124837  Roast rakudo skip/todo test:./S29-conversions/ord_and_chr.t line:162 reason: 'chr max'
     124838  Roast rakudo skip/todo test:./S29-conversions/ord_and_chr.t line:168 reason: 'high character name lookup'
     124839  Roast rakudo skip/todo test:./S12-coercion/coercion-types.t line:42 reason: 'dies'
@@ -642,3 +625,20 @@
     124807  Roast rakudo skip/todo test:./S32-num/power.t line:57 reason: 'NaN**0 should be NaN' # REJECTED
     124809  Roast rakudo skip/todo test:./S32-num/power.t line:80 reason: 'i' # REJECTED
     124740  Roast rakudo skip/todo test:./S32-str/tclc.t line:13 reason: 'unknown tclc problem' # REJECTED
+    124811  Roast rakudo skip/todo test:./S32-num/power.t line:82 reason: 'i' # MERGED 124810
+    124808  Roast rakudo skip/todo test:./S32-num/power.t line:58 reason: 'NaN**0 should be NaN' # MERGED 124806
+    124805  Roast rakudo skip/todo test:./S32-num/power.t line:54 reason: '1i**NaN should be NaN' # MERGED 124803
+    124802  Roast rakudo skip/todo test:./S32-num/power.t line:50 reason: 'NaN**1i should be NaN' # MERGED 124800
+    124835  Roast rakudo skip/todo test:./S29-conversions/ord_and_chr.t line:157 reason: 'chr surrogate' # MERGED 124834
+    124614  Roast rakudo skip/todo test:./S02-magicals/VM.t line:66 reason: 'no VM.signature yet' # MERGED 124613
+    124610  Roast rakudo skip/todo test:./S02-magicals/VM.t line:46 reason: 'no VM.signature yet' # MERGED 124609
+    124604  Roast rakudo skip/todo test:./S02-magicals/PERL.t line:94 reason: 'no Perl.compiler.signature yet' # MERGED 124603
+    124601  Roast rakudo skip/todo test:./S02-magicals/PERL.t line:85 reason: 'no Perl.compiler.codename yet' # MERGED 124601
+    124598  Roast rakudo skip/todo test:./S02-magicals/PERL.t line:80 reason: 'no Perl.compiler.release yet' # MERGED 124597
+    124595  Roast rakudo skip/todo test:./S02-magicals/PERL.t line:76 reason: 'no Perl.compiler.desc yet' # MERGED 124594
+    124592  Roast rakudo skip/todo test:./S02-magicals/PERL.t line:72 reason: 'no Perl.compiler.signature yet' # MERGED 124591
+    124589  Roast rakudo skip/todo test:./S02-magicals/PERL.t line:62 reason: 'no Perl.signature yet' # MERGED 124588
+    124586  Roast rakudo skip/todo test:./S02-magicals/PERL.t line:51 reason: 'no Perl.desc yet' # MERGED 124585
+    124583  Roast rakudo skip/todo test:./S02-magicals/PERL.t line:47 reason: 'no Perl.signature yet' # MERGED 124582
+    124622  Roast rakudo skip/todo test:./S02-magicals/DISTRO.t line:61 reason: 'no Distro.signature yet' # MERGED 124621
+    124618  Roast rakudo skip/todo test:./S02-magicals/DISTRO.t line:45 reason: 'no Distro.signature yet' # MERGED 124617
