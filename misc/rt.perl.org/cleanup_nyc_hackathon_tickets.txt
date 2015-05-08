@@ -35,8 +35,6 @@
     124528  Roast rakudo skip/todo test:./S03-operators/inplace.t line:32 reason: Method '' not found for invocant of class 'Str'
     124529  Roast rakudo skip/todo test:./S03-operators/bag.t line:69 reason: Rakudo update in progress, but not done yet
     124530  Roast rakudo skip/todo test:./S03-operators/assign.t line:187 reason: 'Odd number of elements found where hash expected'
-    124531  Roast rakudo skip/todo test:./S03-operators/assign.t line:535 reason: Two terms in a row
-    124532  Roast rakudo skip/todo test:./S03-operators/assign.t line:545 reason: expects a term, found infix >= instead
     124533  Roast rakudo skip/todo test:./S03-operators/assign.t line:630 reason: 'cannot modifiy an immutable value'
     124534  Roast rakudo skip/todo test:./S03-operators/assign.t line:639 reason: 'cannot modifiy an immutable value'
     124535  Roast rakudo skip/todo test:./S03-operators/orelse.t line:21 reason: 'orelse passes as argument'
@@ -234,8 +232,6 @@
     124816  Roast rakudo skip/todo test:./S32-num/cool-num.t line:71 reason: 'angle conversion'
     124817  Roast rakudo skip/todo test:./S32-num/int.t line:83 reason: trailing characters produce failures
     124818  Roast rakudo skip/todo test:./S32-num/int.t line:108 reason: 'Inf and NaN NYI for Int'
-    124819  Roast rakudo skip/todo test:./S32-num/int.t line:111 reason: 'Inf and NaN NYI for Int'
-    124820  Roast rakudo skip/todo test:./S32-num/int.t line:112 reason: 'Inf and NaN NYI for Int'
     124821  Roast rakudo skip/todo test:./S32-num/log.t line:74 reason: 'HugeInt.log'
     124822  Roast rakudo skip/todo test:./S17-supply/stable.t line:14 reason: doesn't work or can't test
     124823  Roast rakudo skip/todo test:./S17-supply/rotor.t line:10 reason: 'only deprecated so far'
@@ -420,7 +416,6 @@
     125035  Roast rakudo skip/todo test:./S05-modifier/perl5_8.t line:98 reason: '\G'
     125036  Roast rakudo skip/todo test:./S05-modifier/perl5_0.t line:55 reason: 'NYI'
     125037  Roast rakudo skip/todo test:./S05-modifier/ignorecase.t line:44 reason: 'ignorecase and SS/&szlig;'
-    125040  Roast rakudo skip/todo test:./S05-modifier/my.t line:27 reason: Can't parse :state $z++
     125041  Roast rakudo skip/todo test:./S16-unfiled/rebindstdhandles.t line:11 reason: 'contextual rebinding regression'
     125042  Roast rakudo skip/todo test:./S16-unfiled/rebindstdhandles.t line:26 reason: 'contextual rebinding regression'
     125043  Roast rakudo skip/todo test:./S12-class/basic.t line:71 reason: 'Calling is will never work with argument types (Foo)'
@@ -435,11 +430,6 @@
     125052  Roast rakudo skip/todo test:./S04-declarations/state.t line:258 reason: 'initialization happens only on first call(?)'
     125053  Roast rakudo skip/todo test:./S04-declarations/multiple.t line:30 reason: 'nom regression'
     125054  Roast rakudo skip/todo test:./S04-declarations/constant.t line:86 reason: 'COMPILING'
-    125055  Roast rakudo skip/todo test:./S04-declarations/constant.t line:108 reason: 'COMPILING'
-    125056  Roast rakudo skip/todo test:./S04-declarations/constant.t line:130 reason: 'COMPILING'
-    125057  Roast rakudo skip/todo test:./S04-declarations/constant.t line:151 reason: 'unicode constant name'
-    125058  Roast rakudo skip/todo test:./S04-declarations/constant.t line:175 reason: 'binding'
-    125059  Roast rakudo skip/todo test:./S04-declarations/constant.t line:202 reason: 'binding'
     125060  Roast rakudo skip/todo test:./S04-declarations/our.t line:115 reason: 'our-scoped var in role'
     125061  Roast rakudo skip/todo test:./S04-declarations/will.t line:33 reason: 'declared variable not visible in block yet'
     125062  Roast rakudo skip/todo test:./S04-declarations/will.t line:54 reason: will post NYI
@@ -642,3 +632,13 @@
     124505  Roast rakudo skip/todo test:./S02-types/array-shapes.t line:62 reason: 'array shapes NYI' # MERGED 124502
     124506  Roast rakudo skip/todo test:./S02-types/array-shapes.t line:79 reason: 'native arrays NYI' # MERGED 124502
     124507  Roast rakudo skip/todo test:./S02-types/array-shapes.t line:92 reason: 'array shapes NYI' # MERGED 124502
+    124819  Roast rakudo skip/todo test:./S32-num/int.t line:111 reason: 'Inf and NaN NYI for Int' # MERGED 124818
+    124820  Roast rakudo skip/todo test:./S32-num/int.t line:112 reason: 'Inf and NaN NYI for Int' # MERGED 124818
+    125057  Roast rakudo skip/todo test:./S04-declarations/constant.t line:151 reason: 'unicode constant name' # RESOLVED
+    125055  Roast rakudo skip/todo test:./S04-declarations/constant.t line:108 reason: 'COMPILING' # MERGED 125054
+    125056  Roast rakudo skip/todo test:./S04-declarations/constant.t line:130 reason: 'COMPILING' # MERGED 125054
+    125058  Roast rakudo skip/todo test:./S04-declarations/constant.t line:175 reason: 'binding' # RESOLVED
+    125059  Roast rakudo skip/todo test:./S04-declarations/constant.t line:202 reason: 'binding' # MERGED 125059
+    125040  Roast rakudo skip/todo test:./S05-modifier/my.t line:27 reason: Can't parse :state $z++ # RESOLVED
+    124531  Roast rakudo skip/todo test:./S03-operators/assign.t line:535 reason: Two terms in a row # OK
+    124532  Roast rakudo skip/todo test:./S03-operators/assign.t line:545 reason: expects a term, found infix >= instead # MERGED 124531
