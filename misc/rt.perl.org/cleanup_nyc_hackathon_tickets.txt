@@ -12,7 +12,6 @@
     124489  Roast rakudo skip/todo test:./S02-types/set.t line:372 reason: 'we have not secured .WHICH creation yet'
     124493  Roast rakudo skip/todo test:./S02-types/anon_block.t line:123 reason: ?
     124494  Roast rakudo skip/todo test:./S02-types/lists.t line:106 reason: 'list binding'
-    124495  Roast rakudo skip/todo test:./S02-types/lists.t line:121 reason: 'list binding'
     124496  Roast rakudo skip/todo test:./S02-types/mix.t line:418 reason: 'we have not secured .WHICH creation yet'
     124498  Roast rakudo skip/todo test:./S02-types/unicode.t line:11 reason: 'graphs NYI'
     124499  Roast rakudo skip/todo test:./S02-types/unicode.t line:14 reason: 'graphs NYI'
@@ -52,8 +51,6 @@
     124547  Roast rakudo skip/todo test:./S03-operators/also.t line:22 reason: 'nom regression'
     124548  Roast rakudo skip/todo test:./S03-operators/flip-flop.t line:119 reason: 'dubious scoping?'
     124549  Roast rakudo skip/todo test:./S03-operators/flip-flop.t line:141 reason: 'NYM flip-flop with True but '
-    124550  Roast rakudo skip/todo test:./S03-operators/reduce-le1arg.t line:20 reason: ~< NYI
-    124551  Roast rakudo skip/todo test:./S03-operators/reduce-le1arg.t line:22 reason: ~> NYI
     124552  Roast rakudo skip/todo test:./S03-operators/reduce-le1arg.t line:43 reason: 'expected Any but got Mu instead'
     124553  Roast rakudo skip/todo test:./S03-operators/adverbial-modifiers.t line:170 reason: 'Multi colonpair syntax not yet understood'
     124554  Roast rakudo skip/todo test:./S02-literals/quoting.t line:163 reason: 'retriage'
@@ -72,7 +69,6 @@
     124567  Roast rakudo skip/todo test:./S32-scalar/undef.t line:311 reason: 'todo: lists, defined, truthness'
     124568  Roast rakudo skip/todo test:./S04-statements/for.t line:469 reason: 'Rakudo still uses Nil here'
     124569  Roast rakudo skip/todo test:./S04-statements/for.t line:476 reason: 'Rakudo still uses Nil here'
-    124570  Roast rakudo skip/todo test:./S04-statements/loop.t line:104 reason: 'unwind'
     124571  Roast rakudo skip/todo test:./S04-statements/lazy.t line:40 reason: 'why ever not?'
     124572  Roast rakudo skip/todo test:./S04-statements/do.t line:48 reason: 'Rakudo still uses Nil here'
     124573  Roast rakudo skip/todo test:./S04-statements/do.t line:86 reason: 'next without loop construct'
@@ -137,7 +133,6 @@
     124660  Roast rakudo skip/todo test:./S06-other/pairs-as-lvalues.t line:10 reason: NYI
     124661  Roast rakudo skip/todo test:./S06-other/pairs-as-lvalues.t line:11 reason: Flattening named argument must have VMHash REPR
     124662  Roast rakudo skip/todo test:./S06-other/main-eval.t line:21 reason: 'MAIN in EVAL'
-    124663  Roast rakudo skip/todo test:./S06-other/anon-hashes-vs-blocks.t line:48 reason: 'jvm chokes on compiling {;} for some reason'
     124664  Roast rakudo skip/todo test:./S06-other/main-usage.t line:104 reason: 'nom regression'
     124665  Roast rakudo skip/todo test:./S06-other/main-usage.t line:113 reason: 'nom regression'
     124666  Roast rakudo skip/todo test:./S06-other/main-usage.t line:122 reason: 'nom regression'
@@ -145,7 +140,6 @@
     124668  Roast rakudo skip/todo test:./S06-other/main-usage.t line:140 reason: 'nom regression'
     124669  Roast rakudo skip/todo test:./S06-other/main-usage.t line:190 reason: 'NYI'
     124670  Roast rakudo skip/todo test:./S06-other/main-usage.t line:215 reason: 'NYI'
-    124671  Roast rakudo skip/todo test:./S16-io/getc.t line:16 reason: Method 'read' not found
     124672  Roast rakudo skip/todo test:./S16-io/quoting-syntax.t line:8 reason: two terms in a row / unrecognized adverb
     124673  Roast rakudo skip/todo test:./S16-io/quoting-syntax.t line:18 reason: undeclared routine / urecognized adverb
     124674  Roast rakudo skip/todo test:./S16-io/quoting-syntax.t line:32 reason: two terms in a row
@@ -222,8 +216,6 @@
     124796  Roast rakudo skip/todo test:./S32-num/stringify.t line:69 reason: 'big stuff'
     124798  Roast rakudo skip/todo test:./S32-num/power.t line:20 reason: 'big exponents'
     124800  Roast rakudo skip/todo test:./S32-num/power.t line:48 reason: 'NaN**1i should be NaN'
-    124803  Roast rakudo skip/todo test:./S32-num/power.t line:52 reason: '1i**NaN should be NaN'
-    124806  Roast rakudo skip/todo test:./S32-num/power.t line:56 reason: 'NaN**0 should be NaN'
     124810  Roast rakudo skip/todo test:./S32-num/power.t line:81 reason: 'i'
     124812  Roast rakudo skip/todo test:./S32-num/rand.t line:69 reason: 'Test is too slow; srand call incorrect'
     124813  Roast rakudo skip/todo test:./S32-num/sign.t line:49 reason: Nom does not yet have a NaN framework in place
@@ -235,7 +227,6 @@
     124821  Roast rakudo skip/todo test:./S32-num/log.t line:74 reason: 'HugeInt.log'
     124822  Roast rakudo skip/todo test:./S17-supply/stable.t line:14 reason: doesn't work or can't test
     124823  Roast rakudo skip/todo test:./S17-supply/rotor.t line:10 reason: 'only deprecated so far'
-    124824  Roast rakudo skip/todo test:./S17-supply/list.t line:12 reason: hangs
     124825  Roast rakudo skip/todo test:./S17-supply/last.t line:10 reason: we don't have Natural numbers yet
     124826  Roast rakudo skip/todo test:./S17-supply/delayed.t line:14 reason: doesn't work or can't test
     124827  Roast rakudo skip/todo test:./S17-supply/delayed.t line:27 reason: doesn't work or can't test
@@ -263,22 +254,11 @@
     124851  Roast rakudo skip/todo test:./S12-methods/submethods.t line:85 reason: 'roles and submethods'
     124852  Roast rakudo skip/todo test:./S12-methods/syntax.t line:24 reason: 'switch-from-paren-to-listop form'
     124853  Roast rakudo skip/todo test:./S12-methods/syntax.t line:31 reason: 'adverbial closures'
-    124855  Roast rakudo skip/todo test:./S05-mass/properties-general.t line:29 reason: 'Invalid codepoint \x[FFFE]'
-    124857  Roast rakudo skip/todo test:./S05-mass/properties-general.t line:39 reason: 'Invalid codepoint \x[FFFE]'
-    124859  Roast rakudo skip/todo test:./S05-mass/properties-general.t line:154 reason: 'Invalid codepoint \x[FFFF]'
     124860  Roast rakudo skip/todo test:./S05-mass/properties-general.t line:163 reason: No [Lr] property defined
-    124862  Roast rakudo skip/todo test:./S05-mass/properties-general.t line:734 reason: Invalid codepoint \x[FFFE]
     124863  Roast rakudo skip/todo test:./S05-mass/properties-general.t line:735 reason: Unions of properties of non-existent codepoints
-    124865  Roast rakudo skip/todo test:./S05-mass/properties-general.t line:743 reason: Invalid codepoint \x[FFFE]
-    124866  Roast rakudo skip/todo test:./S05-mass/properties-general.t line:744 reason: Unions of properties of non-existent codepoints
-    124869  Roast rakudo skip/todo test:./S05-mass/properties-general.t line:796 reason: Invalid codepoint \x[FFFE]
-    124871  Roast rakudo skip/todo test:./S05-mass/properties-general.t line:801 reason: Invalid codepoint \x[FFFE]
     124872  Roast rakudo skip/todo test:./S05-mass/properties-general.t line:816 reason: Unicode spec change in v6.1
     124874  Roast rakudo skip/todo test:./S05-mass/properties-derived.t line:67 reason: isGraphemeLink
-    124875  Roast rakudo skip/todo test:./S05-mass/properties-derived.t line:167 reason: isOther* NYI
-    124877  Roast rakudo skip/todo test:./S05-mass/properties-derived.t line:286 reason: 'icu'
     124879  Roast rakudo skip/todo test:./S05-mass/properties-derived.t line:379 reason: 'isAny NYI'
-    124881  Roast rakudo skip/todo test:./S05-mass/properties-derived.t line:389 reason: 'isAssigned NYI'
     124883  Roast rakudo skip/todo test:./S05-mass/properties-derived.t line:402 reason: 'isUnassigned NYI'
     124884  Roast rakudo skip/todo test:./S05-mass/properties-derived.t line:416 reason: 'isCommon NYI'
     124886  Roast rakudo skip/todo test:./S05-mass/properties-script.t line:18 reason: 'Unicode properties with arguments'
@@ -338,18 +318,14 @@
     124953  Roast rakudo skip/todo test:./S04-phasers/next.t line:116 reason: 'NEXT/LEAVE ordering'
     124955  Roast rakudo skip/todo test:./S04-phasers/in-loop.t line:22 reason: unknown phasers issue
     124957  Roast rakudo skip/todo test:./S04-phasers/in-loop.t line:47 reason: unknown phasers issue
-    124958  Roast rakudo skip/todo test:./S04-phasers/in-eval.t line:55 reason: ?
-    124959  Roast rakudo skip/todo test:./S04-phasers/in-eval.t line:71 reason: ?
     124960  Roast rakudo skip/todo test:./S04-phasers/enter-leave.t line:87 reason: 'leave NYI'
     124961  Roast rakudo skip/todo test:./S04-phasers/pre-post.t line:137 reason: 'POST and exceptions'
     124962  Roast rakudo skip/todo test:./S04-phasers/pre-post.t line:149 reason: POST and exceptions
     124963  Roast rakudo skip/todo test:./S04-phasers/end.t line:42 reason: 'lexicals and EVAL()'
     124964  Roast rakudo skip/todo test:./S06-macros/opaque-ast.t line:21 reason: ':COMPILING flag'
     124965  Roast rakudo skip/todo test:./S06-macros/opaque-ast.t line:53 reason: 'return from macro'
-    124966  Roast rakudo skip/todo test:./S06-macros/unquoting.t line:66 reason: ?
     124967  Roast rakudo skip/todo test:./S06-macros/quasi-blocks.t line:88 reason: Method 'succ' not found
     124968  Roast rakudo skip/todo test:./S06-macros/quasi-blocks.t line:89 reason: No such method 'STORE' for invocant of type 'Mu'
-    124969  Roast rakudo skip/todo test:./S06-macros/quasi-blocks.t line:115 reason: ?
     124970  Roast rakudo skip/todo test:./S26-documentation/09-configuration.t line:30 reason: 'non-string colonpair pod options'
     124971  Roast rakudo skip/todo test:./S13-overloading/typecasting-long.t line:31 reason: 'cannot easily override [] at the moment'
     124972  Roast rakudo skip/todo test:./S13-overloading/typecasting-long.t line:46 reason: 'cannot easily override {} at the moment'
@@ -379,8 +355,6 @@
     124998  Roast rakudo skip/todo test:./S05-capture/match-object.t line:40 reason: 'Unsupported use of $¢ variable'
     124999  Roast rakudo skip/todo test:./S05-capture/match-object.t line:42 reason: No such method pos for invocant of type Any
     125000  Roast rakudo skip/todo test:./S05-capture/named.t line:38 reason: 'assigning to match object'
-    125001  Roast rakudo skip/todo test:./S05-capture/caps.t line:73 reason: '& caps on jvm'
-    125002  Roast rakudo skip/todo test:./S05-capture/caps.t line:77 reason: '&& caps on jvm'
     125003  Roast rakudo skip/todo test:./S05-capture/dot.t line:60 reason: 'really? :-)'
     125004  Roast rakudo skip/todo test:./S05-capture/dot.t line:67 reason: 'dubious test'
     125005  Roast rakudo skip/todo test:./S05-capture/dot.t line:72 reason: 'dubious test'
@@ -442,10 +416,7 @@
     125070  Roast rakudo skip/todo test:./S15-unicode-information/uniname.t line:37 reason: :either NYI
     125071  Roast rakudo skip/todo test:./S15-unicode-information/uniname.t line:44 reason: :either and :one NYI
     125072  Roast rakudo skip/todo test:./S02-lexical-conventions/unspace.t line:78 reason: 'NYI'
-    125073  Roast rakudo skip/todo test:./S16-filehandles/io.t line:245 reason: 'java.nio.charset.UnmappableCharacterException'
-    125074  Roast rakudo skip/todo test:./S16-filehandles/io.t line:254 reason: 'will fail due to above failures'
     125075  Roast rakudo skip/todo test:./S16-filehandles/io.t line:262 reason: 'java.nio.charset.UnmappableCharacterException'
-    125076  Roast rakudo skip/todo test:./S16-filehandles/io.t line:266 reason: 'java.nio.charset.UnmappableCharacterException'
     125077  Roast rakudo skip/todo test:./S16-filehandles/io.t line:272 reason: 'will fail due to above failures'
     125078  Roast rakudo skip/todo test:./S16-filehandles/io.t line:284 reason: 'builtin JVM charset folds these'
     125079  Roast rakudo skip/todo test:./S16-filehandles/io.t line:287 reason: 'Too late to change filehandle encoding'
@@ -642,3 +613,32 @@
     125040  Roast rakudo skip/todo test:./S05-modifier/my.t line:27 reason: Can't parse :state $z++ # RESOLVED
     124531  Roast rakudo skip/todo test:./S03-operators/assign.t line:535 reason: Two terms in a row # OK
     124532  Roast rakudo skip/todo test:./S03-operators/assign.t line:545 reason: expects a term, found infix >= instead # MERGED 124531
+    125001  Roast rakudo skip/todo test:./S05-capture/caps.t line:73 reason: '& caps on jvm' # RESOLVED
+    125002  Roast rakudo skip/todo test:./S05-capture/caps.t line:77 reason: '&& caps on jvm' # RESOLVED
+    124495  Roast rakudo skip/todo test:./S02-types/lists.t line:121 reason: 'list binding' # MERGED 124494
+    125074  Roast rakudo skip/todo test:./S16-filehandles/io.t line:254 reason: 'will fail due to above failures' # MERGED 125073
+    125073  Roast rakudo skip/todo test:./S16-filehandles/io.t line:245 reason: 'java.nio.charset.UnmappableCharacterException' # RESOLVED
+    125076  Roast rakudo skip/todo test:./S16-filehandles/io.t line:266 reason: 'java.nio.charset.UnmappableCharacterException' # RESOLVED
+    124550  Roast rakudo skip/todo test:./S03-operators/reduce-le1arg.t line:20 reason: ~< NYI # MERGED 124531
+    124551  Roast rakudo skip/todo test:./S03-operators/reduce-le1arg.t line:22 reason: ~> NYI # MERGED 124531
+    124663  Roast rakudo skip/todo test:./S06-other/anon-hashes-vs-blocks.t line:48 reason: 'jvm chokes on compiling {;} for some reason' # RESOLVED
+    124671  Roast rakudo skip/todo test:./S16-io/getc.t line:16 reason: Method 'read' not found # RESOLVED
+    124803  Roast rakudo skip/todo test:./S32-num/power.t line:52 reason: '1i**NaN should be NaN' # MERGED 124800
+    124806  Roast rakudo skip/todo test:./S32-num/power.t line:56 reason: 'NaN**0 should be NaN' # MERGED 124800
+    124969  Roast rakudo skip/todo test:./S06-macros/quasi-blocks.t line:115 reason: ? # RESOLVED
+    124966  Roast rakudo skip/todo test:./S06-macros/unquoting.t line:66 reason: ? # RESOLVED
+    124570  Roast rakudo skip/todo test:./S04-statements/loop.t line:104 reason: 'unwind' # RESOLVED
+    124958  Roast rakudo skip/todo test:./S04-phasers/in-eval.t line:55 reason: ? # RESOLVED
+    124959  Roast rakudo skip/todo test:./S04-phasers/in-eval.t line:71 reason: ? # RESOLVED
+    124824  Roast rakudo skip/todo test:./S17-supply/list.t line:12 reason: hangs # RESOLVED
+    124865  Roast rakudo skip/todo test:./S05-mass/properties-general.t line:743 reason: Invalid codepoint \x[FFFE] # MERGED 124866
+    124862  Roast rakudo skip/todo test:./S05-mass/properties-general.t line:734 reason: Invalid codepoint \x[FFFE] # MERGED 124863
+    124866  Roast rakudo skip/todo test:./S05-mass/properties-general.t line:744 reason: Unions of properties of non-existent codepoints # MERGED 124863
+    124855  Roast rakudo skip/todo test:./S05-mass/properties-general.t line:29 reason: 'Invalid codepoint \x[FFFE]' # RESOLVED
+    124857  Roast rakudo skip/todo test:./S05-mass/properties-general.t line:39 reason: 'Invalid codepoint \x[FFFE]' # MERGED 124855
+    124859  Roast rakudo skip/todo test:./S05-mass/properties-general.t line:154 reason: 'Invalid codepoint \x[FFFF]' # MERGED 124855
+    124869  Roast rakudo skip/todo test:./S05-mass/properties-general.t line:796 reason: Invalid codepoint \x[FFFE] # MERGED 124855
+    124871  Roast rakudo skip/todo test:./S05-mass/properties-general.t line:801 reason: Invalid codepoint \x[FFFE] # MERGED 124855
+    124875  Roast rakudo skip/todo test:./S05-mass/properties-derived.t line:167 reason: isOther* NYI # RESOLVED
+    124877  Roast rakudo skip/todo test:./S05-mass/properties-derived.t line:286 reason: 'icu' # RESOLVED
+    124881  Roast rakudo skip/todo test:./S05-mass/properties-derived.t line:389 reason: 'isAssigned NYI' # RESOLVED
