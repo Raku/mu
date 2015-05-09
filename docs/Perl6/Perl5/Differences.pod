@@ -24,12 +24,12 @@ This list is currently known to be incomplete.
 Where you used to say:
 
     my @fruits = ("apple", "pear", "banana");
-    print $fruit[0], "\n";
+    print $fruits[0], "\n";
 
 You would now say:
 
     my @fruits = "apple", "pear", "banana";
-    say @fruit[0];
+    say @fruits[0];
 
 Or even use the C<< <> >> operator, which replaces C<qw()>:
 
