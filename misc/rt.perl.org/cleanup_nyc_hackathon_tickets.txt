@@ -8,13 +8,10 @@
     124485  Roast rakudo skip/todo test:./S02-types/sigils-and-types.t line:47 reason: Capture does Associative
     124486  Roast rakudo skip/todo test:./S02-types/whatever.t line:233 reason: 'currying plus meta ops'
     124487  Roast rakudo skip/todo test:./S02-types/set.t line:214 reason: Hypers not yet Set compatible
-    124488  Roast rakudo skip/todo test:./S02-types/set.t line:229 reason: Hypers not yet Set compatible
     124489  Roast rakudo skip/todo test:./S02-types/set.t line:372 reason: 'we have not secured .WHICH creation yet'
     124493  Roast rakudo skip/todo test:./S02-types/anon_block.t line:123 reason: ?
     124494  Roast rakudo skip/todo test:./S02-types/lists.t line:106 reason: 'list binding'
     124496  Roast rakudo skip/todo test:./S02-types/mix.t line:418 reason: 'we have not secured .WHICH creation yet'
-    124498  Roast rakudo skip/todo test:./S02-types/unicode.t line:11 reason: 'graphs NYI'
-    124499  Roast rakudo skip/todo test:./S02-types/unicode.t line:14 reason: 'graphs NYI'
     124502  Roast rakudo skip/todo test:./S02-types/array-shapes.t line:7 reason: 'array shapes NYI'
     124509  Roast rakudo skip/todo test:./S02-types/array.t line:354 reason: regression to AdHoc exception
     124513  Roast rakudo skip/todo test:./S03-metaops/hyper.t line:410 reason: 'nom regression: possible spec change/improvement'
@@ -24,7 +21,6 @@
     124517  Roast rakudo skip/todo test:./S03-metaops/eager-hyper.t line:35 reason: 'hyper prefix NYI'
     124518  Roast rakudo skip/todo test:./S03-metaops/cross.t line:31 reason: .slice for iterators NYI
     124519  Roast rakudo skip/todo test:./S05-metasyntax/angle-brackets.t line:47 reason: '<test()> NYI'
-    124520  Roast rakudo skip/todo test:./S05-metasyntax/angle-brackets.t line:56 reason: '<test()> NYI'
     124521  Roast rakudo skip/todo test:./S05-metasyntax/angle-brackets.t line:106 reason: 'angle quotes in regexes'
     124522  Roast rakudo skip/todo test:./S05-metasyntax/angle-brackets.t line:122 reason: 'colon arguments NYI'
     124523  Roast rakudo skip/todo test:./S05-metasyntax/angle-brackets.t line:200 reason: '<&foo()> NYI'
@@ -46,20 +42,15 @@
     124542  Roast rakudo skip/todo test:./S03-operators/range.t line:22 reason: 'huh?'
     124543  Roast rakudo skip/todo test:./S03-operators/range.t line:26 reason: 'huh?'
     124544  Roast rakudo skip/todo test:./S03-operators/also.t line:9 reason: 'nom regression'
-    124545  Roast rakudo skip/todo test:./S03-operators/also.t line:11 reason: 'nom regression'
     124546  Roast rakudo skip/todo test:./S03-operators/also.t line:17 reason: 'nom regression'
     124547  Roast rakudo skip/todo test:./S03-operators/also.t line:22 reason: 'nom regression'
     124548  Roast rakudo skip/todo test:./S03-operators/flip-flop.t line:119 reason: 'dubious scoping?'
     124549  Roast rakudo skip/todo test:./S03-operators/flip-flop.t line:141 reason: 'NYM flip-flop with True but '
     124552  Roast rakudo skip/todo test:./S03-operators/reduce-le1arg.t line:43 reason: 'expected Any but got Mu instead'
     124553  Roast rakudo skip/todo test:./S03-operators/adverbial-modifiers.t line:170 reason: 'Multi colonpair syntax not yet understood'
-    124554  Roast rakudo skip/todo test:./S02-literals/quoting.t line:163 reason: 'retriage'
     124555  Roast rakudo skip/todo test:./S02-literals/quoting.t line:246 reason: comments inside qq:ww NYI
-    124556  Roast rakudo skip/todo test:./S02-literals/quoting.t line:411 reason: 'q:x assigned to array'
-    124557  Roast rakudo skip/todo test:./S02-literals/quoting.t line:418 reason: 'q:x assigned to array'
     124558  Roast rakudo skip/todo test:./S02-literals/listquote.t line:12 reason: 'meta operators'
     124559  Roast rakudo skip/todo test:./S02-literals/numeric.t line:20 reason: 'aborts nqp-j'
-    124560  Roast rakudo skip/todo test:./S02-literals/numeric.t line:29 reason: 'aborts nqp-j'
     124561  Roast rakudo skip/todo test:./S02-literals/radix.t line:148 reason: Some question of what this form should actually do
     124562  Roast rakudo skip/todo test:./S02-literals/version.t line:30 reason: trailing zeroes fail
     124563  Roast rakudo skip/todo test:./S32-scalar/undef.t line:89 reason: 'definedness of array'
@@ -68,7 +59,6 @@
     124566  Roast rakudo skip/todo test:./S32-scalar/undef.t line:224 reason: 'Cannot use bind operator with this left-hand side'
     124567  Roast rakudo skip/todo test:./S32-scalar/undef.t line:311 reason: 'todo: lists, defined, truthness'
     124568  Roast rakudo skip/todo test:./S04-statements/for.t line:469 reason: 'Rakudo still uses Nil here'
-    124569  Roast rakudo skip/todo test:./S04-statements/for.t line:476 reason: 'Rakudo still uses Nil here'
     124571  Roast rakudo skip/todo test:./S04-statements/lazy.t line:40 reason: 'why ever not?'
     124572  Roast rakudo skip/todo test:./S04-statements/do.t line:48 reason: 'Rakudo still uses Nil here'
     124573  Roast rakudo skip/todo test:./S04-statements/do.t line:86 reason: 'next without loop construct'
@@ -76,7 +66,6 @@
     124575  Roast rakudo skip/todo test:./S04-statements/do.t line:106 reason: 'last without loop construct'
     124576  Roast rakudo skip/todo test:./S04-statements/do.t line:123 reason: 'redo without loop construct'
     124577  Roast rakudo skip/todo test:./S04-statements/if.t line:174 reason: 'rakudo still uses Nil here'
-    124578  Roast rakudo skip/todo test:./S04-statements/if.t line:176 reason: 'rakudo still uses Nil here'
     124579  Roast rakudo skip/todo test:./S04-statements/lift.t line:78 reason: lift NYI
     124580  Roast rakudo skip/todo test:./S04-statements/gather.t line:205 reason: unwind
     124581  Roast rakudo skip/todo test:./S02-magicals/PERL.t line:8 reason: 'unimpl 0PERL'
@@ -91,21 +80,17 @@
     124606  Roast rakudo skip/todo test:./S02-magicals/VM.t line:7 reason: 'VM.properties does not exist'
     124608  Roast rakudo skip/todo test:./S02-magicals/VM.t line:16 reason: 'unimpl 0VM'
     124609  Roast rakudo skip/todo test:./S02-magicals/VM.t line:45 reason: 'no VM.signature yet'
-    124613  Roast rakudo skip/todo test:./S02-magicals/VM.t line:65 reason: 'no VM.signature yet'
     124616  Roast rakudo skip/todo test:./S02-magicals/DISTRO.t line:18 reason: 'unimpl 0DISTRO'
     124617  Roast rakudo skip/todo test:./S02-magicals/DISTRO.t line:44 reason: 'no Distro.signature yet'
-    124621  Roast rakudo skip/todo test:./S02-magicals/DISTRO.t line:60 reason: 'no Distro.signature yet'
     124624  Roast rakudo skip/todo test:./S02-magicals/KERNEL.t line:8 reason: 'unimpl 0KERNEL'
     124625  Roast rakudo skip/todo test:./S02-magicals/KERNEL.t line:36 reason: 'no Kernel.signature yet'
     124626  Roast rakudo skip/todo test:./S02-magicals/KERNEL.t line:38 reason: 'no Kernel.desc yet'
-    124627  Roast rakudo skip/todo test:./S02-magicals/KERNEL.t line:54 reason: 'no Kernel.signature yet'
     124628  Roast rakudo skip/todo test:./S02-magicals/KERNEL.t line:58 reason: jvm doesn't know about signals
     124630  Roast rakudo skip/todo test:./S02-magicals/dollar-underscore.t line:19 reason: 'for() with nullary block'
     124631  Roast rakudo skip/todo test:./S03-binding/attributes.t line:44 reason: 'class attributes'
     124632  Roast rakudo skip/todo test:./S05-interpolation/regex-in-variable.t line:49 reason: 'escaping characters before EVAL is the wrong way to fix this'
     124633  Roast rakudo skip/todo test:./S05-interpolation/regex-in-variable.t line:59 reason: 'and no need to go all Bobby Tables either'
     124634  Roast rakudo skip/todo test:./S03-feeds/basic.t line:91 reason: 'double-ended feeds'
-    124635  Roast rakudo skip/todo test:./S03-feeds/basic.t line:105 reason: 'double-ended feeds'
     124636  Roast rakudo skip/todo test:./S03-feeds/basic.t line:133 reason: '* feeds'
     124637  Roast rakudo skip/todo test:./S02-names-vars/names.t line:12 reason: 'package variable autovivification'
     124638  Roast rakudo skip/todo test:./S02-names-vars/names.t line:41 reason: '::{ } package lookup NYI'
@@ -154,7 +139,6 @@
     124685  Roast rakudo skip/todo test:./S32-str/split.t line:139 reason: 'No such method null for invocant of type Cursor'
     124686  Roast rakudo skip/todo test:./S32-str/encode.t line:16 reason: 'builtin JVM cp1252 code folds these'
     124687  Roast rakudo skip/todo test:./S32-str/encode.t line:24 reason: 'We do not handle NDF yet'
-    124688  Roast rakudo skip/todo test:./S32-str/encode.t line:35 reason: 'builtin JVM cp1252 code folds these'
     124689  Roast rakudo skip/todo test:./S32-str/lc.t line:37 reason: 'case folding, MoarVM #87'
     124690  Roast rakudo skip/todo test:./S32-str/numeric.t line:85 reason: 'Failure'
     124691  Roast rakudo skip/todo test:./S32-str/numeric.t line:151 reason: complex Str.Numeric
@@ -162,8 +146,6 @@
     124695  Roast rakudo skip/todo test:./S32-str/substr.t line:134 reason: This seems unneccessarily restrictive
     124738  Roast rakudo skip/todo test:./S32-str/comb.t line:59 reason: 'cannot call match, no signature matches'
     124742  Roast rakudo skip/todo test:./S32-str/length.t line:62 reason: '.codes weirdness on JVM, possibly NYI?'
-    124743  Roast rakudo skip/todo test:./S32-str/length.t line:65 reason: .graphs NYI
-    124744  Roast rakudo skip/todo test:./S32-str/length.t line:70 reason: '.graphs NYI'
     124745  Roast rakudo skip/todo test:./S05-match/perl.t line:30 reason: '<foo::bar>'
     124746  Roast rakudo skip/todo test:./S14-roles/parameterized-mixin.t line:96 reason: '.does with parametric roles'
     124747  Roast rakudo skip/todo test:./S14-roles/mixin.t line:65 reason: 'mixin at the point of declaration is compile time'
@@ -198,7 +180,6 @@
     124777  Roast rakudo skip/todo test:./S17-scheduler/basic.t line:58 reason: waiting for new '.loads' semantics
     124778  Roast rakudo skip/todo test:./S28-named-variables/slangs.t line:9 reason: Non-declarative sigil is missing its name
     124779  Roast rakudo skip/todo test:./S32-hash/slice.t line:76 reason: 'binding on hash elements unimplemented'
-    124780  Roast rakudo skip/todo test:./S32-hash/slice.t line:85 reason: 'binding on hash elements unimplemented'
     124781  Roast rakudo skip/todo test:./S32-io/io-path-cygwin.t line:64 reason: 'resolve NYI, needs nqp::readlink'
     124782  Roast rakudo skip/todo test:./S32-io/io-path-unix.t line:49 reason: 'resolve NYI, needs nqp::readlink'
     124783  Roast rakudo skip/todo test:./S32-io/io-path-win.t line:64 reason: 'resolve NYI, needs nqp::readlink'
@@ -207,10 +188,6 @@
     124786  Roast rakudo skip/todo test:./S32-io/dir.t line:18 reason: 'dirname is not yet absolute'
     124787  Roast rakudo skip/todo test:./S32-io/dir.t line:32 reason: 'CWD misses slash at end still'
     124788  Roast rakudo skip/todo test:./S32-io/mkdir_rmdir.t line:12 reason: mkdir rmdir NYI
-    124789  Roast rakudo skip/todo test:./S32-io/mkdir_rmdir.t line:25 reason: rmdir NYI
-    124790  Roast rakudo skip/todo test:./S32-io/mkdir_rmdir.t line:34 reason: mkdir rmdir NYI
-    124791  Roast rakudo skip/todo test:./S32-io/mkdir_rmdir.t line:48 reason: mkdir NYI
-    124792  Roast rakudo skip/todo test:./S32-io/mkdir_rmdir.t line:57 reason: mkdir NYI
     124793  Roast rakudo skip/todo test:./S17-lowlevel/lock.t line:91 reason: 'not sure this test is valid'
     124795  Roast rakudo skip/todo test:./S05-grammar/example.t line:55 reason: 'test error
     124796  Roast rakudo skip/todo test:./S32-num/stringify.t line:69 reason: 'big stuff'
@@ -290,23 +267,12 @@
     124925  Roast rakudo skip/todo test:./S06-signature/caller-param.t line:15 reason: NYI
     124926  Roast rakudo skip/todo test:./S06-signature/caller-param.t line:25 reason: NYI
     124927  Roast rakudo skip/todo test:./S06-signature/definite-return.t line:10 reason: 'definite values as return specifications dont parse yet'
-    124928  Roast rakudo skip/todo test:./S06-signature/definite-return.t line:19 reason: 'definite values as return specifications dont parse yet'
-    124929  Roast rakudo skip/todo test:./S06-signature/definite-return.t line:28 reason: 'definite values as return specifications dont parse yet'
-    124930  Roast rakudo skip/todo test:./S06-signature/definite-return.t line:38 reason: 'definite values as return specifications dont parse yet'
-    124931  Roast rakudo skip/todo test:./S06-signature/definite-return.t line:48 reason: 'definite values as return specifications dont parse yet'
-    124932  Roast rakudo skip/todo test:./S06-signature/definite-return.t line:59 reason: 'definite values as return specifications dont parse yet'
-    124933  Roast rakudo skip/todo test:./S06-signature/definite-return.t line:69 reason: 'definite values as return specifications dont parse yet'
-    124934  Roast rakudo skip/todo test:./S06-signature/definite-return.t line:80 reason: 'definite values as return specifications dont parse yet'
     124935  Roast rakudo skip/todo test:./S06-signature/closure-parameters.t line:48 reason: 'subsignatures dont factor into multi candidates yet'
     124936  Roast rakudo skip/todo test:./S06-signature/slurpy-params.t line:23 reason: 'types on slurpy params'
     124937  Roast rakudo skip/todo test:./S06-signature/slurpy-params.t line:184 reason: 'types on slurpy params'
     124938  Roast rakudo skip/todo test:./S06-signature/slurpy-params.t line:230 reason: 'types on slurpy params'
     124939  Roast rakudo skip/todo test:./S06-signature/slurpy-params.t line:247 reason: 'types on slurpy params'
     124940  Roast rakudo skip/todo test:./S06-signature/type-capture.t line:33 reason: 'nom regression'
-    124941  Roast rakudo skip/todo test:./S06-signature/unspecified.t line:13 reason: 'siglist'
-    124942  Roast rakudo skip/todo test:./S06-signature/unspecified.t line:22 reason: 'siglist'
-    124943  Roast rakudo skip/todo test:./S06-signature/unspecified.t line:31 reason: 'siglist'
-    124944  Roast rakudo skip/todo test:./S06-signature/unspecified.t line:39 reason: 'siglist'
     124945  Roast rakudo skip/todo test:./S06-signature/tree-node-parameters.t line:65 reason: 'signature binding of return values NYI'
     124946  Roast rakudo skip/todo test:./S05-metachars/closure.t line:26 reason: 'assignment to match variables (dubious)'
     124947  Roast rakudo skip/todo test:./S05-metachars/closure.t line:37 reason: 'assignment to match variables (dubious)'
@@ -642,3 +608,37 @@
     124875  Roast rakudo skip/todo test:./S05-mass/properties-derived.t line:167 reason: isOther* NYI # RESOLVED
     124877  Roast rakudo skip/todo test:./S05-mass/properties-derived.t line:286 reason: 'icu' # RESOLVED
     124881  Roast rakudo skip/todo test:./S05-mass/properties-derived.t line:389 reason: 'isAssigned NYI' # RESOLVED
+    124928  Roast rakudo skip/todo test:./S06-signature/definite-return.t line:19 reason: 'definite values as return specifications dont parse yet' # MERGED 124927
+    124929  Roast rakudo skip/todo test:./S06-signature/definite-return.t line:28 reason: 'definite values as return specifications dont parse yet' # MERGED 124927
+    124930  Roast rakudo skip/todo test:./S06-signature/definite-return.t line:38 reason: 'definite values as return specifications dont parse yet' # MERGED 124927
+    124931  Roast rakudo skip/todo test:./S06-signature/definite-return.t line:48 reason: 'definite values as return specifications dont parse yet' # MERGED 124927
+    124932  Roast rakudo skip/todo test:./S06-signature/definite-return.t line:59 reason: 'definite values as return specifications dont parse yet' # MERGED 124927
+    124933  Roast rakudo skip/todo test:./S06-signature/definite-return.t line:69 reason: 'definite values as return specifications dont parse yet' # MERGED 124927
+    124934  Roast rakudo skip/todo test:./S06-signature/definite-return.t line:80 reason: 'definite values as return specifications dont parse yet' # MERGED 124927
+    124941  Roast rakudo skip/todo test:./S06-signature/unspecified.t line:13 reason: 'siglist' # RESOLVED
+    124942  Roast rakudo skip/todo test:./S06-signature/unspecified.t line:22 reason: 'siglist' # MERGED 124941
+    124943  Roast rakudo skip/todo test:./S06-signature/unspecified.t line:31 reason: 'siglist' # MERGED 124941
+    124944  Roast rakudo skip/todo test:./S06-signature/unspecified.t line:39 reason: 'siglist' # MERGED 124941
+    124554  Roast rakudo skip/todo test:./S02-literals/quoting.t line:163 reason: 'retriage' # RESOLVED
+    124556  Roast rakudo skip/todo test:./S02-literals/quoting.t line:411 reason: 'q:x assigned to array' # RESOLVED
+    124557  Roast rakudo skip/todo test:./S02-literals/quoting.t line:418 reason: 'q:x assigned to array' # MERGED 124556
+    124488  Roast rakudo skip/todo test:./S02-types/set.t line:229 reason: Hypers not yet Set compatible # MERGED 124487
+    124499  Roast rakudo skip/todo test:./S02-types/unicode.t line:14 reason: 'graphs NYI' # MERGED 124498
+    124520  Roast rakudo skip/todo test:./S05-metasyntax/angle-brackets.t line:56 reason: '<test()> NYI' # MERGED 124519
+    124545  Roast rakudo skip/todo test:./S03-operators/also.t line:11 reason: 'nom regression' # MERGED 124544
+    124560  Roast rakudo skip/todo test:./S02-literals/numeric.t line:29 reason: 'aborts nqp-j' # MERGED 124559
+    124613  Roast rakudo skip/todo test:./S02-magicals/VM.t line:65 reason: 'no VM.signature yet' # MERGED 124609
+    124621  Roast rakudo skip/todo test:./S02-magicals/DISTRO.t line:60 reason: 'no Distro.signature yet' # MERGED 124617
+    124627  Roast rakudo skip/todo test:./S02-magicals/KERNEL.t line:54 reason: 'no Kernel.signature yet' # MERGED 124625
+    124578  Roast rakudo skip/todo test:./S04-statements/if.t line:176 reason: 'rakudo still uses Nil here' # MERGED 124577
+    124569  Roast rakudo skip/todo test:./S04-statements/for.t line:476 reason: 'Rakudo still uses Nil here' # MERGED 124568
+    124635  Roast rakudo skip/todo test:./S03-feeds/basic.t line:105 reason: 'double-ended feeds' # MERGED 124634
+    124688  Roast rakudo skip/todo test:./S32-str/encode.t line:35 reason: 'builtin JVM cp1252 code folds these' # MERGED 124686
+    124743  Roast rakudo skip/todo test:./S32-str/length.t line:65 reason: .graphs NYI # MERGED 124498
+    124744  Roast rakudo skip/todo test:./S32-str/length.t line:70 reason: '.graphs NYI' # MERGED 124498
+    124498  Roast rakudo skip/todo test:./S02-types/unicode.t line:11 reason: 'graphs NYI' # OK
+    124780  Roast rakudo skip/todo test:./S32-hash/slice.t line:85 reason: 'binding on hash elements unimplemented' # MERGED 124779
+    124789  Roast rakudo skip/todo test:./S32-io/mkdir_rmdir.t line:25 reason: rmdir NYI # MERGED 124788
+    124790  Roast rakudo skip/todo test:./S32-io/mkdir_rmdir.t line:34 reason: mkdir rmdir NYI # MERGED 124788
+    124791  Roast rakudo skip/todo test:./S32-io/mkdir_rmdir.t line:48 reason: mkdir NYI # MERGED 124788
+    124792  Roast rakudo skip/todo test:./S32-io/mkdir_rmdir.t line:57 reason: mkdir NYI # MERGED 124788
