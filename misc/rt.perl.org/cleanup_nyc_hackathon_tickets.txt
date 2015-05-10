@@ -65,7 +65,6 @@
     124575  Roast rakudo skip/todo test:./S04-statements/do.t line:106 reason: 'last without loop construct'
     124576  Roast rakudo skip/todo test:./S04-statements/do.t line:123 reason: 'redo without loop construct'
     124577  Roast rakudo skip/todo test:./S04-statements/if.t line:174 reason: 'rakudo still uses Nil here'
-    124579  Roast rakudo skip/todo test:./S04-statements/lift.t line:78 reason: lift NYI
     124580  Roast rakudo skip/todo test:./S04-statements/gather.t line:205 reason: unwind
     124581  Roast rakudo skip/todo test:./S02-magicals/PERL.t line:8 reason: 'unimpl 0PERL'
     124582  Roast rakudo skip/todo test:./S02-magicals/PERL.t line:46 reason: 'no Perl.signature yet'
@@ -87,7 +86,6 @@
     124628  Roast rakudo skip/todo test:./S02-magicals/KERNEL.t line:58 reason: jvm doesn't know about signals
     124630  Roast rakudo skip/todo test:./S02-magicals/dollar-underscore.t line:19 reason: 'for() with nullary block'
     124631  Roast rakudo skip/todo test:./S03-binding/attributes.t line:44 reason: 'class attributes'
-    124632  Roast rakudo skip/todo test:./S05-interpolation/regex-in-variable.t line:49 reason: 'escaping characters before EVAL is the wrong way to fix this'
     124633  Roast rakudo skip/todo test:./S05-interpolation/regex-in-variable.t line:59 reason: 'and no need to go all Bobby Tables either'
     124634  Roast rakudo skip/todo test:./S03-feeds/basic.t line:91 reason: 'double-ended feeds'
     124636  Roast rakudo skip/todo test:./S03-feeds/basic.t line:133 reason: '* feeds'
@@ -95,7 +93,6 @@
     124638  Roast rakudo skip/todo test:./S02-names-vars/names.t line:41 reason: '::{ } package lookup NYI'
     124639  Roast rakudo skip/todo test:./S02-names-vars/list_array_perl.t line:37 reason: 'recursive data structure'
     124640  Roast rakudo skip/todo test:./S06-traits/is-rw.t line:36 reason: ''
-    124641  Roast rakudo skip/todo test:./S06-traits/is-rw.t line:42 reason: 'Depends on preceding test working'
     124642  Roast rakudo skip/todo test:./S12-construction/BUILD.t line:95 reason: 'method BUILD should warn'
     124643  Roast rakudo skip/todo test:./S12-construction/new.t line:22 reason: 'parent attributes in initialization'
     124644  Roast rakudo skip/todo test:./S12-construction/new.t line:33 reason: 'parent attributes in initialization'
@@ -149,20 +146,10 @@
     124749  Roast rakudo skip/todo test:./S14-roles/composition.t line:75 reason: 'diamond composition'
     124750  Roast rakudo skip/todo test:./S14-roles/namespaced.t line:17 reason: 'nom regression'
     124751  Roast rakudo skip/todo test:./S32-list/classify.t line:25 reason: 'Cannot use bind operator with this LHS'
-    124752  Roast rakudo skip/todo test:./S32-list/map.t line:35 reason: adverbial block
     124753  Roast rakudo skip/todo test:./S32-list/map.t line:49 reason: closure as non-final argument
     124754  Roast rakudo skip/todo test:./S32-list/last-index.t line:29 reason: adverbial block
-    124755  Roast rakudo skip/todo test:./S32-list/grep.t line:26 reason: adverbial block
-    124756  Roast rakudo skip/todo test:./S32-list/grep.t line:38 reason: adverbial block
     124757  Roast rakudo skip/todo test:./S32-list/grep.t line:50 reason: closure as non-final argument
-    124758  Roast rakudo skip/todo test:./S32-list/first-index.t line:29 reason: adverbial block
-    124759  Roast rakudo skip/todo test:./S32-list/grep-index.t line:25 reason: adverbial block
-    124760  Roast rakudo skip/todo test:./S32-list/grep-index.t line:37 reason: adverbial block
-    124761  Roast rakudo skip/todo test:./S32-list/grep-index.t line:49 reason: closure as non-final argument
-    124762  Roast rakudo skip/todo test:./S32-list/sort.t line:49 reason: closure as non-final argument
     124763  Roast rakudo skip/todo test:./S32-list/sort.t line:59 reason: method fallback to sub unimpl
-    124764  Roast rakudo skip/todo test:./S32-list/sort.t line:212 reason: determine behavior of 0-arity methods passed to sort
-    124765  Roast rakudo skip/todo test:./S32-list/first.t line:29 reason: adverbial block
     124766  Roast rakudo skip/todo test:./S32-basics/xxPOS.t line:64 reason: No such method 'BIND-POS' for invocant of type 'Any'
     124767  Roast rakudo skip/todo test:./S32-basics/warn.t line:48 reason: 'nom regression'
     124768  Roast rakudo skip/todo test:./S32-basics/warn.t line:65 reason: 'quietly NYI'
@@ -173,9 +160,7 @@
     124774  Roast rakudo skip/todo test:./S17-scheduler/basic.t line:16 reason: waiting for new '.loads' semantics
     124778  Roast rakudo skip/todo test:./S28-named-variables/slangs.t line:9 reason: Non-declarative sigil is missing its name
     124779  Roast rakudo skip/todo test:./S32-hash/slice.t line:76 reason: 'binding on hash elements unimplemented'
-    124781  Roast rakudo skip/todo test:./S32-io/io-path-cygwin.t line:64 reason: 'resolve NYI, needs nqp::readlink'
     124782  Roast rakudo skip/todo test:./S32-io/io-path-unix.t line:49 reason: 'resolve NYI, needs nqp::readlink'
-    124783  Roast rakudo skip/todo test:./S32-io/io-path-win.t line:64 reason: 'resolve NYI, needs nqp::readlink'
     124784  Roast rakudo skip/todo test:./S32-io/dir.t line:13 reason: 'directories are not marked with trailing / yet'
     124785  Roast rakudo skip/todo test:./S32-io/dir.t line:16 reason: 'entries are still IO::Path'
     124786  Roast rakudo skip/todo test:./S32-io/dir.t line:18 reason: 'dirname is not yet absolute'
@@ -336,7 +321,6 @@
     125034  Roast rakudo skip/todo test:./S05-modifier/perl5_8.t line:91 reason: 'character classes in enumerated range'
     125035  Roast rakudo skip/todo test:./S05-modifier/perl5_8.t line:98 reason: '\G'
     125036  Roast rakudo skip/todo test:./S05-modifier/perl5_0.t line:55 reason: 'NYI'
-    125037  Roast rakudo skip/todo test:./S05-modifier/ignorecase.t line:44 reason: 'ignorecase and SS/&szlig;'
     125041  Roast rakudo skip/todo test:./S16-unfiled/rebindstdhandles.t line:11 reason: 'contextual rebinding regression'
     125042  Roast rakudo skip/todo test:./S16-unfiled/rebindstdhandles.t line:26 reason: 'contextual rebinding regression'
     125043  Roast rakudo skip/todo test:./S12-class/basic.t line:71 reason: 'Calling is will never work with argument types (Foo)'
@@ -642,3 +626,19 @@
     125064  Roast rakudo skip/todo test:./S04-declarations/will.t line:71 reason: 'declared variable not visible in block yet' # MERGED 125061
     125066  Roast rakudo skip/todo test:./S04-declarations/will.t line:94 reason: 'declared variable not visible in block yet' # MERGED 125061
     125067  Roast rakudo skip/todo test:./S04-declarations/will.t line:108 reason: 'declared variable not visible in block yet' # MERGED 125061
+    124579  Roast rakudo skip/todo test:./S04-statements/lift.t line:78 reason: lift NYI # REJECTED
+    124632  Roast rakudo skip/todo test:./S05-interpolation/regex-in-variable.t line:49 reason: 'escaping characters before EVAL is the wrong way to fix this' # MERGED 100232
+    124641  Roast rakudo skip/todo test:./S06-traits/is-rw.t line:42 reason: 'Depends on preceding test working' # MERGED 124640
+    124781  Roast rakudo skip/todo test:./S32-io/io-path-cygwin.t line:64 reason: 'resolve NYI, needs nqp::readlink' # MERGED 124782
+    124783  Roast rakudo skip/todo test:./S32-io/io-path-win.t line:64 reason: 'resolve NYI, needs nqp::readlink' # MERGED 124782
+    125037  Roast rakudo skip/todo test:./S05-modifier/ignorecase.t line:44 reason: 'ignorecase and SS/&szlig;' # MERGED 121377
+    124755  Roast rakudo skip/todo test:./S32-list/grep.t line:26 reason: adverbial block # MERGED 124754
+    124756  Roast rakudo skip/todo test:./S32-list/grep.t line:38 reason: adverbial block # MERGED 124754
+    124752  Roast rakudo skip/todo test:./S32-list/map.t line:35 reason: adverbial block # MERGED 124754
+    124758  Roast rakudo skip/todo test:./S32-list/first-index.t line:29 reason: adverbial block # MERGED 124754
+    124759  Roast rakudo skip/todo test:./S32-list/grep-index.t line:25 reason: adverbial block # MERGED 124754
+    124760  Roast rakudo skip/todo test:./S32-list/grep-index.t line:37 reason: adverbial block # MERGED 124754
+    124765  Roast rakudo skip/todo test:./S32-list/first.t line:29 reason: adverbial block # MERGED 124754
+    124761  Roast rakudo skip/todo test:./S32-list/grep-index.t line:49 reason: closure as non-final argument # 124757
+    124762  Roast rakudo skip/todo test:./S32-list/sort.t line:49 reason: closure as non-final argument # 124757
+    124764  Roast rakudo skip/todo test:./S32-list/sort.t line:212 reason: determine behavior of 0-arity methods passed to sort # MERGED 68112
