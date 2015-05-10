@@ -16,7 +16,6 @@
     124509  Roast rakudo skip/todo test:./S02-types/array.t line:354 reason: regression to AdHoc exception
     124513  Roast rakudo skip/todo test:./S03-metaops/hyper.t line:410 reason: 'nom regression: possible spec change/improvement'
     124514  Roast rakudo skip/todo test:./S03-metaops/hyper.t line:704 reason: 'EVAL(Buf)'
-    124515  Roast rakudo skip/todo test:./S03-metaops/reduce.t line:320 reason: 'triangle [\^^] and [\xor]'
     124516  Roast rakudo skip/todo test:./S03-metaops/reduce.t line:333 reason: 'orelse'
     124517  Roast rakudo skip/todo test:./S03-metaops/eager-hyper.t line:35 reason: 'hyper prefix NYI'
     124518  Roast rakudo skip/todo test:./S03-metaops/cross.t line:31 reason: .slice for iterators NYI
@@ -111,9 +110,6 @@
     124653  Roast rakudo skip/todo test:./S06-advanced/wrap.t line:117 reason: 'callwith'
     124654  Roast rakudo skip/todo test:./S06-advanced/wrap.t line:164 reason: 'temp and wrap'
     124655  Roast rakudo skip/todo test:./S06-advanced/wrap.t line:203 reason: control operator crossed continuation barrier
-    124656  Roast rakudo skip/todo test:./S05-transliteration/with-closure.t line:10 reason: 'nom regression'
-    124657  Roast rakudo skip/todo test:./S05-transliteration/with-closure.t line:25 reason: 'nom regression'
-    124658  Roast rakudo skip/todo test:./S05-transliteration/with-closure.t line:38 reason: 'nom regression'
     124659  Roast rakudo skip/todo test:./S05-transliteration/with-closure.t line:57 reason: 'Unable to resolve method ord in class Any'
     124660  Roast rakudo skip/todo test:./S06-other/pairs-as-lvalues.t line:10 reason: NYI
     124661  Roast rakudo skip/todo test:./S06-other/pairs-as-lvalues.t line:11 reason: Flattening named argument must have VMHash REPR
@@ -175,9 +171,6 @@
     124772  Roast rakudo skip/todo test:./S06-multi/type-based.t line:226 reason: coercions need to fail like constraints
     124773  Roast rakudo skip/todo test:./S06-multi/proto.t line:16 reason: redeclaration of routine 'bar'
     124774  Roast rakudo skip/todo test:./S17-scheduler/basic.t line:16 reason: waiting for new '.loads' semantics
-    124775  Roast rakudo skip/todo test:./S17-scheduler/basic.t line:29 reason: waiting for new '.loads' semantics
-    124776  Roast rakudo skip/todo test:./S17-scheduler/basic.t line:42 reason: waiting for new '.loads' semantics
-    124777  Roast rakudo skip/todo test:./S17-scheduler/basic.t line:58 reason: waiting for new '.loads' semantics
     124778  Roast rakudo skip/todo test:./S28-named-variables/slangs.t line:9 reason: Non-declarative sigil is missing its name
     124779  Roast rakudo skip/todo test:./S32-hash/slice.t line:76 reason: 'binding on hash elements unimplemented'
     124781  Roast rakudo skip/todo test:./S32-io/io-path-cygwin.t line:64 reason: 'resolve NYI, needs nqp::readlink'
@@ -246,13 +239,11 @@
     124899  Roast rakudo skip/todo test:./S05-mass/rx.t line:1481 reason: ':s()'
     124903  Roast rakudo skip/todo test:./S05-mass/rx.t line:1505 reason: 'parse error'
     124904  Roast rakudo skip/todo test:./S05-mass/rx.t line:2108 reason: 'regex <name>'
-    124905  Roast rakudo skip/todo test:./S05-mass/rx.t line:2117 reason: 'regex <name>'
     124906  Roast rakudo skip/todo test:./S32-container/roundrobin.t line:24 reason: 'over-flattening'
     124907  Roast rakudo skip/todo test:./S32-container/zip.t line:47 reason: 'lvalue zip'
     124908  Roast rakudo skip/todo test:./S12-attributes/instance.t line:557 reason: 'dubious test - the initializer becomes a submethod here, implying a scope'
     124909  Roast rakudo skip/todo test:./S12-attributes/mutators.t line:36 reason: 'Can not get attribute varies declared in class MagicVal with this object'
     124910  Roast rakudo skip/todo test:./S15-nfg/from-file.t line:29 reason: 'writing utf16 NYI'
-    124911  Roast rakudo skip/todo test:./S15-nfg/from-file.t line:37 reason: 'writing utf16 NYI'
     124912  Roast rakudo skip/todo test:./S02-names/strict.t line:22 reason: 'lax mode does not propagate into EVAL yet'
     124913  Roast rakudo skip/todo test:./S02-names/symbolic-deref.t line:111 reason: 'NYI'
     124914  Roast rakudo skip/todo test:./S02-names/pseudo.t line:13 reason: 'the binding in here is NYI'
@@ -264,14 +255,10 @@
     124921  Roast rakudo skip/todo test:./S06-signature/named-parameters.t line:101 reason: 'multiple same-named arguments NYI'
     124922  Roast rakudo skip/todo test:./S06-signature/named-parameters.t line:256 reason: 'where constraints'
     124924  Roast rakudo skip/todo test:./S06-signature/caller-param.t line:12 reason: NYI
-    124925  Roast rakudo skip/todo test:./S06-signature/caller-param.t line:15 reason: NYI
-    124926  Roast rakudo skip/todo test:./S06-signature/caller-param.t line:25 reason: NYI
     124927  Roast rakudo skip/todo test:./S06-signature/definite-return.t line:10 reason: 'definite values as return specifications dont parse yet'
     124935  Roast rakudo skip/todo test:./S06-signature/closure-parameters.t line:48 reason: 'subsignatures dont factor into multi candidates yet'
     124936  Roast rakudo skip/todo test:./S06-signature/slurpy-params.t line:23 reason: 'types on slurpy params'
     124937  Roast rakudo skip/todo test:./S06-signature/slurpy-params.t line:184 reason: 'types on slurpy params'
-    124938  Roast rakudo skip/todo test:./S06-signature/slurpy-params.t line:230 reason: 'types on slurpy params'
-    124939  Roast rakudo skip/todo test:./S06-signature/slurpy-params.t line:247 reason: 'types on slurpy params'
     124940  Roast rakudo skip/todo test:./S06-signature/type-capture.t line:33 reason: 'nom regression'
     124945  Roast rakudo skip/todo test:./S06-signature/tree-node-parameters.t line:65 reason: 'signature binding of return values NYI'
     124946  Roast rakudo skip/todo test:./S05-metachars/closure.t line:26 reason: 'assignment to match variables (dubious)'
@@ -297,18 +284,12 @@
     124972  Roast rakudo skip/todo test:./S13-overloading/typecasting-long.t line:46 reason: 'cannot easily override {} at the moment'
     124973  Roast rakudo skip/todo test:./S04-blocks-and-statements/pointy.t line:48 reason: 'pointy blocks and last/redo'
     124974  Roast rakudo skip/todo test:./S06-operator-overloading/sub.t line:37 reason: 'prefix:[] form NYI'
-    124975  Roast rakudo skip/todo test:./S06-operator-overloading/sub.t line:45 reason: 'prefix:[] form NYI'
-    124976  Roast rakudo skip/todo test:./S06-operator-overloading/sub.t line:51 reason: 'prefix:[] form NYI'
-    124977  Roast rakudo skip/todo test:./S06-operator-overloading/sub.t line:57 reason: 'prefix:[] form NYI'
     124978  Roast rakudo skip/todo test:./S06-operator-overloading/sub.t line:112 reason: 'macros'
     124979  Roast rakudo skip/todo test:./S06-operator-overloading/sub.t line:137 reason: cannot bind with this LHS
     124980  Roast rakudo skip/todo test:./S06-operator-overloading/sub.t line:149 reason: '&::'
     124981  Roast rakudo skip/todo test:./S06-operator-overloading/sub.t line:173 reason: 'infix:<;>'
     124982  Roast rakudo skip/todo test:./S06-operator-overloading/sub.t line:188 reason: 'missing block, apparently if not an op'
     124983  Roast rakudo skip/todo test:./S06-operator-overloading/sub.t line:231 reason: 'infix Z will never work; no lexical Z'
-    124984  Roast rakudo skip/todo test:./S06-operator-overloading/sub.t line:239 reason: 'missing block, no lexical Z'
-    124985  Roast rakudo skip/todo test:./S06-operator-overloading/sub.t line:248 reason: 'missing block, no lexical Z'
-    124986  Roast rakudo skip/todo test:./S06-operator-overloading/sub.t line:257 reason: 'missing block, no lexical Z'
     124987  Roast rakudo skip/todo test:./S06-operator-overloading/sub.t line:268 reason: 'assoc(non)'
     124988  Roast rakudo skip/todo test:./S06-operator-overloading/methods.t line:14 reason: 'nom regression'
     124989  Roast rakudo skip/todo test:./S15-string-types/NFK-types.t line:11 reason: 'NFKC type NYI'
@@ -373,10 +354,6 @@
     125060  Roast rakudo skip/todo test:./S04-declarations/our.t line:115 reason: 'our-scoped var in role'
     125061  Roast rakudo skip/todo test:./S04-declarations/will.t line:33 reason: 'declared variable not visible in block yet'
     125062  Roast rakudo skip/todo test:./S04-declarations/will.t line:54 reason: will post NYI
-    125063  Roast rakudo skip/todo test:./S04-declarations/will.t line:59 reason: 'declared variable not visible in block yet'
-    125064  Roast rakudo skip/todo test:./S04-declarations/will.t line:71 reason: 'declared variable not visible in block yet'
-    125066  Roast rakudo skip/todo test:./S04-declarations/will.t line:94 reason: 'declared variable not visible in block yet'
-    125067  Roast rakudo skip/todo test:./S04-declarations/will.t line:108 reason: 'declared variable not visible in block yet'
     125068  Roast rakudo skip/todo test:./S04-declarations/my.t line:257 reason: 'nom regression, OUR::'
     125069  Roast rakudo skip/todo test:./S15-unicode-information/uniname.t line:30 reason: :one NYI
     125070  Roast rakudo skip/todo test:./S15-unicode-information/uniname.t line:37 reason: :either NYI
@@ -642,3 +619,26 @@
     124790  Roast rakudo skip/todo test:./S32-io/mkdir_rmdir.t line:34 reason: mkdir rmdir NYI # MERGED 124788
     124791  Roast rakudo skip/todo test:./S32-io/mkdir_rmdir.t line:48 reason: mkdir NYI # MERGED 124788
     124792  Roast rakudo skip/todo test:./S32-io/mkdir_rmdir.t line:57 reason: mkdir NYI # MERGED 124788
+    124515  Roast rakudo skip/todo test:./S03-metaops/reduce.t line:320 reason: 'triangle [\^^] and [\xor]' # RESOLVED
+    124775  Roast rakudo skip/todo test:./S17-scheduler/basic.t line:29 reason: waiting for new '.loads' semantics # MERGED 124774
+    124776  Roast rakudo skip/todo test:./S17-scheduler/basic.t line:42 reason: waiting for new '.loads' semantics # MERGED 124774
+    124777  Roast rakudo skip/todo test:./S17-scheduler/basic.t line:58 reason: waiting for new '.loads' semantics # MERGED 124774
+    124911  Roast rakudo skip/todo test:./S15-nfg/from-file.t line:37 reason: 'writing utf16 NYI' # MERGED 124910
+    124925  Roast rakudo skip/todo test:./S06-signature/caller-param.t line:15 reason: NYI # MERGED 124924
+    124926  Roast rakudo skip/todo test:./S06-signature/caller-param.t line:25 reason: NYI # MERGED 124924
+    124938  Roast rakudo skip/todo test:./S06-signature/slurpy-params.t line:230 reason: 'types on slurpy params' # MERGED 124936
+    124939  Roast rakudo skip/todo test:./S06-signature/slurpy-params.t line:247 reason: 'types on slurpy params' # MERGED 124936
+    124656  Roast rakudo skip/todo test:./S05-transliteration/with-closure.t line:10 reason: 'nom regression' # RESOLVED
+    124657  Roast rakudo skip/todo test:./S05-transliteration/with-closure.t line:25 reason: 'nom regression' # MERGED 124657
+    124658  Roast rakudo skip/todo test:./S05-transliteration/with-closure.t line:38 reason: 'nom regression' # MERGED 124657
+    124905  Roast rakudo skip/todo test:./S05-mass/rx.t line:2117 reason: 'regex <name>' # MERGED 124904
+    124975  Roast rakudo skip/todo test:./S06-operator-overloading/sub.t line:45 reason: 'prefix:[] form NYI' # MERGED 124974
+    124976  Roast rakudo skip/todo test:./S06-operator-overloading/sub.t line:51 reason: 'prefix:[] form NYI' # MERGED 124974
+    124977  Roast rakudo skip/todo test:./S06-operator-overloading/sub.t line:57 reason: 'prefix:[] form NYI' # MERGED 124974
+    124984  Roast rakudo skip/todo test:./S06-operator-overloading/sub.t line:239 reason: 'missing block, no lexical Z' # MERGED 124983
+    124985  Roast rakudo skip/todo test:./S06-operator-overloading/sub.t line:248 reason: 'missing block, no lexical Z' # MERGED 124983
+    124986  Roast rakudo skip/todo test:./S06-operator-overloading/sub.t line:257 reason: 'missing block, no lexical Z' # MERGED 124983
+    125063  Roast rakudo skip/todo test:./S04-declarations/will.t line:59 reason: 'declared variable not visible in block yet' # MERGED 125061
+    125064  Roast rakudo skip/todo test:./S04-declarations/will.t line:71 reason: 'declared variable not visible in block yet' # MERGED 125061
+    125066  Roast rakudo skip/todo test:./S04-declarations/will.t line:94 reason: 'declared variable not visible in block yet' # MERGED 125061
+    125067  Roast rakudo skip/todo test:./S04-declarations/will.t line:108 reason: 'declared variable not visible in block yet' # MERGED 125061
