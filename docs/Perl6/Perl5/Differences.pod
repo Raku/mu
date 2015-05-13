@@ -232,7 +232,9 @@ Using C<eval> on a block is now replaced with C<try>.
           }
     Now:  try  {
              # ...
-             CATCH { warn "oops: $!" }
+             CATCH {
+		default { warn "oops: $!" }
+	     }
           }
 
 CATCH provides more flexiblity in handling errors.
