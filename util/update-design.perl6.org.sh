@@ -6,7 +6,7 @@ ulimit -v 1048576
 ulimit -t 600
 
 ROOT_DIR=$HOME
-DEST_DIR=$HOME/design.perl6.org-html
+DEST_DIR=$(mktemp -d)
 MU_DIR=$ROOT_DIR/mu
 TEST_DIR=$ROOT_DIR/roast
 POD_DIR="$ROOT_DIR/specs"
@@ -57,4 +57,8 @@ done
 if [ -z "$NOSSH" ]
 then
     rsync -az --delete $DEST_DIR/ design.perl6.org@www:/var/www/design.perl6.org/
+fi
+if [ -z "$KEEPTMP" ]
+then
+    rm -rf "$DEST_DIR"
 fi
