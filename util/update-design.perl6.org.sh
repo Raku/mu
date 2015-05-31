@@ -42,7 +42,7 @@ cp -ufp docs/feather/hilite-*.png $DEST_DIR/
 cp -ufp docs/feather/perl.css     $DEST_DIR/
 
 
-perl util/smartlinks.pl --out-dir $DEST_DIR --dir $TEST_DIR --css /perl.css --line-anchor --pod-dir $POD_DIR
+perl util/smartlinks.pl --out-dir $DEST_DIR --dir $TEST_DIR --css /perl.css --line-anchor --pod-dir $POD_DIR || exit 1
 perl util/podhtm.pl --css /perl.css --url-prefix http://design.perl6.org/ --url-postfix .html --index --charset=UTF-8 --out $DEST_DIR/Differences.html docs/Perl6/Perl5/Differences.pod
 
 source /home/rakudobrew/rakudobrew-bash
