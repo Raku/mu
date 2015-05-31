@@ -6,7 +6,6 @@ ulimit -v 1048576
 ulimit -t 600
 
 ROOT_DIR=$HOME
-DEST_DIR=$(mktemp -d)
 MU_DIR=$ROOT_DIR/mu
 TEST_DIR=$ROOT_DIR/roast
 POD_DIR="$ROOT_DIR/specs"
@@ -30,6 +29,8 @@ do
 done
 
 [ "$UPDATED" ] || exit
+
+DEST_DIR=$(mktemp -d)
 
 cd $MU_DIR
 
