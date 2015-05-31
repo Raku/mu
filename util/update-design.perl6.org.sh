@@ -5,8 +5,8 @@ ulimit -v 1048576
 # cpu-time: 10 min
 ulimit -t 600
 
-ROOT_DIR=/home/design.perl6.org
-DEST_DIR=/var/www/design.perl6.org
+ROOT_DIR=$HOME
+DEST_DIR=$HOME/design.perl6.org-html
 MU_DIR=$ROOT_DIR/mu
 TEST_DIR=$ROOT_DIR/roast
 POD_DIR="$ROOT_DIR/specs"
@@ -43,3 +43,18 @@ cp -ufp docs/feather/perl.css     $DEST_DIR/
 
 perl util/smartlinks.pl --out-dir $DEST_DIR --dir $TEST_DIR --css /perl.css --line-anchor --pod-dir $POD_DIR
 perl util/podhtm.pl --css /perl.css --url-prefix http://design.perl6.org/ --url-postfix .html --index --charset=UTF-8 --out $DEST_DIR/Differences.html docs/Perl6/Perl5/Differences.pod
+
+source /home/rakudobrew/rakudobrew-bash
+
+cd $POD_DIR
+grep -vE '^(#.*|\s*)$' pod6-files | while read LINE
+do
+    INPUT=$(echo $LINE | cut -d ' ' -f 1)
+    OUTPUT=$(echo $LINE | cut -d ' ' -f 2)
+    perl6-m --doc=HTML "$INPUT" > "$DEST_DIR/$OUTPUT"
+done
+
+if [ -z "$NOSSH" ]
+then
+    rsync -az --delete $DEST_DIR/ design.perl6.org@www:/var/www/design.perl6.org/
+fi
