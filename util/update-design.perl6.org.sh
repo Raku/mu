@@ -57,6 +57,7 @@ done
 
 if [ -z "$NOSSH" ]
 then
+    chmod 755 "$DEST_DIR"
     rsync -az --delete $DEST_DIR/ design.perl6.org@www:/var/www/design.perl6.org/
 fi
 if [ -z "$KEEPTMP" ]
