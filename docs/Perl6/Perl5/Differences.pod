@@ -59,7 +59,7 @@ are in fact just quoting mechanisms being used as subscripts (see below).
 =head2 Global variables have a twigil
 
 Yes, a twigil. It's the second character in the variable name. For globals,
-it's a C<*>
+it's a C<*>.
 
     Was:    $ENV{FOO}
     Now:    %*ENV<FOO>
@@ -395,7 +395,7 @@ You can still say C<sort(@array)> if you prefer the non-OO idiom.
 =head1 Overloading
 
 Since both builtin functions and operators are multi subs and methods,
-changing their behaviour for particular types is a simple as adding the
+changing their behaviour for particular types is as simple as adding the
 appropriate multi subs and methods. If you want these to be globally
 available, well, you can't, because everything is lexically scoped in Perl 6.
 You can, however, export multi definitions to any code that wishes to import it.
@@ -428,7 +428,7 @@ C<Callable>.
 
 The roles provides the operators C<< postcircumfix:<[ ]> >> (Positional; for
 array indexing), C<< postcircumfix:<{ }> >>
-(Associative) and C<< postcircumfix:<()> >> (Callable). The are technically
+(Associative) and C<< postcircumfix:<()> >> (Callable). They are technically
 just functions with a fancy syntax.
 You can override these to provide the desired semantics.
 
@@ -484,7 +484,7 @@ when you want to refer only to a single item.
   Was: ref $foo eq 'HASH'
   Now: $foo ~~ Hash
 
-  Was: @new = (ref $old eq 'ARRAY' ) ? @$old : ($old);
+  Was: @new = (ref $old eq 'ARRAY') ? @$old : ($old);
   Now: @new = @$old;
 
   Was: %h = ( k => \@a );
@@ -513,7 +513,7 @@ use C<say> after you will C<use v5.10> or better.
 =head2 wantarray() is gone
 
 C<wantarray> is gone. In Perl 6, context flows outwards, which means that a
-routine does not know which context it is in.
+routine does not know which context it is executed in.
 
 Instead you should return objects that do the right thing in every context.
 
