@@ -202,7 +202,7 @@ parentheses for either indexing or method calls:
     $s();
     # or
     $s.();
-    $lol.[1][0]
+    $aoa.[1][0]
 
 =cut
 
