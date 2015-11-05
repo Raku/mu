@@ -345,9 +345,9 @@ Formats will be handled by external libraries.
 
 =head1 Objects
 
-Perl 6 has a "real" object system, with key words for classes, methods and
-attributes. Public attributes have the C<.> twigil, private ones the C<!>
-twigil.
+Perl 6 has an object system built into the language, with key words for
+classes, roles, methods and attributes. Public attributes have the C<.>
+twigil, private ones the C<!> twigil.
 
     class YourClass {
         has $!private;
