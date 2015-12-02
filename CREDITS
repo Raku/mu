@@ -1,0 +1,922 @@
+A snapshot of the historic AUTHORS file in
+CREDITS form so that we can better generate
+a listing of authors for the Christmas
+release announcement. It's not expected this
+will be kept up to date in the future.
+
+N: Aaron Sherman
+U: ASHER
+U: ajs
+
+N: Aankhola Encorporated
+U: AANKHEN
+
+N: Adam Kennedy
+U: alias
+U: ADAMK
+
+N: Adam Preble
+
+N: Adam Prime
+U: jsut
+U: APRIME
+
+N: Adrian Taylor
+U: adehohum
+
+N: Adriano Ferreira
+U: FERREIRA
+
+N: Adrian Kreher
+U: AVUSEROW
+
+N: Adrian White
+U: SNARKYBOOJUM
+
+N: AEvar Arnfjord Bjarmason
+U: AVAR
+U: Ævar Arnfjörð Bjarmason
+
+N: Agent Zhang
+U: AGENT
+U: 章亦春
+
+N: Ahmad M. Zawawi
+U: AZAWAWI
+U: أحمد زواوي
+
+N: Ailin Nemui
+U: Nei
+
+N: Alex Munroe
+U: Eevee
+
+N: Aldo Calpini
+U: dada
+U: ACALPINI
+
+N: Alin Iacob
+U: alinbsp
+U: ALIN
+
+N: Allison Randal
+U: ARANDAL
+
+N: Amir Livine Bar-On
+U: lightstep
+U: עמיר ליבנה בר-און
+
+N: Amos Robinson
+
+N: Andras Barthazi
+U: András Bártházi
+
+N: Andrei Benea
+
+N: Andres Loeh
+U: kosmikus
+U: Andres Löh
+
+N: Andres Kievsky
+U: ANK
+
+N: Andrew Savige
+U: ASAVIGE
+
+N: Andrew Whitworth
+U: WHITEKNIGHT
+
+N: Andy Lester
+U: PETDANCE
+
+N: Ann Barcomb
+U: KUDRA
+
+N: Anton Berezin
+U: tobez
+U: GRUBER
+
+N: Arthur Bergman
+U: sky
+U: ABERGMAN
+
+N: Arthur Axel Schmidt
+U: FREW
+
+N: Arnaud Assad
+U: arhuman
+U: AASSAD
+
+N: Arne Skjaerholt
+U: ARNSHOLT
+U: Arne Skjærholt
+
+N: Ashley Winters
+U: jql
+U: AWIN
+
+N: Audrey Tang
+U: AUDREYT
+U: 唐鳳
+
+N: Austin Frank
+N: aufrank
+
+N: Austin Seipp
+N: thoughtpolice
+
+N: Balint Szilakszi
+U: SZBALINT
+U: Bálint Szilakszi
+
+N: Beau E. Cox
+U: BEAU
+
+N: Ben Petering
+
+N: Benedikt Huber
+U: visq
+
+N: Benjamin Brodfuehrer
+
+N: Benjamin Smith
+U: integral
+U: BSMITH
+
+N: Bestian Tang
+U: 唐宗浩
+
+N: Brad Bowman
+U: bsb
+U: BOWMANBS
+
+N: Brandon Michael Moore
+U: skew
+
+N: Brandon S Allbery
+U: KF8NH
+
+N: Brian S. Julin
+U: SKIDS
+
+N: Bruce Gray
+U: Util
+
+N: Bryan Donlan
+U: BDONLAN
+
+N: Bryan Burgers
+U: mrborisguy
+
+N: Caio Marcelo de Oliveira Filho
+
+N: Carey Tilden
+U: revdiablo
+U: CBTILDEN
+
+N: Carl Franks
+U: fireartist
+U: CFRANKS
+
+N: Carl Masak
+U: MASAK
+
+N: Carlin Bingham
+
+N: Chaddaï Fouché
+U: Jedaï
+
+N: Cheng-Lung Sung
+U: CLSUNG
+U: 宋政隆
+
+N: Chia-Liang Kao
+U: CLKAO
+U: 高嘉良
+
+N: Chip Salzenberg
+U: CHIPS
+
+N: Chris Dolan
+U: CDOLAN
+
+N: Chris Fields
+
+N: Chris Jeris
+
+N: Christoph Buchetmann
+
+N: Christopher Malon
+U: OFUN
+
+N: Christopher Pruden
+U: cpruden
+
+N: Colin Kuskie
+U: perlDreamer
+
+N: Colin Paul Adams
+
+N: Cosimo Streppone
+U: viking
+U: COSIMO
+
+N: Chuck Adams
+U: sproingie
+
+N: C.J. Adams-Collier
+U: CJCOLLIER
+
+N: Curtis Poe
+U: OVID
+
+N: Damian Conway
+U: DCONWAY
+
+N: Dan Brook
+U: broquaint
+U: BROQ
+
+N: Dan Kogai
+U: DANKOGAI
+U: 小飼弾
+
+N: Daniel Lo
+U: DLO
+
+N: Darren Duncan
+U: DUNCAND
+
+N: Dave Rolsky
+U: autarch
+U: DROLSKY
+
+N: David Brunton
+U: rodi
+U: DBRUNTON
+
+N: David Christensen
+U: machack666
+U: DWC
+
+N: David KOENIG
+U: KARHU
+
+N: David Ranvig
+U: autark
+U: DAVIDRA
+
+N: David Romano
+U: UNOBE
+
+N: David Vergin
+U: DVERGIN
+
+N: David Formosa
+N: qtplatypus
+
+N: Deven T. Corzine
+U: DEVEN
+
+N: Dimitry Golubovsky
+
+N: Don Stewart
+U: dons
+
+N: Douglas Hunter
+
+N: Dudley Flanders
+
+N: Edward Cant
+U: FAX
+
+N: Edwin Steiner
+
+N: Elizabeth Mattijsen
+U: ELIZABETH
+
+N: Eric Hodges
+U: eric256
+
+N: Fayland Lam
+U: FAYLAND
+U: 林道
+
+N: Flavio Poletti
+U: froh-doh
+U: POLETTIX
+U: Flavio Poletti
+
+N: Flavio S. Glock
+U: FGLOCK
+U: Flávio S. Glock
+
+N: Florian Ragwitz
+U: rafl
+U: FLORA
+
+N: Franck Cuny
+U: FRANCKC
+
+N: Frederik Schwarzer
+
+N: Gaal Yahas
+U: GAAL
+U: גל יחס
+
+N: Gabor Szabo
+U: SZABGAB
+U: Gábor Szabó
+U: גאבור סבו
+
+N: Gabriele Renzi
+U: riffraff
+
+N: Garret Rooney
+U: ROONEG
+
+N: Garrett Goebel
+U: GGOEBEL
+
+N: gcomnz
+
+N: Geoffrey Broadwell
+U: GJB
+
+N: Gianni Ceccarelli
+U: DAKKAR
+
+N: Gilbert Röhrbein
+U: PAYLOAD
+
+N: Greg Bacon
+U: GBACON
+
+N: Gwern Branwen
+
+N: Hans van Dok
+U: FOAD
+
+N: Herbert Breunung
+U: LICHTKIND
+
+N: Hezekiah Carty
+N: hcarty
+
+N: Hinrik Orn Sigurdsson
+U: HINRIK
+U: Hinrik Örn Sigurðsson
+
+N: Hongwen Qiu
+U: qiuhw
+U: 邱红文
+
+N: Hsin-Chan Chien
+U: HCCHIEN
+U: 簡信昌
+
+N: Ian Lynagh
+U: Igloo
+
+N: Ilmari Vacklin
+U: wolverian
+
+N: Ingo Blechschmidt
+U: iblech
+
+N: Ingy dot Net
+U: INGY
+U: Ingy döt Net
+U: 應吉大聶
+
+N: Isaac Jones
+U: SyntaxNinja
+
+N: Isis Kang
+U: sisi
+U: 康寧馨
+
+N: Ivan Georgiev
+U: raptor
+
+N: James Mastros
+U: theorbtwo
+U: JMASTROS
+
+N: Jan Ingvoldstad
+U: frettled
+
+N: Jason Cole
+U: Coleoid
+
+N: Jason Felds
+U: WOLFMAN
+U: Wolfman2000
+
+N: Jason Richmond
+U: zer
+U: ZERHASH
+
+N: Jeff Horwitz
+U: JHORWITZ
+
+N: Jens Rieks
+U: jriekds
+
+N: Jeremy Voorhis
+N: jvoorhis
+
+N: Jerry Lee
+U: JERRYLEE
+U: Jia-Hong Lee
+U: 李佳鴻
+
+N: Jerry Gay
+U: PARTICLE
+
+N: Jerry MacClure
+U: neuromu
+
+N: Jesse Vincent
+U: obra
+U: JESSE
+
+N: Jimmy Zhuo
+U: 卓明亮
+
+N: Joao Fernando Ferreira
+U: JOAO
+U: João Fernando Ferreira
+
+N: Jody Belka
+U: KNEW
+
+N: John Harrison
+
+N: John van Krieken
+U: VLADTZ
+
+N: John Saylor
+U: js0000
+
+N: Jonathan Leto
+U: Duke
+U: LETO
+
+N: Jonathan Rockway
+U: JROCKWAY
+
+N: Jonathan Scott Duff
+U: Perljam
+U: DUFF
+
+N: Jonathan Worthington
+U: JONATHAN
+
+N: Jos Boumans
+U: KANE
+
+N: Jose Rodrigo Fernandez
+U: rocket
+
+N: Joshua Choi
+N: rbysamppi
+
+N: Joshua Gatcomb
+U: Limbic_Region
+U: JGATCOMB
+
+N: Juerd Waalboer
+U: JUERD
+
+N: Julian Fondren
+U: AYRNIEU
+
+N: Kang-Min Liu
+U: GUGOD
+U: 劉康民
+
+N: Kevin Puetz
+U: puetzk
+
+N: Kevin J. Woolley
+U: KJWCODE
+
+N: Kiran Kumar M.
+N: mkirank
+
+N: Kodi Arfer
+
+N: Kuang-Che Wu
+U: kcwu
+U: 吳光哲
+
+N: Kyle Hasselbacher
+U: KYLE
+
+N: Lanny Ripple
+
+N: Larry Wall
+U: TimToady
+U: LWALL
+
+N: Lars Dieckow
+U: daxim
+U: 迪拉斯
+
+N: Laurens Van Houtven
+U: lvh
+
+N: Laye Suen
+U: LAYE
+U: 孙磊
+
+N: Leopold Toetsch
+U: LTOETSCH
+U: Leopold Tötsch
+
+N: Lindolfo Rodrigues	
+U: LORN
+
+N: Liang-Qi Xie
+U: viirya
+U: 謝良奇
+
+N: Lola Lee
+
+N: Luke Palmer
+U: luqui
+U: LPALMER
+
+N: Mark McConnell
+U: ninereasons
+U: MISCHKE
+
+N: Mark Grimes
+U: MGRIMES
+
+N: Mark Stosberg
+U: MARKSTOS
+
+N: Markus Laire
+U: malaire
+
+N: Martin Berends
+U: MBERENDS
+
+N: Martin McCarthy
+U: tumulus
+U: MARTY
+
+N: mattc
+
+N: Matt Diephouse
+
+N: Matthew Walton
+U: MATTW
+
+N: Matthew Wilson
+U: diakopter
+U: WILSON
+
+N: Max Maischein
+U: CORION
+
+N: Michael A. D. Zedeler
+U: MADZ
+
+N: Michael G Schwern
+U: MSCHWERN
+
+N: Michal Jurosz
+U: rootmj
+
+N: Mike Li
+U: 李曉光
+U: xgl
+
+N: Mikhael Goikhman
+U: MIGO
+
+N: Miroslav Silovic
+U: shillo
+
+N: Mitchell N Charity
+U: putter
+
+N: Moritz Lenz
+U: MORITZ
+
+N: Nayden Pendov
+
+N: Nathan Gray
+U: KOLIBRIE
+
+N: Nelson Elhage
+U: NELHAGE
+
+N: Nicholas Clark
+U: NWCLARK
+
+N: Norman Nunley, Jr
+U: NNUNLEY
+
+N: Offer Kaye
+
+N: Oleg Kiselyov
+
+N: Ori Avtalion
+U: אורי אבטליון
+U: salty-horse
+
+N: Paolo Martini
+U: xerox
+
+N: Patrick Abi Salloum
+U: PATRICKAS
+
+N: Patrick R. Michaud
+U: pmichaud
+U: PMIC
+
+N: Paul Fenwick
+U: PJF
+
+N: Pawel Murias
+U: pmurias
+U: Paweł Murias
+
+N: Pawel Pabian
+U: bbkr
+
+N: Per Christian Nodtvedt
+U: pernod
+
+N: Peter Lunicks
+
+N: Peter Makholm
+
+N: Philip Crow
+U: PHILCROW
+
+N: Piers Cawley
+U: PDCAWLEY
+
+N: Prakash Kailasa
+
+N: Radu Stoica
+U: RADUS
+
+N: Rafael Garcia-Suarez
+U: rgs
+U: RGARCIA
+U: Rafaël Garcia-Suarez
+
+N: Ran Eliam i
+U: EILARA
+
+N: Randal L. Schwartz
+U: MERLYN
+
+N: Richard Hainsworth
+U: FINANALYST
+
+N: Richard Hartmann
+U: RICHIH
+
+N: Richard Soderberg
+U: crysflame
+U: RSOD
+
+N: Rob Hoelz
+
+N: Rob Kinyon
+U: dragonchild
+U: RKINYON
+
+N: Rob Zinkov
+
+N: Robin Redeker
+U: elmex
+
+N: Rod Adams
+
+N: Roger Hale
+U: spinclad
+
+N: Roie Marianer
+N: roie_m
+U: רועי מריאנר
+
+N: Ronny Pfannschmidt
+U: r0nny
+
+N: Ryan Richter
+U: rhr
+
+N: Ryan W. Porter
+U: ryporter
+
+N: Sage LaTorra
+U: SAGE
+
+N: Salvador Ortiz Garcia
+
+N: Sam Vilain
+U: mugwump
+U: SAMV
+
+N: Samuel Bronson
+U: SamB
+
+N: Scott Fitzenrider
+U: flounder99
+
+N: Scott McWhirter
+U: KUNGFUFTR
+
+N: Sean O'Rourke
+U: SEANO
+
+N: Sebastian Riedel
+U: SRI
+
+N: Sebastian Sylvan
+
+N: Shae Matijs Erisson
+U: shapr
+
+N: Shawn M Moore
+U: SARTAK
+
+N: Shawn Sorichetti
+U: SSORICHE
+
+N: Shen, Yu-Teh
+
+N: Shlomi Fish
+U: rindolf
+U: SHLOMIF
+U: שלומי פיש
+
+N: Shmarya Rubenstein
+U: shmar
+U: SHMARYA
+
+N: Shrivatsan Sampathkumar
+U: isBEKaml
+
+N: Shu-Chun Weng
+U: scw
+U: 翁書鈞
+
+N: Simon Cozens
+U: lathos
+U: SIMON
+
+N: Simon Marlow
+U: JeffaCake
+
+N: Simon Sun
+U: dolmans
+
+N: Solomon Foster
+U: colomon
+
+N: Stefan Lidman
+U: lidden
+
+N: Stefan O'Rear
+U: SOREAR
+
+N: Stefan Seifert
+U: NINE
+
+N: Stefano Rodighiero
+U: LARSEN
+
+N: Steffen Schwigon
+U: renormalist
+U: SCHWIGON
+
+N: Stephane Payrard
+U: cognominal
+U: STEF
+U: Stéphane Payrard
+
+N: Stephen Weeks
+U: tene
+
+N: Stevan Little
+U: STEVAN
+
+N: Steve Peters
+U: SMPETERS
+
+N: Stuart Cook
+U: scook0
+
+N: Sunnavy
+U: SUNNAVY
+U: 孙海军
+
+N: Swaroop C H
+U: snowstalker
+
+N: Syed Uzair Aqeel
+
+N: Ted Vessenes
+U: TEDV
+
+N: Terrence Brannon
+U: metaperl
+U: TBONE
+
+N: Thomas Sandlass
+U: Thomas Sandlaß
+
+N: Thomas Yandell
+U: TOYAM
+
+N: Thomas Yeh
+U: 葉志宏
+
+N: Tim Peterson
+U: tjp
+
+N: Ting Wang
+U: tiw
+
+N: Tom Moertel
+U: TMOERTEL
+
+N: Trey Harris
+U: TREY
+
+N: Ujwal Reddy Malipeddi
+U: మలిపెద్ది ఉజ్వల్ రెడ్డి
+
+N: Uri Guttman
+U: URI
+
+N: Vadim Konovalov
+U: VKON
+
+N: Vincent Foley
+U: VFOLEY
+
+N: Walter Pallestrong
+
+N: Will Coleda
+U: COKE
+
+N: William Shallum
+U: loumz
+
+N: Wim Vanderbauwhede
+U: andara
+U: WVDB
+
+N: Yehoshua O'Hayon
+U: shay
+U: יהושע "שי" אוחיון
+
+N: Yiyi Hu
+U: xinming
+U: 鹄驿懿
+
+N: Yuan-Chen Cheng
+U: ycheng
+U: 鄭原真
+
+N: Yung-Chung Lin
+U: XERN
+U: 林永忠
+
+N: Yuval Kogman
+U: nothingmuch
+U: NUFFIN
+U: יובל קוג'מן
+
+N: Zev Benjamin
+U: ZEV
+
+N: Zhen-Bang Wei
+U: Forth
+
+N: Zohar Kelrich
+U: lumi
+U: זהר קלריך/卡卓哈
+
+N: Zack Hobson
+U: ZGH
+
+N: Zoffix Znet
+
+N: Krzysztof Kielak
+U: df_df0
+
+N: Martin Kjeldsen
+
+N: Faye
+U: ShimmerFairy
