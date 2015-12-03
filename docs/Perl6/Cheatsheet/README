@@ -1,0 +1,5 @@
+If you update the text version of the cheatsheet please ensure it goes into
+rakudo star.
+
+Really version control should contain only one master version to prevent the
+files from diverging (as has happened).
