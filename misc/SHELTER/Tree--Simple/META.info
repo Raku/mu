@@ -1,0 +1,13 @@
+{
+    "name" : "Tree::Simple",
+    "version" : "*",
+    "description" : "A simple tree object",
+    "provides" : {
+        "Tree::Simple" : "lib/Tree/Simple.pm",
+        "Tree::Simple::Visitor" : "lib/Tree/Simple/Visitor.pm"
+    },
+    "depends" : [],
+    "source-type" : "git",
+    "source-url" : "git://github.com/Takadonet/Tree--Simple.git"
+}
+
