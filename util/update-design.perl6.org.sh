@@ -45,7 +45,7 @@ grep -vE '^(#.*|\s*)$' pod6-files | while read LINE
 do
     INPUT=$(echo $LINE | cut -d ' ' -f 1)
     OUTPUT=$(echo $LINE | cut -d ' ' -f 2)
-    TEMPFILE=$(tempfile)
+    TEMPFILE=$(tempfile --mode=0644)
     perl6-m --doc=HTML "$INPUT" > "$TEMPFILE" && mv "$TEMPFILE" "$DEST_DIR/$OUTPUT" \
         || rm -f "$TEMPFILE"
 done
