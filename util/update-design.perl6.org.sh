@@ -46,7 +46,7 @@ do
     INPUT=$(echo $LINE | cut -d ' ' -f 1)
     OUTPUT=$(echo $LINE | cut -d ' ' -f 2)
     TEMPFILE=$(tempfile --mode=0644)
-    perl6-m -MPod::To::HTML -e 'put pod2html @*ARGS.shift, :css-url</perl-with-historical-message.css>' "$INPUT" > "$TEMPFILE" && mv "$TEMPFILE" "$DEST_DIR/$OUTPUT" \
+    perl6-m -MPod::To::HTML -e 'put pod2html @*ARGS.shift.IO.slurp, :css-url</perl-with-historical-message.css>' "$INPUT" > "$TEMPFILE" && mv "$TEMPFILE" "$DEST_DIR/$OUTPUT" \
         || rm -f "$TEMPFILE"
 done
 
