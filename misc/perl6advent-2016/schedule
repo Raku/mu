@@ -5,11 +5,11 @@ Please add your topic and name after each day that you plan to take.
  4 bduggan: Quantum Secret Santa
  5 gfldex: How to use the docs
  6 moritz: Perl 6 books in the making
- 7 [claim this spot if you want to write; move this post down] Zoffix: "Set In Your Ways: Perl 6's Setty and Baggy Types"
+ 7 Zoffix: "Set In Your Ways: Perl 6's Setty and Baggy Types"
  8 [claim this spot if you want to write; move this post down] Coke: "I'm sure I'll think of something in time."
- 9 [claim this spot if you want to write; move this post down] Zoffix: "How To Make, Use, And Abuse Perl 6 Subsets"
+ 9 
 10 drforr: Kicking it Old School: Add Roman Numerals to Perl 6
-11 [claim this spot if you want to write; move this post down] Zoffix: "When a Rat Got Too Fat: Perl 6 For Accountants"
+11 
 12 brrt: A preview of the hackable JIT
 13 RabidGravy: audio streaming done completely wrong.
 14 cygx: Targetting MoarVM: The Wrong Way [tentative]
@@ -20,6 +20,6 @@ Please add your topic and name after each day that you plan to take.
 19 nige: Perl 6 toys to remember
 20 tadzik: Perl 5, Perl 6, and threading one with the other
 21 nkh: Data Dumping, a modules journey from Perl 5 to Perl 6
-22 [claim this spot if there are no other spaces] Zoffix: "Perl 6 Is My Drummer: Playing Music With Grammars"
+22 
 23 AlexDaniel: "Everything is either wrong or less than awesome"
 24 Zoffix: "Perl 6 Core Hacking: How, Where, What, and Why"
