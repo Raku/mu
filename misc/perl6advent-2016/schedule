@@ -6,11 +6,11 @@ Please add your topic and name after each day that you plan to take.
  5 gfldex: How to use the docs
  6 moritz: Perl 6 books in the making
  7 Zoffix: "Set In Your Ways: Perl 6's Setty and Baggy Types"
- 8 drforr: Kicking it Old School: Add Roman Numerals to Perl 6
+ 8 Zoffix: "How To Make, Use, And Abuse Perl 6 Subsets"
  9 brrt: A preview of the hackable JIT
-10 [claim this spot if you want to write; move this post down] Coke: "I'm sure I'll think of something in time."  
+10 drforr: Kicking it Old School: Add Roman Numerals to Perl 6
 11 titsuki: Let's learn and try double-ended priority queue with Perl 6
-12 
+12 [delete this if you want to write a post] Coke: "I'm sure I'll think of something in time."  
 13 RabidGravy: audio streaming done completely wrong.
 14 cygx: Targetting MoarVM: The Wrong Way [tentative]
 15 zostay: Using Grammars to Parse HTTP
