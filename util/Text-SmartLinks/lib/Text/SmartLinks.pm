@@ -1079,7 +1079,7 @@ sub process_perl5_file {
 
     if (!$self->check) {
         my $pod      = $self->emit_pod($podtree);
-        my $html     = $self->gen_html($pod, $syn_id);
+        my $html     = $self->gen_html($pod, $podtree->{TITLE}[0]);
         my $preamble = $self->gen_preamble();
         $html =~ s{<!-- start doc -->}{$&$preamble};
         warn "info: generating $outfile...\n";
