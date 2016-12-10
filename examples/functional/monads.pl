@@ -36,14 +36,14 @@ sub mfail(Str $a) {
   };
 }
 
-sub sequence_(Code *@actions) {
+sub sequence_(*@actions where {$_.all ~~ Code} ) {
   return {
     $_() for @actions;
-    undef;
+    Nil;
   };
 }
 
-sub sequence(Code *@actions) {
+sub sequence(*@actions where {$_.all ~~ Code} ) {
   return {
     my @res = @actions.map(-> $action { $action() });
     @res;
@@ -67,11 +67,13 @@ sub getLine() {
 
 # putStrLn :: String -> IO ()
 # putStrLn = ...implemented by the compiler...
-sub putStrLn(Str $x) { return { say $x; undef } }
+sub putStrLn(Str $x) { return { say $x; Nil } }
 
 
 # Now some example code:
+# This is the one that gets run. 
 {
+  say "Write a couple of lines here ->";
   my $line_from_user = getLine();
   # Nothing is read yet.
   my $echo = mbind($line_from_user, -> $x { putStrLn($x) });
@@ -87,6 +89,7 @@ sub putStrLn(Str $x) { return { say $x; undef } }
 {
   # let actions = [getLine, getLine, getLine]
   # actions :: [IO String]
+  say "Write three lines";
   my @actions = (getLine(), getLine(), getLine());
 
   # let results = sequence actions
