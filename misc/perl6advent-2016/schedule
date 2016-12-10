@@ -8,8 +8,8 @@ Please add your topic and name after each day that you plan to take.
  7 Zoffix: "Set In Your Ways: Perl 6's Setty and Baggy Types"
  8 Zoffix: "How To Make, Use, And Abuse Perl 6 Subsets"
  9 brrt: A preview of the hackable JIT
-10 drforr: Kicking it Old School: Add Roman Numerals to Perl 6
-11 titsuki: Let's learn and try double-ended priority queue with Perl 6
+10 titsuki: Let's learn and try double-ended priority queue with Perl 6
+11 Zoffix: "Perl 6 Core Hacking: Sometimes Things Slip Through The QASTs"
 12 tbrowder: Avoiding User Namespace Pollution with Perl 6 Modules
 13 RabidGravy: audio streaming done completely wrong.
 14 cygx: Targetting MoarVM: The Wrong Way [tentative]
