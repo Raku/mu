@@ -13,7 +13,7 @@ Please add your topic and name after each day that you plan to take.
 12 tbrowder: Avoiding User Namespace Pollution with Perl 6 Modules
 13 RabidGravy: audio streaming done completely wrong.
 14 cygx: Targetting MoarVM: The Wrong Way [tentative]
-15 zostay: Using Grammars to Parse HTTP
+15 zostay: Using Grammars to Parse File Globs
 16 ugexe: The Meta spec, Distribution, and CompUnit::Repository explained-ish
 17 jnthn: Testing in virtual time
 18 RabidGravy: asynchronous workflow
