@@ -1,5 +1,8 @@
 #!/bin/bash
 
+# This script needs perl installed with some modules:
+# cpanm -vn CGI File::Find::Rule File::Slurp File::ShareDir Class::Accessor
+
 # virtual mem: 1 GB
 ulimit -v 1048576
 # cpu-time: 10 min
