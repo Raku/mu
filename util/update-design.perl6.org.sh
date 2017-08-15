@@ -34,7 +34,7 @@ DEST_DIR=$(mktemp -d)
 
 cd $MU_DIR
 
-source /home/design.perl6.org/perl5/perlbrew/etc/bashrc
+source $HOME/perl5/perlbrew/etc/bashrc
 
 perl util/smartlinks.pl --out-dir $DEST_DIR --dir $TEST_DIR --css /perl-with-historical-message.css --line-anchor --pod-dir $POD_DIR || exit 1
 perl util/podhtm.pl --css /perl-with-historical-message.css --url-prefix http://design.perl6.org/ --url-postfix .html --index --charset=UTF-8 --out $DEST_DIR/Differences.html docs/Perl6/Perl5/Differences.pod
