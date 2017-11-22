@@ -4,8 +4,8 @@ Please add your topic and name after each day that you plan to take.
  2: moritz: "Perl 6 Books"
  3: JJ: "Literary Ops with Perl6"
  4: tbrowder: "Adventures in NQP Land: A Tale of Tattered Tables"
- 5: Zoffix: "A Primer to New, Readable Perl 6 Regex Syntax"
- 6: Zoffix: "Perl 6 Is My Drummer: Making Grammars Sing"
+ 5:
+ 6: 
  7:
  8:
  9:
@@ -15,12 +15,12 @@ Please add your topic and name after each day that you plan to take.
 13:
 14: albastev: "Tackling a big Grammar in Perl 6"
 15:
-16:
+16: Zoffix: "Perl 6: Sigils, Variables, and Containers"
 17: RabidGravy: "Something About Messaging"
 18: nige: "Perl 6 powered workflow"
 19: koorchik: "Language Independent Validation Rules (LIVR) for Perl6"
-20:
-21:
-22:
-23:
+20: Zoffix: "Perl 6: Iterate All The Things!"  (an article expounding Perl 6's Iterable types)
+21: Zoffix: "GitHub to Twitter Notifier in Perl 6"
+22: Zoffix: "A Primer to New, Readable Perl 6 Regex Syntax"
+23: Zoffix: "Extending Perl 6's Exception Reporting"
 24: lizmat: A Story Of Two Perls
