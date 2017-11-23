@@ -1,7 +1,7 @@
 Please add your topic and name after each day that you plan to take.
 
  1: Zoffix: "The Grinch of Perl 6: A Practical Guide to Ruining Christmas"
- 2: moritz: "Perl 6 Books"
+ 2:
  3: JJ: "Literary Ops with Perl6"
  4: tbrowder: "Adventures in NQP Land: A Tale of Tattered Tables"
  5:
@@ -11,7 +11,7 @@ Please add your topic and name after each day that you plan to take.
  9:
 10: bduggan: "Measurement with Rats"
 11:
-12:
+12: moritz: "Perl 6 Books"
 13: titsuki: "Mining Wikipedia with Perl 6"
 14: albastev: "Tackling a big Grammar in Perl 6"
 15:
