@@ -1,5 +1,8 @@
 Please add your topic and name after each day that you plan to take.
 
+A utility script for converting Markdown to syntax-highlighted HTML
+exists: https://github.com/zoffixznet/perl6-Acme-Advent-Highlighter
+
  1: Zoffix: "The Grinch of Perl 6: A Practical Guide to Ruining Christmas"
  2: 
  3: JJ: "Literary Ops with Perl6"
