@@ -2,16 +2,16 @@
 <HTML>
 <HEAD>
   <TITLE>
-		Perl 6 Cheat Sheet v4
+		Perl 6 Cheat Sheet v6 20171128
   </TITLE>
-  <META NAME="Description" CONTENT="Perl 6 Cheat Sheet v4">
+  <META NAME="Description" CONTENT="Perl 6 Cheat Sheet v6 20171128">
   <LINK REL="StyleSheet" HREF="cheatsheet.css" TYPE="text/css" MEDIA="screen">
   <META HTTP-EQUIV="Content-Type" CONTENT="text/html; charset=UTF-8">
 </HEAD>
 <BODY>
 
 <H1>
-Perl 6 cheat sheet v4
+Perl 6 cheat sheet v6 20171128
 </H1>
 
 <DIV id="container">
@@ -30,7 +30,7 @@ $scalar
 <H2>Major/minor contexts</H2>
 <P>
 item   list    sink
-Str    flat/lol
+Str    flat/slice
 Num    lazy/eager/hyper/race
 Bool
 </P>
@@ -71,7 +71,7 @@ $~slang-variable
 [ ] array
 { } block/hash
 &lt; &gt; quotewords
-(,) parcel
+(,) list
 :() signature
 \() capture
 </P>
@@ -92,14 +92,14 @@ $~slang-variable
 <H2>Control syntax</H2>
 <P>
 for LIST { }                # implicit $_ arg
-for LIST -&gt; $a, $b { }      # explicit args
+for LIST -&gt; $a, $b { }   # explicit args
 while/until EXPR { }
 repeat while/until EXPR { } # do at least once
 loop { }   loop (a;b;c) { } # parens required!
-if EXPR { } elsif EXPR { } else { }
-unless EXPR { }             # no else allowed!
+if EXPR { } elsif EXPR { } else { }    # truthy
+with EXPR { } orwith EXPR { } else { } # defined
 given EXPR { when EXPR { } default { } }
-EXPR if EXPR for LIST;    # list comprehension
+EXPR if EXPR for LIST;      # list comprehension
 next, last, redo            # loop controls
 proceed, succeed            # switch controls
 </P>
@@ -154,17 +154,17 @@ supersede  deadly parasitic
 <DIV class="P6cheat" id="types">
 <H2>Types</H2>
 <P>
-Bool Bit Int Rat FatRat UInt Num Complex int32, complex64 etc.
-Str Cat Blob Char Byte Codepoint Grapheme Buf buf8 buf32 utf8
-IO Mu Any Cool Junction Supply Whatever Match Nil
-Parcel Capture Signature
+Bit Int Rat FatRat UInt Num Complex int8 int32 complex64 etc.
+Str Buf Blob Uni NFC NFD NFKC NFKD buf8 buf16 buf32 utf8
+IO Mu Any Cool Junction Supply Whatever Slip Empty
+List Capture Signature
 Pair Range Set Bag Mix
 SetHash BagHash MixHash
 Scalar Array Hash Code
-Enum Order TrigBase
+Enum Bool Order Signal
 Block Routine Sub
-Method Regex Cursor
-Failure Exception
+Method Regex Match
+Nil Failure Exception
 Instant Duration
 Date DateTime
 </P>
@@ -258,10 +258,11 @@ $*PID  process id
 </DIV>
 
 <DIV class="P6cheat" id="IRC">
-<H2>IRC</H2>
+<H2>IRC on irc.freenode.net</H2>
 <P>
-#perl6 irc.freenode.net
-#parrot irc.perl.org
+#perl6
+#perl6-dev
+#moarvm
 </P>
 </DIV>
 
