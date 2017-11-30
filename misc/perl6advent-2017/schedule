@@ -4,7 +4,7 @@ A utility script for converting Markdown to syntax-highlighted HTML
 exists: https://github.com/zoffixznet/perl6-Acme-Advent-Highlighter
 
  1: Zoffix: "The Grinch of Perl 6: A Practical Guide to Ruining Christmas"
- 2: 
+ 2: Zoffix: "Perl 6: Sigils, Variables, and Containers"
  3: JJ: "Literary Ops with Perl6"
  4: tbrowder: "Adventures in NQP Land: A Tale of Tattered Tables"
  5:
@@ -22,7 +22,7 @@ exists: https://github.com/zoffixznet/perl6-Acme-Advent-Highlighter
 17: RabidGravy: "Something About Messaging"
 18: nige: "Perl 6 powered workflow"
 19: koorchik: "Language Independent Validation Rules (LIVR) for Perl6"
-20: [NEED THIS SPOT? TAKE IT!] Zoffix: "Perl 6: Sigils, Variables, and Containers"
+20: 
 21: 
 22: Coke: Surely he'll think of something before then.
 23: AlexDaniel: “The Wonders of Perl 6 Golf”
