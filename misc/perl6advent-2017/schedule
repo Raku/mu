@@ -7,7 +7,7 @@ exists: https://github.com/zoffixznet/perl6-Acme-Advent-Highlighter
  2: Zoffix: "Perl 6: Sigils, Variables, and Containers"
  3: JJ: "Literary Ops with Perl6"
  4: tbrowder: "Adventures in NQP Land: A Tale of Tattered Tables"
- 5:
+ 5: CurtTilmes: "Destructure your Arguments with Perl 6 Signatures"
  6:
  7: DrForr: "Test All the Things"
  8: [NEED THIS SPOT? TAKE IT!] moritz: A chapter from "Parsing with Perl 6 Regexes and Grammars"
