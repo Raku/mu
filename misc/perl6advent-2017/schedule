@@ -8,7 +8,7 @@ exists: https://github.com/zoffixznet/perl6-Acme-Advent-Highlighter
  3: JJ: "Literary Ops with Perl6"
  4: tbrowder: "Adventures in NQP Land: A Tale of Tattered Tables"
  5: CurtTilmes: "Destructure your Arguments with Perl 6 Signatures"
- 6:
+ 6: comborico1611: TBA
  7: DrForr: "Test All the Things"
  8: [NEED THIS SPOT? TAKE IT!] moritz: A chapter from "Parsing with Perl 6 Regexes and Grammars"
  9: jnthn: HTTP and WebSockets with Cro
@@ -18,7 +18,7 @@ exists: https://github.com/zoffixznet/perl6-Acme-Advent-Highlighter
 13: titsuki: "Mining Wikipedia with Perl 6"
 14: albastev: "Tackling a big Grammar in Perl 6"
 15: virtualsue: "Web Spider with Promises"
-16: comborico1611: TBA
+16:
 17: RabidGravy: "Something About Messaging"
 18: nige: "Perl 6 powered workflow"
 19: koorchik: "Language Independent Validation Rules (LIVR) for Perl6"
