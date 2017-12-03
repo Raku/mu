@@ -6,11 +6,11 @@ exists: https://github.com/zoffixznet/perl6-Acme-Advent-Highlighter
  1: Zoffix: "The Grinch of Perl 6: A Practical Guide to Ruining Christmas"
  2: Zoffix: "Perl 6: Sigils, Variables, and Containers"
  3: JJ: "Literary Ops with Perl6"
- 4: tbrowder: "Adventures in NQP Land: A Tale of Tattered Tables"
+ 4: moritz: "Parsing with Gramars (Book Extract)"
  5: CurtTilmes: "Destructure your Arguments with Perl 6 Signatures"
  6: comborico1611: TBA
  7: DrForr: "Test All the Things"
- 8: moritz: "Parsing with Gramars (Book Extract)"
+ 8: tbrowder: "Adventures in NQP Land: A Tale of Tattered Tables"
  9: jnthn: HTTP and WebSockets with Cro
 10: bduggan: "Measurement with Rats"
 11: ash: "All the Stars of Perl 6, or * ** *"
