@@ -21,14 +21,14 @@ perl6-users@perl.org or perl6-compilers.org. Do the same to obtain a commit
 bit for this repository.
 
 Many outdated things have been removed from this repository. If you still want
-to see them, check out revision r30211 (git sha1 6f0203060f), which was shortly before the big cleaning.
+to see them, check out revision r30211 (git sha1 6f0203060f) (check it at https://github.com/perl6/mu/tree/6f0203060f2ff65dfd1227e927b5c87d77640970), which was shortly before the big cleaning.
 
 Policy
 ======
 
 We are rather liberal with what you can do here.
 The only limitations are: be friendly, stay on topic (projects in here should
-be related to Perl 6 in some way), only put free software in here, 
+be related to Perl 6 in some way) and only put free software in here.
 
 All code and documentation in this repository is considered as shared, so you
 are free to improve and enhance other people's code, and you should be open to
