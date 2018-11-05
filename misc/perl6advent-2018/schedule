@@ -3,7 +3,7 @@ Please add your topic and name after each day that you plan to take.
 A utility script for converting Markdown to syntax-highlighted HTML
 exists: https://github.com/zoffixznet/perl6-Acme-Advent-Highlighter
 
- 1: Zoffix: "Raku is My Drummer: Making Music with Grammars"
+ 1:
  2: JJMerelo: Like Perls in a Pod, documenting your Perl 6 modules
  3:
  4:
@@ -15,7 +15,7 @@ exists: https://github.com/zoffixznet/perl6-Acme-Advent-Highlighter
 10: 
 11:
 12:
-13: [FEEL FREE TO TAKE THIS SPOT] Zoffix: "Those lazy Raku developers!" (exploration of lazy constructs)
+13:
 14:
 15:
 16:
