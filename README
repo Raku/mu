@@ -1,3 +1,11 @@
+Perl 6 Advent Schedule
+======================
+
+See the schedule for a given year in directory 'misc/perl6advent-2YYY'.
+
+Historical Information
+======================
+
 This used to be the pugs repository, but is nowadays a generic repository
 for hosting anything related to Perl 6. In particular, it contains the
 standard grammar, some implementations like SMOP,
