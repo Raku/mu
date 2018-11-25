@@ -7,7 +7,7 @@ exists: https://github.com/zoffixznet/perl6-Acme-Advent-Highlighter
  2: JJMerelo: Like Perls in a Pod, documenting your Perl 6 modules
  3: Nige: jmp 2 it
  4: tbrowder: More adventures in Rakudo NQP land
- 5: 
+ 5: masak: Variables
  6: timotimo: TBA
  7: lizmat: slack with catchup
  8:
@@ -18,7 +18,7 @@ exists: https://github.com/zoffixznet/perl6-Acme-Advent-Highlighter
 13: ramiroencinas: Web server from scratch with Cro and Debian
 14: koto: TBA
 15: tobs: Propositional combinatorics in Perl 6
-16:
+16: masak: Playing around with languages and compilation
 17: Nige: TBA
 18: RabidGravy: Christmas Trees
 19:
