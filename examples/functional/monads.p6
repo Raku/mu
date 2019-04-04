@@ -7,13 +7,13 @@ use v6;
 #   Perl 6:    { a }
 
 # return :: (Monad m) => a -> m a
-sub mreturn($a) { return { $a } }
+sub mreturn($a --> Code ) { return { $a } }
 
 # (>>=) :: (Monad m) => m a -> (a -> m b) -> m b
 sub mbind(
-  Code $ma,        # m a
-  Code $f          # (a -> m b)
-       --> Code
+    Code $ma,        # m a
+    Code $f          # (a -> m b)
+	 --> Code
 ) {
   return {
     my $a  = $ma();    # Run m a, yielding a
@@ -100,7 +100,6 @@ sub putStrLn(Str $x) { return { say $x; Nil } }
   my $results = sequence(@actions);
 
   my $echo_prefixed = mbind($results, -> @results {
-				   say @results;
     mapM(-> Str $x { putStrLn($x) }, @results);
   });
   $echo_prefixed();
