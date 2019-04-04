@@ -1,3 +1,7 @@
+#!/usr/bin/env perl6
+
+use v6;
+
 # Definition:
 #   Haskell:   IO a
 #   Perl 6:    { a }
@@ -8,9 +12,8 @@ sub mreturn($a) { return { $a } }
 # (>>=) :: (Monad m) => m a -> (a -> m b) -> m b
 sub mbind(
   Code $ma,        # m a
-  Code $f,        # (a -> m b)
-            # This should be "Code $f returns Code", but Pugs doesn't
-            # grok that yet.
+  Code $f          # (a -> m b)
+       --> Code
 ) {
   return {
     my $a  = $ma();    # Run m a, yielding a
@@ -96,7 +99,8 @@ sub putStrLn(Str $x) { return { say $x; Nil } }
   # results :: IO [String]
   my $results = sequence(@actions);
 
-  my $echo_prefixed = mbind($results, -> *@results {
+  my $echo_prefixed = mbind($results, -> @results {
+				   say @results;
     mapM(-> Str $x { putStrLn($x) }, @results);
   });
   $echo_prefixed();
