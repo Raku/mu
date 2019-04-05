@@ -6,9 +6,6 @@ use v6;
 #   Haskell:   IO a
 #   Perl 6:    { a }
 
-# return :: (Monad m) => a -> m a
-sub mreturn($a --> Code ) { return { $a } }
-
 # (>>=) :: (Monad m) => m a -> (a -> m b) -> m b
 sub mbind(
     Code $ma,        # m a
