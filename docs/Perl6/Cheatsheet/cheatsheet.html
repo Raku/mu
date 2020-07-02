@@ -2,21 +2,21 @@
 <HTML>
 <HEAD>
   <TITLE>
-		Perl 6 Cheat Sheet v6 20171128
+		Raku Cheat Sheet v7 20200702
   </TITLE>
-  <META NAME="Description" CONTENT="Perl 6 Cheat Sheet v6 20171128">
+  <META NAME="Description" CONTENT="Raku Cheat Sheet v7 20200702">
   <LINK REL="StyleSheet" HREF="cheatsheet.css" TYPE="text/css" MEDIA="screen">
   <META HTTP-EQUIV="Content-Type" CONTENT="text/html; charset=UTF-8">
 </HEAD>
 <BODY>
 
 <H1>
-Perl 6 cheat sheet v6 20171128
+Raku cheat sheet v7 20200702
 </H1>
 
 <DIV id="container">
 
-<DIV class="P6cheat" id="sigils">
+<DIV class="Rcheat" id="sigils">
 <H2>Sigils</H2>
 <P>
 $scalar
@@ -26,7 +26,7 @@ $scalar
 </P>
 </DIV>
 
-<DIV class="P6cheat" id="contexts">
+<DIV class="Rcheat" id="contexts">
 <H2>Major/minor contexts</H2>
 <P>
 item   list    sink
@@ -49,7 +49,7 @@ Bool
 </DIV> <!-- End access_div -->
 
 
-<DIV class="P6cheat" id="twigils">
+<DIV class="Rcheat" id="twigils">
 <H2>Twigils</H2>
 <P>
 $normal-lexical
@@ -65,7 +65,7 @@ $~slang-variable
 </P>
 </DIV>
 
-<DIV class="P6cheat" id="composers">
+<DIV class="Rcheat" id="composers">
 <H2>Composers</H2>
 <P>
 [ ] array
@@ -77,7 +77,7 @@ $~slang-variable
 </P>
 </DIV>
 
-<DIV class="P6cheat" id="automatic_dereference">
+<DIV class="Rcheat" id="automatic_dereference">
 <H2>Automatic dereference</H2>
 <P>
 &amp;($foo)(1,2)     == $foo(1,2)
@@ -88,7 +88,7 @@ $~slang-variable
 </DIV>
 
 
-<DIV class="P6cheat" id="control_syntax">
+<DIV class="Rcheat" id="control_syntax">
 <H2>Control syntax</H2>
 <P>
 for LIST { }                # implicit $_ arg
@@ -106,7 +106,7 @@ proceed, succeed            # switch controls
 </DIV>
 
 
-<DIV class="P6cheat" id="operator_precedence">
+<DIV class="Rcheat" id="operator_precedence">
 <H2>Operator precedence</H2>
 <P>
 .method .[] i
@@ -137,7 +137,7 @@ or xor
 </DIV>
 
 
-<DIV class="P6cheat" id="scope_declarators">
+<DIV class="Rcheat" id="scope_declarators">
 <H2>Scope declarators</H2>
 <P>
        my  lexical scope
@@ -151,7 +151,7 @@ supersede  deadly parasitic
 </DIV>
 
 
-<DIV class="P6cheat" id="types">
+<DIV class="Rcheat" id="types">
 <H2>Types</H2>
 <P>
 Bit Int Rat FatRat UInt Num Complex int8 int32 complex64 etc.
@@ -170,7 +170,7 @@ Date DateTime
 </P>
 </DIV>
 
-<DIV class="P6cheat" id="operator_domains">
+<DIV class="Rcheat" id="operator_domains">
 <H2>Operator domains</H2>
 <P>
  Numeric: ==  !==(!=) + &lt;      &gt;     &lt;=&gt; &lt;=     &gt;=
@@ -180,7 +180,7 @@ ObjectID: === !===
 </P>
 </DIV>
 
-<DIV class="P6cheat" id="metaoperators">
+<DIV class="Rcheat" id="metaoperators">
 <H2>Metaoperators</H2>
 <P>
 [op] reduce listop to A op B op C...
@@ -194,7 +194,7 @@ Sop  sequentialize
 </P>
 </DIV>
 
-<DIV class="P6cheat" id="special_variables">
+<DIV class="Rcheat" id="special_variables">
 <H2>Special variables</H2>
 <P>
 $_     current topic
@@ -207,7 +207,7 @@ $*PID  process id
 </P>
 </DIV>
 
-<DIV class="P6cheat" id="regex_metachars">
+<DIV class="Rcheat" id="regex_metachars">
 <H2>Regex metachars</H2>
 <P>
 ^ $    string begin/end
@@ -226,7 +226,7 @@ $*PID  process id
 </P>
 </DIV>
 
-<DIV class="P6cheat" id="regex_modifiers">
+<DIV class="Rcheat" id="regex_modifiers">
 <H2>Regex modifiers</H2>
 <P>
 :i   ignore case
@@ -239,7 +239,7 @@ $*PID  process id
 </P>
 </DIV>
 
-<DIV class="P6cheat" id="regex_charclasses">
+<DIV class="Rcheat" id="regex_charclasses">
 <H2>Regex charclasses</H2>
 <P>
  . == anychar, \N non \n
@@ -249,19 +249,19 @@ $*PID  process id
 </P>
 </DIV>
 
-<DIV class="P6cheat" id="links">
+<DIV class="Rcheat" id="links">
 <H2>Links</H2>
 <P>
- <a href="http://perl6.org">perl6.org</a>
+ <a href="http://raku.org">raku.org</a>
  <a href="http://rakudo.org">rakudo.org</a>
 </P>
 </DIV>
 
-<DIV class="P6cheat" id="IRC">
+<DIV class="Rcheat" id="IRC">
 <H2>IRC on irc.freenode.net</H2>
 <P>
-#perl6
-#perl6-dev
+#raku
+#raku-dev
 #moarvm
 </P>
 </DIV>

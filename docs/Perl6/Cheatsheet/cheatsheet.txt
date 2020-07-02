@@ -1,4 +1,4 @@
-Perl 6 cheat sheet v6 20171128                                       »ö«
+Raku cheat sheet v7 20200702                                         »ö«
 
 SIGILS    MAJOR/MINOR CONTEXTS         ACCESS ARRAYS      HASHES
 $scalar   item   list       sink       whole: @array[]    %hash{}
@@ -45,7 +45,7 @@ or xor            Stringy: eq  !eq(ne) ~ lt     gt    leg le     ge
 <== ==>             Value: eqv  !eqv     before after cmp !after !before
                  ObjectID: ===  !===
 METAOPERATORS                         LINKS      IRC on irc.freenode.net
-[op] reduce listop to A op B op C...  perl6.org  #perl6 #perl6-dev
+[op] reduce listop to A op B op C...   raku.org  #raku #raku-dev
 op=  A = A op B                      rakudo.org  #moarvm
 !op  !(A op B)
 »op« hyper/vectorize    REGEX  METACHARS          REGEX MODIFIERS
