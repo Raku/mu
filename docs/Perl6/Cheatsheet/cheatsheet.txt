@@ -1,4 +1,4 @@
-Raku cheat sheet v7 20200702                                         »ö«
+Raku cheat sheet v8 20210919                                         »ö«
 
 SIGILS    MAJOR/MINOR CONTEXTS         ACCESS ARRAYS      HASHES
 $scalar   item   list       sink       whole: @array[]    %hash{}
@@ -44,7 +44,7 @@ and               Numeric: ==  !==(!=) + <      >     <=> <=     >=
 or xor            Stringy: eq  !eq(ne) ~ lt     gt    leg le     ge
 <== ==>             Value: eqv  !eqv     before after cmp !after !before
                  ObjectID: ===  !===
-METAOPERATORS                         LINKS      IRC on irc.freenode.net
+METAOPERATORS                         LINKS      IRC on libera.chat
 [op] reduce listop to A op B op C...   raku.org  #raku #raku-dev
 op=  A = A op B                      rakudo.org  #moarvm
 !op  !(A op B)
