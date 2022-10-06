@@ -1,4 +1,4 @@
-Raku cheat sheet v8 20210919                                         »ö«
+Raku cheat sheet v9 20221006                                         »ö«
 
 SIGILS    MAJOR/MINOR CONTEXTS         ACCESS ARRAYS      HASHES
 $scalar   item   list       sink       whole: @array[]    %hash{}
@@ -59,6 +59,6 @@ $_     current topic    ()     capture to $0,$1   :4x  n times
 $/     regex result     []     no capture
 $!     error object     <foo>  subrule          REGEX CHARCLASSES
 @*ARGS command line     <[]>   character class  .  == anychar, \N non \n
-@*INC  include path     |      parallel or      \s == <space>, \S non
+$*REPO repositories     |      parallel or      \s == <space>, \S non
 %*ENV  environment      ||     serial or        \d == <digit>, \D non
 $*PID  process id       « »    word boundary    \w == <+alpha+digit+[_]>
